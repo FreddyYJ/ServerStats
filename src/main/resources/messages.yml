@@ -1,0 +1,7 @@
+
+
+
+stats:
+    playtime:
+        description: "Time played"
+        format: "%days% days, %hours% hours, %minutes% minutes and %seconds% seconds"

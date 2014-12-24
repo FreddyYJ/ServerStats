@@ -1,0 +1,9 @@
+# Only use this file if you've set "storage" to "mysql" in config.yml
+# Otherwise this file will be ignored.
+
+host: localhost
+port: 3306
+user: minecraft
+pass: mySuperSecretPassword
+database: Stats
+prefix: Stats_
