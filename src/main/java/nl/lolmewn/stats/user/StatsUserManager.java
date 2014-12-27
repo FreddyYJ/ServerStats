@@ -1,5 +1,9 @@
 package nl.lolmewn.stats.user;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,6 +14,7 @@ import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.stat.DefaultStatEntry;
 
 /**
  *
@@ -72,6 +77,35 @@ public class StatsUserManager extends DefaultUserManager {
         }
         this.removeUser(other.getUuid());
         this.addUser(other);
+    }
+    
+    public void merge(){
+        for(StatsHolder holder : this.getUsers()){
+            merge(holder.getUuid());
+        }
+    }
+    
+    public void merge(UUID uuid){
+        StatsHolder holder = this.getUser(uuid);
+        if(holder == null){
+            return;
+        }
+        for(Stat stat : holder.getStats()){
+            Map<Map<String, Object>, Double> map = new HashMap<>();
+            Iterator<StatEntry> it = holder.getStats(stat).iterator();
+            while(it.hasNext()){
+                StatEntry entry = it.next();
+                if(map.containsKey(entry.getMetadata())){
+                    map.put(entry.getMetadata(), map.get(entry.getMetadata()) + entry.getValue());
+                }else{
+                    map.put(entry.getMetadata(), entry.getValue());
+                }
+                it.remove();
+            }
+            for(Entry<Map<String, Object>, Double> entry : map.entrySet()){
+                holder.addEntry(stat, new DefaultStatEntry(stat, entry.getValue(), entry.getKey()));
+            }
+        }
     }
 
 }

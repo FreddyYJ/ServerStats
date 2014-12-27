@@ -2,6 +2,7 @@ package nl.lolmewn.stats.stats;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import nl.lolmewn.stats.Main;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
@@ -23,7 +24,11 @@ public class PVP extends DefaultStat {
     @Override
     public String format(StatEntry se) {
         return Messages.getMessage(this.getMessagesRootPath() + ".format",
-                new Pair("world", se.getMetadata().get("world") + ""));
+                new Pair("%world%", se.getMetadata().get("world").toString()),
+                new Pair("%victim%", plugin.getServer().getOfflinePlayer((UUID)se.getMetadata().get("victim")).getName()),
+                new Pair("%weapon%", se.getMetadata().get("weapon").toString()),
+                new Pair("%amount%", se.getValue() + "")
+        );
     }
 
     @Override

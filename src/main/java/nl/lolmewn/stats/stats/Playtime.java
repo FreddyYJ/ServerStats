@@ -39,7 +39,8 @@ public class Playtime extends DefaultStat {
                 new Pair("%days%", days + ""),
                 new Pair("%hours%", hours + ""),
                 new Pair("%minutes%", minutes + ""),
-                new Pair("%seconds%", secondsFormatted + "")
+                new Pair("%seconds%", secondsFormatted + ""),
+                new Pair("%world%", entry.getMetadata().get("world").toString())
         );
     }
 

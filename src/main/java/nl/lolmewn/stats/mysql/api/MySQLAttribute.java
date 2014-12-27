@@ -9,7 +9,8 @@ public enum MySQLAttribute {
     NULL("NULL"),
     NOT_NULL("NOT NULL"),
     PRIMARY_KEY("PRIMARY KEY"),
-    AUTO_INCREMENT("AUTO_INCREMENT");
+    AUTO_INCREMENT("AUTO_INCREMENT"),
+    UNIQUE("UNIQUE");
 
     private final String mysqlEquiv;
 
