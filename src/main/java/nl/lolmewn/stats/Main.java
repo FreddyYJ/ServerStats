@@ -9,6 +9,7 @@ import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.api.user.UserManager;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.stats.PVP;
 import nl.lolmewn.stats.stats.Playtime;
 import nl.lolmewn.stats.storage.FlatfileStorageEngine;
 import nl.lolmewn.stats.user.StatsUserManager;
@@ -39,7 +40,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        loadStats();
+        this.loadStats();
+        this.getServer().getPluginManager().registerEvents(new Events(this), this);
     }
 
     @Override
@@ -75,6 +77,7 @@ public class Main extends JavaPlugin {
 
     private void loadStats() {
         this.statManager.addStat(new Playtime(this));
+        this.statManager.addStat(new PVP(this));
     }
 
     private void loadUserManager() throws StorageException {
