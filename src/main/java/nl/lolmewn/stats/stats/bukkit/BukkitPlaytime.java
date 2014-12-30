@@ -1,0 +1,42 @@
+package nl.lolmewn.stats.stats.bukkit;
+
+import nl.lolmewn.stats.Main;
+import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.stat.DefaultStatEntry;
+import nl.lolmewn.stats.stat.MetadataPair;
+import nl.lolmewn.stats.stats.Playtime;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+
+/**
+ *
+ * @author Lolmewn
+ */
+public class BukkitPlaytime extends Playtime implements Listener {
+
+    public BukkitPlaytime(Main plugin) {
+        schedulePlaytimeRecording(plugin);
+    }
+
+    private void schedulePlaytimeRecording(final Main plugin) {
+        plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
+            @Override
+            public void run() {
+                for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
+                    holder.addEntry(
+                            BukkitPlaytime.this,
+                            new DefaultStatEntry(
+                                    BukkitPlaytime.this,
+                                    1,
+                                    new MetadataPair(
+                                            "world",
+                                            player.getWorld().getName()
+                                    )
+                            )
+                    );
+                }
+            }
+        }, 0L, 20L);
+    }
+}

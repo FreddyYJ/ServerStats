@@ -10,7 +10,7 @@ import nl.lolmewn.stats.api.user.UserManager;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.stats.PVP;
-import nl.lolmewn.stats.stats.Playtime;
+import nl.lolmewn.stats.stats.bukkit.BukkitPlaytime;
 import nl.lolmewn.stats.storage.FlatfileStorageEngine;
 import nl.lolmewn.stats.user.StatsUserManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -76,7 +76,7 @@ public class Main extends JavaPlugin {
     }
 
     private void loadStats() {
-        this.statManager.addStat(new Playtime(this));
+        this.statManager.addStat(new BukkitPlaytime(this));
         this.statManager.addStat(new PVP(this));
     }
 
