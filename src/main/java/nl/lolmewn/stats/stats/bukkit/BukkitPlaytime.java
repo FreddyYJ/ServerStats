@@ -1,6 +1,6 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.Main;
+import nl.lolmewn.stats.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
@@ -14,11 +14,11 @@ import org.bukkit.event.Listener;
  */
 public class BukkitPlaytime extends Playtime implements Listener {
 
-    public BukkitPlaytime(Main plugin) {
+    public BukkitPlaytime(BukkitMain plugin) {
         schedulePlaytimeRecording(plugin);
     }
 
-    private void schedulePlaytimeRecording(final Main plugin) {
+    private void schedulePlaytimeRecording(final BukkitMain plugin) {
         plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
             @Override
             public void run() {

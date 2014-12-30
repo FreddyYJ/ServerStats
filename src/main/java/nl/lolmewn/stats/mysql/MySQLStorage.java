@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import nl.lolmewn.stats.Main;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
@@ -90,7 +92,7 @@ public class MySQLStorage implements StorageEngine {
                                 value = set.getTimestamp(param.getKey()).getTime();
                                 break;
                             default:
-                                plugin.getLogger().warning("Unknown data type " + param.getValue() + ", just trying something");
+                                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, "Unknown data type " + param.getValue() + ", just trying something");
                                 value = set.getObject(param.getKey());
                         }
                         params.add(new MetadataPair(param.getKey(), value));

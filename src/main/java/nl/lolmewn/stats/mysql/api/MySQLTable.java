@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.lolmewn.stats.Main;
 import nl.lolmewn.stats.api.storage.DataType;
 
 /**
@@ -76,8 +75,9 @@ public class MySQLTable {
     }
 
     /**
-     * Builds the query required to generate the table containing the columns of this object.
-     * Takes defaults, attributes and references into account
+     * Builds the query required to generate the table containing the columns of
+     * this object. Takes defaults, attributes and references into account
+     *
      * @return query-ready String
      */
     public String generateCreateQuery() {
@@ -98,16 +98,16 @@ public class MySQLTable {
                     createQuery.append(" ");
                 }
             }
-            if(column.hasDefault()){
+            if (column.hasDefault()) {
                 createQuery.append(" DEFAULT ");
                 createQuery.append(column.getDefault());
             }
-            if(it.hasNext()){
+            if (it.hasNext()) {
                 createQuery.append(", ");
             }
         }
-        for(MySQLColumn column : this.getColumns()){
-            if(column.references()){
+        for (MySQLColumn column : this.getColumns()) {
+            if (column.references()) {
                 createQuery.append(" FOREIGN KEY (");
                 createQuery.append(column.getName());
                 createQuery.append(") REFERENCES ");
@@ -140,7 +140,7 @@ public class MySQLTable {
             case BYTE_ARRAY:
                 return "BLOB";
         }
-        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Unknown data type " + type.name() + ", attempting MySQL storage plan regardless");
+        Logger.getLogger(MySQLTable.class.getName()).log(Level.SEVERE, "Unknown data type " + type.name() + ", attempting MySQL storage plan regardless");
         return type.name();
     }
 

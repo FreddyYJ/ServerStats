@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.lolmewn.stats.Main;
+import nl.lolmewn.stats.BukkitMain;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
@@ -22,10 +22,10 @@ import nl.lolmewn.stats.stat.DefaultStatEntry;
  */
 public class StatsUserManager extends DefaultUserManager {
 
-    private final Main plugin;
+    private final BukkitMain plugin;
     private final StorageEngine storage;
 
-    public StatsUserManager(Main plugin, StorageEngine storage) {
+    public StatsUserManager(BukkitMain plugin, StorageEngine storage) {
         this.plugin = plugin;
         this.storage = storage;
     }
