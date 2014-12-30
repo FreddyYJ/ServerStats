@@ -54,7 +54,7 @@
     </dependencies>
     
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}3</finalName>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
         <resources>
             <resource>
