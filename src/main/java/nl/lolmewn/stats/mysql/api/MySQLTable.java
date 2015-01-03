@@ -44,6 +44,10 @@ public class MySQLTable {
         this.columns.put(name, new MySQLColumn(name, type));
         return this.columns.get(name);
     }
+    
+    public void addColumn(MySQLColumn column){
+        this.columns.put(column.getName(), column);
+    }
 
     /**
      * Returns all columns in this MySQLTable object.

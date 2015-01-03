@@ -1,4 +1,8 @@
 
+console-only: "Only the console can do this!"
+player-only: "You have to be a player to do this!"
+no-perms: "You do not have permissions to do this!"
+no-stats-yet: "No data for this stat yet!"
 
 
 stats:

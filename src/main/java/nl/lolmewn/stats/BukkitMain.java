@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
-import nl.lolmewn.stats.api.user.UserManager;
+import nl.lolmewn.stats.command.StatsCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.stats.bukkit.BukkitPVP;
@@ -23,7 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BukkitMain extends JavaPlugin implements Main{
 
     private StatManager statManager;
-    private UserManager userManager;
+    private StatsUserManager userManager;
 
     @Override
     public void onLoad() {
@@ -42,6 +42,7 @@ public class BukkitMain extends JavaPlugin implements Main{
     public void onEnable() {
         this.loadStats();
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
+        this.getCommand("stats").setExecutor(new StatsCommand(this));
     }
 
     @Override
@@ -63,7 +64,7 @@ public class BukkitMain extends JavaPlugin implements Main{
     }
 
     @Override
-    public UserManager getUserManager() {
+    public StatsUserManager getUserManager() {
         return userManager;
     }
 

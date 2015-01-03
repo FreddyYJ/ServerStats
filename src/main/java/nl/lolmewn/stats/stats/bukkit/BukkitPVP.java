@@ -4,12 +4,13 @@ import java.util.UUID;
 import nl.lolmewn.stats.BukkitMain;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.stats.PVP;
+import org.bukkit.event.Listener;
 
 /**
  *
  * @author Lolmewn
  */
-public class BukkitPVP extends PVP {
+public class BukkitPVP extends PVP implements Listener {
 
     private final BukkitMain plugin;
 

@@ -72,9 +72,15 @@ public class MySQLColumn {
         return refColumn;
     }
     
-    public void references(MySQLTable table, MySQLColumn column){
+    public MySQLColumn references(MySQLTable table, MySQLColumn column){
         this.refColumn = column;
         this.refTable = table;
+        return this;
+    }
+    
+    public MySQLColumn setDefault(String def){
+        this.def = def;
+        return this;
     }
 
 }

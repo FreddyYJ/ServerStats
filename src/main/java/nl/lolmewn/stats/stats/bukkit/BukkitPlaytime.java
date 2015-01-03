@@ -6,13 +6,12 @@ import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.Playtime;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 /**
  *
  * @author Lolmewn
  */
-public class BukkitPlaytime extends Playtime implements Listener {
+public class BukkitPlaytime extends Playtime {
 
     public BukkitPlaytime(BukkitMain plugin) {
         schedulePlaytimeRecording(plugin);

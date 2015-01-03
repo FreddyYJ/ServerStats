@@ -22,7 +22,7 @@ import nl.lolmewn.stats.stat.DefaultStatEntry;
  */
 public class StatsUserManager extends DefaultUserManager {
 
-    private final BukkitMain plugin;
+    private final BukkitMain plugin; // TODO find a way to not have this here
     private final StorageEngine storage;
 
     public StatsUserManager(BukkitMain plugin, StorageEngine storage) {
