@@ -112,13 +112,13 @@ public class MySQLTable {
         }
         for (MySQLColumn column : this.getColumns()) {
             if (column.references()) {
-                createQuery.append(" FOREIGN KEY (");
+                createQuery.append(", FOREIGN KEY (");
                 createQuery.append(column.getName());
                 createQuery.append(") REFERENCES ");
                 createQuery.append(column.getRefTable().getName());
                 createQuery.append("(");
                 createQuery.append(column.getRefColumn().getName());
-                createQuery.append(") ON DELETE CASCASE ON UPDATE CASCADE");
+                createQuery.append(") ON DELETE CASCADE ON UPDATE CASCADE");
             }
         }
         createQuery.append(");");

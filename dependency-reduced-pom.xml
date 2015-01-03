@@ -4,7 +4,7 @@
   <groupId>nl.lolmewn.stats</groupId>
   <artifactId>Stats</artifactId>
   <name>Stats</name>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <url>http://dev.bukkit.org/server-mods/lolmewnstats/</url>
   <build>
     <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
@@ -18,7 +18,7 @@
         </includes>
       </resource>
     </resources>
-    <finalName>${project.artifactId}</finalName>
+    <finalName>${project.artifactId}3</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -32,7 +32,7 @@
           </execution>
         </executions>
         <configuration>
-          <minimizeJar>true</minimizeJar>
+          <minimizeJar>false</minimizeJar>
         </configuration>
       </plugin>
       <plugin>
@@ -65,8 +65,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
@@ -93,57 +93,19 @@
       <url>http://repo.bukkit.org/content/groups/public/</url>
     </repository>
     <repository>
-      <id>plugin-repo</id>
-      <url>http://bukkit.jacekk.co.uk/plugin_repo/</url>
+      <id>lolmewn-repo</id>
+      <url>http://centrility.nl:8081/nexus/content/groups/public/</url>
     </repository>
     <repository>
       <id>mcstats-repo</id>
       <url>http://repo.mcstats.org/content/repositories/public/</url>
-    </repository>
-    <repository>
-      <id>ess-repo</id>
-      <url>http://repo.ess3.net/content/groups/essentials</url>
-    </repository>
-    <repository>
-      <id>vault-repo</id>
-      <url>http://nexus.theyeticave.net/content/repositories/pub_releases/</url>
     </repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.7.5-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.7.5-R0.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bukkit.dev</groupId>
-      <artifactId>votifier</artifactId>
-      <version>1.9</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.milkbowl.vault</groupId>
-      <artifactId>Vault</artifactId>
-      <version>1.4.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.ess3</groupId>
-      <artifactId>Essentials</artifactId>
-      <version>2.13.1</version>
+      <version>1.7.9-R0.2</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

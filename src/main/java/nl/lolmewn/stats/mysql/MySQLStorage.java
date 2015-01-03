@@ -47,9 +47,6 @@ public class MySQLStorage implements StorageEngine {
         this.source.setPassword(config.getPassword());
         this.prefix = config.getPrefix();
         this.tables = new HashMap<>();
-
-        // TODO more advanced options
-        generateTables();
     }
 
     @Override
@@ -135,7 +132,7 @@ public class MySQLStorage implements StorageEngine {
         }
     }
 
-    private void generateTables() throws StorageException {
+    public void generateTables() throws StorageException {
         MySQLTable playersTable = new MySQLTable(prefix + "players");
         playersTable.addColumn("uuid", DataType.STRING).addAttributes(MySQLAttribute.PRIMARY_KEY, MySQLAttribute.NOT_NULL, MySQLAttribute.UNIQUE);
         playersTable.addColumn("name", DataType.STRING).addAttribute(MySQLAttribute.NOT_NULL);
@@ -155,6 +152,9 @@ public class MySQLStorage implements StorageEngine {
                         MySQLAttribute.NOT_NULL
                 ).references(playersTable, playersTable.getColumn("uuid"));
                 table.addColumn("value", DataType.DOUBLE).addAttribute(MySQLAttribute.NOT_NULL);
+                for(Entry<String, DataType> entry : stat.getDataTypes().entrySet()){
+                    table.addColumn(entry.getKey(), entry.getValue());
+                }
                 String createQuery = table.generateCreateQuery();
                 con.createStatement().execute(createQuery);
             }

@@ -80,14 +80,14 @@ public class StatsRootCommand extends SubCommand {
                     String[] params = value.split("|");
                     for (String param : params) {
                         if (param.startsWith("!")) {
-                            cannotContain.put(paramName, param);
+                            cannotContain.put(paramName, param.substring(1));
                         } else {
                             containsOne.put(paramName, param);
                         }
                     }
                 } else {
                     if (value.startsWith("!")) {
-                        cannotContain.put(paramName, value);
+                        cannotContain.put(paramName, value.substring(1));
                     } else {
                         containsOne.put(paramName, value);
                     }
@@ -98,7 +98,7 @@ public class StatsRootCommand extends SubCommand {
         }
         List<StatEntry> validEntries = new ArrayList<>();
         for (StatEntry entry : holder.getStats(stat)) {
-            if (isValid(entry, containsOne, containsOne)) {
+            if (isValid(entry, cannotContain, containsOne)) {
                 validEntries.add(entry);
             }
         }
@@ -127,7 +127,7 @@ public class StatsRootCommand extends SubCommand {
             }
         }
         for (String metaName : orList.keySet()) {
-            if (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(blacklist.get(metaName))) {
+            if (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(orList.get(metaName))) {
                 return true; // found item
             }
         }
