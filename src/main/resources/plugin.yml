@@ -1,5 +1,5 @@
 name: Stats
-main: nl.lolmewn.stats.Main
+main: nl.lolmewn.stats.BukkitMain
 version: maven-version-number-jenkins-build-number
 description: Advanced statistics tracker and viewer. Check out your gathered stats and show them off!
 author: Lolmewn
