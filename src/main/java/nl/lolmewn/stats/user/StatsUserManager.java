@@ -1,10 +1,12 @@
 package nl.lolmewn.stats.user;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.BukkitMain;
@@ -14,14 +16,16 @@ import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.api.user.UserManager;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 
 /**
  *
  * @author Lolmewn
  */
-public class StatsUserManager extends DefaultUserManager {
+public class StatsUserManager implements UserManager {
 
+    private final Map<UUID, StatsHolder> users = new ConcurrentHashMap<>();
     private final BukkitMain plugin; // TODO find a way to not have this here
     private final StorageEngine storage;
 
@@ -41,6 +45,26 @@ public class StatsUserManager extends DefaultUserManager {
         loadAsync(holder, statManager);
         this.addUser(holder);
         return holder;
+    }
+
+    @Override
+    public void addUser(StatsHolder user) {
+        this.users.put(user.getUuid(), user);
+    }
+
+    @Override
+    public StatsHolder getUser(UUID uuid) {
+        return this.users.get(uuid);
+    }
+
+    @Override
+    public Collection<StatsHolder> getUsers() {
+        return this.users.values();
+    }
+
+    @Override
+    public void removeUser(UUID uuid) {
+        this.users.remove(uuid);
     }
 
     private void loadAsync(final StatsHolder holder, final StatManager statManager) {
