@@ -41,7 +41,7 @@ public class StatsUserManager implements UserManager {
 
     @Override
     public StatsHolder loadUser(UUID uuid, StatManager statManager) throws StorageException {
-        StatsHolder holder = new DefaultStatsHolder(uuid);
+        StatsHolder holder = new StatsStatHolder(uuid);
         loadAsync(holder, statManager);
         this.addUser(holder);
         return holder;
@@ -100,7 +100,7 @@ public class StatsUserManager implements UserManager {
             }
         }
         this.removeUser(other.getUuid());
-        this.addUser(other);
+        this.addUser(holder);
     }
     
     public void merge(){
