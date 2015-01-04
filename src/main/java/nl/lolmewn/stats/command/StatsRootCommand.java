@@ -9,6 +9,7 @@ import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.debug.Timings;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -28,11 +29,13 @@ public class StatsRootCommand extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
+        Timings.startTiming("cmd-root", System.nanoTime());
         StatsHolder holder = plugin.getUserManager().getUser(((Player) sender).getUniqueId());
         List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
         for (String statDesc : statsToShow) {
             show(sender, holder, statDesc);
         }
+        plugin.debug("cmd-root: " + Timings.finishTimings("cmd-root", System.nanoTime()));
     }
 
     @Override

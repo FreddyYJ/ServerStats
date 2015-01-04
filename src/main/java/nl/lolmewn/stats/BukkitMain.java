@@ -172,7 +172,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     
     public void debug(String message){
         if(this.getConfig().getBoolean("debug", false)){
-            this.getServer().getConsoleSender().sendMessage(message);
+            this.getServer().getConsoleSender().sendMessage("[Debug] " + message);
         }
     }
 }
