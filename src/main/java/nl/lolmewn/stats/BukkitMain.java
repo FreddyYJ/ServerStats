@@ -38,6 +38,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         } catch (IOException ex) {
             Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+        Timings.setEnabled(this.getConfig().getBoolean("debug", false));
     }
 
     @Override
