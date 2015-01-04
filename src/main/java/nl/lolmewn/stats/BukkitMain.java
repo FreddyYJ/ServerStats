@@ -9,6 +9,7 @@ import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.command.StatsCommand;
+import nl.lolmewn.stats.debug.Timings;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.stats.bukkit.BukkitPVP;
@@ -43,6 +44,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     public void onEnable() {
         try {
             this.loadUserManager();
+            this.scheduleDataSaver();
         } catch (StorageException ex) {
             Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
             this.getLogger().severe("The above error is preventing Stats from booting. Please fix the error and restart the server.");
@@ -145,6 +147,31 @@ public class BukkitMain extends JavaPlugin implements Main {
                         }
                     }
                 });
+        }
+    }
+
+    private void scheduleDataSaver() {
+        this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+
+            @Override
+            public void run() {
+                Timings.startTiming("user-saving", System.nanoTime());
+                for(StatsHolder holder : userManager.getUsers()){
+                    userManager.merge(holder.getUuid());
+                    try {
+                        userManager.saveUser(holder.getUuid());
+                    } catch (StorageException ex) {
+                        Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                debug("Saving users took " + Timings.finishTimings("user-saving", System.nanoTime()) + "ns");
+            }
+        }, 200L, 200L);
+    }
+    
+    public void debug(String message){
+        if(this.getConfig().getBoolean("debug", false)){
+            this.getServer().getConsoleSender().sendMessage(message);
         }
     }
 }
