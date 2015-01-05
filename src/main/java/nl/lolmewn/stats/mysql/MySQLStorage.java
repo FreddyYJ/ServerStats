@@ -148,6 +148,7 @@ public class MySQLStorage implements StorageEngine {
                         }
                         insert.append(") VALUES (?, ?");
                         for (Iterator<String> it = entry.getMetadata().keySet().iterator(); it.hasNext();) {
+                            it.next();
                             insert.append(",? ");
                         }
                         insert.append(")");
