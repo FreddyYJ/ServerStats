@@ -118,7 +118,7 @@ public class MySQLStorage implements StorageEngine {
             PreparedStatement playersPS = con.prepareStatement(playersQuery);
             playersPS.setString(1, holder.getUuid().toString());
             playersPS.setString(2, holder.getName());
-            playersPS.executeQuery();
+            playersPS.execute();
 
             for (Stat stat : holder.getStats()) {
                 String table = prefix + formatStatName(stat.getName());
