@@ -18,11 +18,13 @@ import nl.lolmewn.stats.api.user.StatsHolder;
 public class StatsStatHolder implements StatsHolder {
 
     private final UUID uuid;
+    private final String name;
     private boolean temp = true;
     private final Map<Stat, List<StatEntry>> entries;
 
-    public StatsStatHolder(UUID uuid) {
+    public StatsStatHolder(UUID uuid, String name) {
         this.uuid = uuid;
+        this.name = name;
         this.entries = new ConcurrentHashMap<>();
     }
 
@@ -32,6 +34,10 @@ public class StatsStatHolder implements StatsHolder {
 
     public void setTemp(boolean value) {
         this.temp = value;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

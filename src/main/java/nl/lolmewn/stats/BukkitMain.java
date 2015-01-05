@@ -2,6 +2,7 @@ package nl.lolmewn.stats;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.api.StatManager;
@@ -174,5 +175,10 @@ public class BukkitMain extends JavaPlugin implements Main {
         if(this.getConfig().getBoolean("debug", false)){
             this.getServer().getConsoleSender().sendMessage("[Debug] " + message);
         }
+    }
+
+    @Override
+    public String getName(UUID player) {
+        return this.getServer().getOfflinePlayer(player).getName();
     }
 }

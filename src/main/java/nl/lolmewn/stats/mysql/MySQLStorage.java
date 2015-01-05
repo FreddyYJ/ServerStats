@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,7 +52,7 @@ public class MySQLStorage implements StorageEngine {
 
     @Override
     public StatsHolder load(UUID userUuid, StatManager statManager) throws StorageException {
-        StatsStatHolder holder = new StatsStatHolder(userUuid);
+        StatsStatHolder holder = new StatsStatHolder(userUuid, plugin.getName(userUuid));
         try (Connection con = source.getConnection()) {
             for (Stat stat : statManager.getStats()) {
                 String table = prefix + formatStatName(stat.getName());
@@ -112,19 +113,53 @@ public class MySQLStorage implements StorageEngine {
             return;
         }
         try (Connection con = source.getConnection()) {
+            // First, make sure there's a column in the Stats_players table to maintain integrity of the table
+            String playersQuery = "INSERT INTO " + prefix + "players (uuid, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name=VALUES(name)";
+            PreparedStatement playersPS = con.prepareStatement(playersQuery);
+            playersPS.setString(1, holder.getUuid().toString());
+            playersPS.setString(2, holder.getName());
+            playersPS.executeQuery();
+
             for (Stat stat : holder.getStats()) {
                 String table = prefix + formatStatName(stat.getName());
                 // TODO improve saving method by updating the value
                 for (StatEntry entry : holder.getStats(stat)) {
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
-                    update.append(" SET value=? WHERE uuid=?");
-                    // TODO metadata
-                    PreparedStatement st = con.prepareStatement(update.toString());
-                    st.setDouble(1, entry.getValue());
-                    st.setString(2, holder.getUuid().toString());
-                    // TODO metadata
-                    st.execute();
+                    update.append(" SET value=? WHERE uuid=? ");
+                    for (String metadataName : entry.getMetadata().keySet()) {
+                        update.append("AND ").append(metadataName.replace(" ", ""));
+                        update.append("=? ");
+                    }
+                    PreparedStatement updatePS = con.prepareStatement(update.toString());
+                    updatePS.setDouble(1, entry.getValue());
+                    updatePS.setString(2, holder.getUuid().toString());
+                    int idx = 3;
+                    for (String metadataName : entry.getMetadata().keySet()) {
+                        updatePS.setObject(idx++, entry.getMetadata().get(metadataName));
+                    }
+                    if (!updatePS.execute() && updatePS.getUpdateCount() == 0) {
+                        //Need to insert
+                        StringBuilder insert = new StringBuilder("INSERT INTO ");
+                        insert.append(table);
+                        insert.append(" (uuid, value");
+                        for (String metadataName : entry.getMetadata().keySet()) {
+                            insert.append(", ").append(metadataName.replace(" ", ""));
+                        }
+                        insert.append(") VALUES (?, ?");
+                        for (Iterator<String> it = entry.getMetadata().keySet().iterator(); it.hasNext();) {
+                            insert.append(",? ");
+                        }
+                        insert.append(")");
+                        PreparedStatement insertPS = con.prepareStatement(insert.toString());
+                        insertPS.setString(1, holder.getUuid().toString());
+                        insertPS.setDouble(2, entry.getValue());
+                        idx = 3;
+                        for (String metadataName : entry.getMetadata().keySet()) {
+                            insertPS.setObject(idx++, entry.getMetadata().get(metadataName));
+                        }
+                        insertPS.execute();
+                    }
                 }
             }
         } catch (SQLException ex) {
@@ -152,7 +187,7 @@ public class MySQLStorage implements StorageEngine {
                         MySQLAttribute.NOT_NULL
                 ).references(playersTable, playersTable.getColumn("uuid"));
                 table.addColumn("value", DataType.DOUBLE).addAttribute(MySQLAttribute.NOT_NULL);
-                for(Entry<String, DataType> entry : stat.getDataTypes().entrySet()){
+                for (Entry<String, DataType> entry : stat.getDataTypes().entrySet()) {
                     table.addColumn(entry.getKey(), entry.getValue());
                 }
                 String createQuery = table.generateCreateQuery();
