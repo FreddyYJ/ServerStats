@@ -13,6 +13,9 @@ import nl.lolmewn.stats.command.StatsCommand;
 import nl.lolmewn.stats.debug.Timings;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.stats.bukkit.BukkitBlockBreak;
+import nl.lolmewn.stats.stats.bukkit.BukkitBlockPlace;
+import nl.lolmewn.stats.stats.bukkit.BukkitMove;
 import nl.lolmewn.stats.stats.bukkit.BukkitPVP;
 import nl.lolmewn.stats.stats.bukkit.BukkitPlaytime;
 import nl.lolmewn.stats.storage.FlatfileStorageEngine;
@@ -94,6 +97,9 @@ public class BukkitMain extends JavaPlugin implements Main {
     private void loadStats() {
         this.statManager.addStat(new BukkitPlaytime(this));
         this.statManager.addStat(new BukkitPVP(this));
+        this.statManager.addStat(new BukkitBlockBreak(this));
+        this.statManager.addStat(new BukkitBlockPlace(this));
+        this.statManager.addStat(new BukkitMove(this));
     }
 
     private void registerListeners() {
@@ -158,21 +164,23 @@ public class BukkitMain extends JavaPlugin implements Main {
             @Override
             public void run() {
                 Timings.startTiming("user-saving", System.nanoTime());
-                for(StatsHolder holder : userManager.getUsers()){
-                    userManager.merge(holder.getUuid());
-                    try {
-                        userManager.saveUser(holder.getUuid());
-                    } catch (StorageException ex) {
-                        Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+                synchronized (userManager) {
+                    for (StatsHolder holder : userManager.getUsers()) {
+                        userManager.merge(holder.getUuid());
+                        try {
+                            userManager.saveUser(holder.getUuid());
+                        } catch (StorageException ex) {
+                            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
                 debug("Saving users took " + Timings.finishTimings("user-saving", System.nanoTime()) + "ns");
             }
         }, 200L, 200L);
     }
-    
-    public void debug(String message){
-        if(this.getConfig().getBoolean("debug", false)){
+
+    public void debug(String message) {
+        if (this.getConfig().getBoolean("debug", false)) {
             this.getServer().getConsoleSender().sendMessage("[Debug] " + message);
         }
     }

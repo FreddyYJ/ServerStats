@@ -4,26 +4,26 @@ import nl.lolmewn.stats.Main;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
-import nl.lolmewn.stats.stats.BlockBreak;
+import nl.lolmewn.stats.stats.BlockPlace;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 
 /**
  *
  * @author Lolmewn
  */
-public class BukkitBlockBreak extends BlockBreak implements Listener {
+public class BukkitBlockPlace extends BlockPlace implements Listener {
 
     private final Main plugin;
 
-    public BukkitBlockBreak(Main plugin) {
+    public BukkitBlockPlace(Main plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onBreak(BlockBreakEvent event) {
+    public void onBreak(BlockPlaceEvent event) {
         if (!this.isEnabled()) {
             return;
         }

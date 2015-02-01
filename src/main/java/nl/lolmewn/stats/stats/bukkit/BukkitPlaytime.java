@@ -21,6 +21,9 @@ public class BukkitPlaytime extends Playtime {
         plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
             @Override
             public void run() {
+                if (!BukkitPlaytime.this.isEnabled()) {
+                    return;
+                }
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
                     StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
                     holder.addEntry(
