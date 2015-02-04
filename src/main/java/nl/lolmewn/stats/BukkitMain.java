@@ -13,11 +13,33 @@ import nl.lolmewn.stats.command.StatsCommand;
 import nl.lolmewn.stats.debug.Timings;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
+import nl.lolmewn.stats.stats.bukkit.BukkitBedEnter;
 import nl.lolmewn.stats.stats.bukkit.BukkitBlockBreak;
 import nl.lolmewn.stats.stats.bukkit.BukkitBlockPlace;
+import nl.lolmewn.stats.stats.bukkit.BukkitBucketEmpty;
+import nl.lolmewn.stats.stats.bukkit.BukkitBucketFill;
+import nl.lolmewn.stats.stats.bukkit.BukkitCommandsDone;
+import nl.lolmewn.stats.stats.bukkit.BukkitDamageTaken;
+import nl.lolmewn.stats.stats.bukkit.BukkitEggsThrown;
+import nl.lolmewn.stats.stats.bukkit.BukkitFishCaught;
+import nl.lolmewn.stats.stats.bukkit.BukkitItemsCrafted;
+import nl.lolmewn.stats.stats.bukkit.BukkitItemsDropped;
+import nl.lolmewn.stats.stats.bukkit.BukkitItemsPickedUp;
+import nl.lolmewn.stats.stats.bukkit.BukkitLastJoin;
+import nl.lolmewn.stats.stats.bukkit.BukkitLastLeave;
 import nl.lolmewn.stats.stats.bukkit.BukkitMove;
+import nl.lolmewn.stats.stats.bukkit.BukkitOmnomnom;
 import nl.lolmewn.stats.stats.bukkit.BukkitPVP;
 import nl.lolmewn.stats.stats.bukkit.BukkitPlaytime;
+import nl.lolmewn.stats.stats.bukkit.BukkitShear;
+import nl.lolmewn.stats.stats.bukkit.BukkitTeleports;
+import nl.lolmewn.stats.stats.bukkit.BukkitTimesKicked;
+import nl.lolmewn.stats.stats.bukkit.BukkitToolsBroken;
+import nl.lolmewn.stats.stats.bukkit.BukkitTrades;
+import nl.lolmewn.stats.stats.bukkit.BukkitWordsSaid;
+import nl.lolmewn.stats.stats.bukkit.BukkitWorldChange;
+import nl.lolmewn.stats.stats.bukkit.BukkitXpGained;
 import nl.lolmewn.stats.storage.FlatfileStorageEngine;
 import nl.lolmewn.stats.user.StatsUserManager;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -95,11 +117,33 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void loadStats() {
-        this.statManager.addStat(new BukkitPlaytime(this));
-        this.statManager.addStat(new BukkitPVP(this));
+        this.statManager.addStat(new BukkitArrows(this));
+        this.statManager.addStat(new BukkitBedEnter(this));
         this.statManager.addStat(new BukkitBlockBreak(this));
         this.statManager.addStat(new BukkitBlockPlace(this));
+        this.statManager.addStat(new BukkitBucketEmpty(this));
+        this.statManager.addStat(new BukkitBucketFill(this));
+        this.statManager.addStat(new BukkitCommandsDone(this));
+        this.statManager.addStat(new BukkitDamageTaken(this));
+        this.statManager.addStat(new BukkitEggsThrown(this));
+        this.statManager.addStat(new BukkitFishCaught(this));
+        this.statManager.addStat(new BukkitItemsCrafted(this));
+        this.statManager.addStat(new BukkitItemsDropped(this));
+        this.statManager.addStat(new BukkitItemsPickedUp(this));
+        this.statManager.addStat(new BukkitLastJoin(this));
+        this.statManager.addStat(new BukkitLastLeave(this));
         this.statManager.addStat(new BukkitMove(this));
+        this.statManager.addStat(new BukkitOmnomnom(this));
+        this.statManager.addStat(new BukkitPVP(this));
+        this.statManager.addStat(new BukkitPlaytime(this));
+        this.statManager.addStat(new BukkitShear(this));
+        this.statManager.addStat(new BukkitTeleports(this));
+        this.statManager.addStat(new BukkitTimesKicked(this));
+        this.statManager.addStat(new BukkitToolsBroken(this));
+        this.statManager.addStat(new BukkitTrades(this));
+        this.statManager.addStat(new BukkitWordsSaid(this));
+        this.statManager.addStat(new BukkitWorldChange(this));
+        this.statManager.addStat(new BukkitXpGained(this));
     }
 
     private void registerListeners() {

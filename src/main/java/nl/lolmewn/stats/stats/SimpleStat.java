@@ -11,7 +11,7 @@ import nl.lolmewn.stats.api.storage.DataType;
  *
  * @author Lolmewn
  */
-public class SimpleStat extends DefaultStat {
+public abstract class SimpleStat extends DefaultStat {
 
     private final String name;
 

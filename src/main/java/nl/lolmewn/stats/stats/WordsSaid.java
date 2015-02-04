@@ -6,8 +6,8 @@ package nl.lolmewn.stats.stats;
  */
 public class WordsSaid extends SimpleStat {
 
-    public WordsSaid(String name) {
-        super(name);
+    public WordsSaid() {
+        super("Words said");
     }
 
 }

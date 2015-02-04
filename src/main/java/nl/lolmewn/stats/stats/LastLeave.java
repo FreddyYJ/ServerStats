@@ -4,9 +4,9 @@ package nl.lolmewn.stats.stats;
  *
  * @author Lolmewn
  */
-public class LastSeen extends SimpleStat {
+public class LastLeave extends SimpleStat {
 
-    public LastSeen() {
+    public LastLeave() {
         super("Last seen");
     }
 
