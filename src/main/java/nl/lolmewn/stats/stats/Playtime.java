@@ -1,22 +1,18 @@
 package nl.lolmewn.stats.stats;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.StatEntry;
-import nl.lolmewn.stats.api.storage.DataType;
 
 /**
  *
  * @author Lolmewn
  */
-public class Playtime extends DefaultStat {
+public class Playtime extends SimpleStat {
 
-    @Override
-    public String getName() {
-        return "Playtime";
+    public Playtime() {
+        super("Playtime");
     }
 
     @Override
@@ -33,15 +29,6 @@ public class Playtime extends DefaultStat {
                 new Pair("%seconds%", secondsFormatted + ""),
                 new Pair("%world%", entry.getMetadata().get("world").toString())
         );
-    }
-
-    @Override
-    public Map<String, DataType> getDataTypes() {
-        return new HashMap<String, DataType>() {
-            {
-                this.put("world", DataType.STRING);
-            }
-        };
     }
 
 }

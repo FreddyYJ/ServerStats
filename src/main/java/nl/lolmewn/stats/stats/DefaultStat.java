@@ -8,7 +8,7 @@ import nl.lolmewn.stats.api.stat.Stat;
  * @author Lolmewn
  */
 public abstract class DefaultStat implements Stat {
-    
+
     private boolean enabled = true;
 
     @Override
@@ -29,5 +29,5 @@ public abstract class DefaultStat implements Stat {
     public String getMessagesRootPath() {
         return "stats." + this.getName().toLowerCase().replace(" ", "_");
     }
-    
+
 }
