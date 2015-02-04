@@ -2,8 +2,8 @@ package nl.lolmewn.stats.mysql.api;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.api.storage.DataType;
@@ -17,7 +17,7 @@ import nl.lolmewn.stats.api.storage.DataType;
 public class MySQLTable {
 
     private final String name;
-    private final Map<String, MySQLColumn> columns = new TreeMap<>();
+    private final Map<String, MySQLColumn> columns = new LinkedHashMap<>();
 
     /**
      * Constructs a new MySQLTable Object
