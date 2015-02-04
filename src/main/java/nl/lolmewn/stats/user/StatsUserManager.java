@@ -42,8 +42,8 @@ public class StatsUserManager implements UserManager {
     @Override
     public StatsHolder loadUser(UUID uuid, StatManager statManager) throws StorageException {
         StatsHolder holder = new StatsStatHolder(uuid, plugin.getName(uuid));
-        loadAsync(holder, statManager);
         this.addUser(holder);
+        loadAsync(holder, statManager);
         return holder;
     }
 
@@ -74,6 +74,9 @@ public class StatsUserManager implements UserManager {
             public void run() {
                 try {
                     final StatsHolder loadedHolder = storage.load(holder.getUuid(), statManager);
+                    if(loadedHolder == null){
+                        return; // There was none yet
+                    }
                     plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
 
                         @Override
