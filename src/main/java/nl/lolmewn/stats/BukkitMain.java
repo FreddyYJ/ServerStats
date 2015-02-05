@@ -165,7 +165,8 @@ public class BukkitMain extends JavaPlugin implements Main {
                                 new File(
                                         this.getDataFolder(),
                                         "users/"
-                                )
+                                ),
+                                this.getStatManager()
                         )
                 );
                 break;
