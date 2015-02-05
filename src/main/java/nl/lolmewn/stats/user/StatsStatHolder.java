@@ -55,14 +55,16 @@ public class StatsStatHolder implements StatsHolder {
     }
 
     /**
-     * Get all {@link nl.lolmewn.stats.api.stat.StatEntry}s belonging to a {@link nl.lolmewn.stats.api.stat.Stat}
-     * If there are no stats, an empty list is returned
+     * Get all {@link nl.lolmewn.stats.api.stat.StatEntry}s belonging to a
+     * {@link nl.lolmewn.stats.api.stat.Stat} If there are no stats, an empty
+     * list is returned
+     *
      * @param stat Stat to lookup
      * @return List of {@link nl.lolmewn.stats.api.stat.StatEntry}s
      */
     @Override
     public Collection<StatEntry> getStats(Stat stat) {
-        return entries.getOrDefault(stat, new ArrayList<StatEntry>());
+        return hasStat(stat) ? entries.get(stat) : new ArrayList<StatEntry>();
     }
 
     @Override
