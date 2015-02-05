@@ -100,6 +100,10 @@ public class StatsRootCommand extends SubCommand {
             stat = plugin.getStatManager().getStat(statDesc);
         }
         List<StatEntry> validEntries = new ArrayList<>();
+        if (!holder.hasStat(stat)) {
+            sender.sendMessage(Messages.getMessage("no-stats-yet"));
+            return;
+        }
         for (StatEntry entry : holder.getStats(stat)) {
             if (isValid(entry, cannotContain, containsOne)) {
                 validEntries.add(entry);
@@ -152,13 +156,13 @@ public class StatsRootCommand extends SubCommand {
                     });
                 }
             }
-            value+=entry.getValue();
+            value += entry.getValue();
         }
         for (String key : pairs.keySet()) {
             if (pairs.get(key) instanceof List && ((List) pairs.get(key)).size() == 1) {
                 pairs.put(key, ((List) pairs.get(key)).get(0));
-            }else{
-                pairs.put(key, StringUtils.join((List)pairs.get(key), ", "));
+            } else {
+                pairs.put(key, StringUtils.join((List) pairs.get(key), ", "));
             }
         }
         return new DefaultStatEntry(value, pairs);
