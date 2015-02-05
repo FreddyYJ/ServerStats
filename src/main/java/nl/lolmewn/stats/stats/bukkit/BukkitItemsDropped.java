@@ -30,7 +30,7 @@ public class BukkitItemsDropped extends ItemsDropped implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, event.getItemDrop().getItemStack().getAmount(),
+        holder.addEntry(this, new DefaultStatEntry(event.getItemDrop().getItemStack().getAmount(),
                 new MetadataPair("world", player.getWorld().getName()),
                 new MetadataPair("name", event.getItemDrop().getItemStack().getType().name())
         ));

@@ -43,7 +43,6 @@ public class BukkitMove extends Move implements Listener {
         StatsHolder holder = plugin.getUserManager().getUser(event.getPlayer().getUniqueId());
         holder.addEntry(this,
                 new DefaultStatEntry(
-                        this,
                         event.getFrom().distance(event.getTo()),
                         new MetadataPair("world", event.getFrom().getWorld().getName()),
                         new MetadataPair("type", getMoveType(event.getPlayer()))

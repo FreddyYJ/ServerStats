@@ -33,7 +33,7 @@ public class BukkitItemsCrafted extends ItemsCrafted implements Listener {
         }
         Player player = (Player) event.getWhoClicked();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, event.getCurrentItem().getAmount(),
+        holder.addEntry(this, new DefaultStatEntry(event.getCurrentItem().getAmount(),
                 new MetadataPair("world", player.getWorld().getName()),
                 new MetadataPair("name", event.getCurrentItem().getType().name()))
         );

@@ -33,7 +33,7 @@ public class BukkitDamageTaken extends DamageTaken implements Listener {
         }
         Player player = (Player) event.getEntity();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, event.getDamage(),
+        holder.addEntry(this, new DefaultStatEntry(event.getDamage(),
                 new MetadataPair("world", player.getWorld().getName()),
                 new MetadataPair("cause", event.getCause().toString())
         ));

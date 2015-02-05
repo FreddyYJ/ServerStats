@@ -31,7 +31,6 @@ public class BukkitBlockBreak extends BlockBreak implements Listener {
         StatsHolder holder = plugin.getUserManager().getUser(event.getPlayer().getUniqueId());
         holder.addEntry(this,
                 new DefaultStatEntry(
-                        this,
                         1,
                         new MetadataPair("name", block.getType().toString()),
                         new MetadataPair("data", block.getData()), // Replace once a better system is in place

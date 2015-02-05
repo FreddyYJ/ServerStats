@@ -30,7 +30,7 @@ public class BukkitXpGained extends XpGained implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, event.getAmount(),
+        holder.addEntry(this, new DefaultStatEntry(event.getAmount(),
                 new MetadataPair("world", player.getWorld().getName())
         ));
     }

@@ -29,7 +29,6 @@ public class BukkitPlaytime extends Playtime {
                     holder.addEntry(
                             BukkitPlaytime.this,
                             new DefaultStatEntry(
-                                    BukkitPlaytime.this,
                                     1,
                                     new MetadataPair(
                                             "world",

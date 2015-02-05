@@ -161,7 +161,7 @@ public class StatsRootCommand extends SubCommand {
                 pairs.put(key, StringUtils.join((List)pairs.get(key), ", "));
             }
         }
-        return new DefaultStatEntry(entries.get(0).getStat(), value, pairs);
+        return new DefaultStatEntry(value, pairs);
     }
 
 }

@@ -130,7 +130,7 @@ public class StatsUserManager implements UserManager {
                 it.remove();
             }
             for(Entry<Map<String, Object>, Double> entry : map.entrySet()){
-                holder.addEntry(stat, new DefaultStatEntry(stat, entry.getValue(), entry.getKey()));
+                holder.addEntry(stat, new DefaultStatEntry(entry.getValue(), entry.getKey()));
             }
         }
     }

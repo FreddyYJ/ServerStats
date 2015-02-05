@@ -29,7 +29,7 @@ public class BukkitWorldChange extends WorldChanged implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, 1));
+        holder.addEntry(this, new DefaultStatEntry(1));
     }
 
 }

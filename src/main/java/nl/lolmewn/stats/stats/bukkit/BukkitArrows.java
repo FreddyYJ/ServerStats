@@ -33,7 +33,7 @@ public class BukkitArrows extends Arrows implements Listener {
         }
         Player player = (Player) event.getEntity();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, 1, new MetadataPair("world", player.getWorld().getName())));
+        holder.addEntry(this, new DefaultStatEntry(1, new MetadataPair("world", player.getWorld().getName())));
     }
 
 }

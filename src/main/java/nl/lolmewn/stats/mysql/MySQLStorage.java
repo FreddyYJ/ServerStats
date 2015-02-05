@@ -95,7 +95,7 @@ public class MySQLStorage implements StorageEngine {
                         }
                         params.add(new MetadataPair(param.getKey(), value));
                     }
-                    StatEntry entry = new DefaultStatEntry(stat, set.getDouble("value"), params);
+                    StatEntry entry = new DefaultStatEntry(set.getDouble("value"), params);
                     holder.addEntry(stat, entry);
                 }
             }

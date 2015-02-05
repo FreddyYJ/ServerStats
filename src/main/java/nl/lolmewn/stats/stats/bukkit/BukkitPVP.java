@@ -44,7 +44,6 @@ public class BukkitPVP extends PVP implements Listener {
             StatsHolder holder = this.plugin.getUserManager().getUser(killer.getUniqueId());
             holder.addEntry(this,
                     new DefaultStatEntry(
-                            this,
                             1,
                             new MetadataPair("weapon", weaponName),
                             new MetadataPair("victim", dead.getUniqueId().toString()),

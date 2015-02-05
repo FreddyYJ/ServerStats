@@ -30,7 +30,7 @@ public class BukkitItemsPickedUp extends ItemsPickedUp implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, event.getItem().getItemStack().getAmount(),
+        holder.addEntry(this, new DefaultStatEntry(event.getItem().getItemStack().getAmount(),
                 new MetadataPair("world", player.getWorld().getName()),
                 new MetadataPair("name", event.getItem().getItemStack().getType().name())
         ));

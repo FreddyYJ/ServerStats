@@ -32,7 +32,7 @@ public class BukkitWordsSaid extends WordsSaid implements Listener {
         words += words == 0 ? 1 : 0;
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(this, 1,
+        holder.addEntry(this, new DefaultStatEntry(1,
                 new MetadataPair("world", player.getWorld().getName())
         ));
     }
