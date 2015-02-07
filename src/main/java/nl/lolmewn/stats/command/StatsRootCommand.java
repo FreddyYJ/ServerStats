@@ -11,6 +11,7 @@ import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.debug.Timings;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
+import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -60,7 +61,7 @@ public class StatsRootCommand extends SubCommand {
         if (statDesc.contains(",")) {
             String[] split = statDesc.split(",");
             String name = split[0];
-            stat = findStat(name);
+            stat = Util.findStat(plugin.getStatManager(), name);
             if (stat == null) {
                 plugin.getLogger().warning("Incorrect stat specified, not found: '" + name + "'");
                 return;
@@ -116,15 +117,6 @@ public class StatsRootCommand extends SubCommand {
         } else {
             sender.sendMessage(stat.format(this.generateCommonEntry(validEntries)));
         }
-    }
-
-    private Stat findStat(String name) {
-        for (Stat stat : plugin.getStatManager().getStats()) {
-            if (stat.getName().equalsIgnoreCase(name)) {
-                return stat;
-            }
-        }
-        return null;
     }
 
     private boolean isValid(StatEntry entry, HashMap<String, String> blacklist, HashMap<String, String> orList) {
