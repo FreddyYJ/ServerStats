@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.api.StatManager;
+import nl.lolmewn.stats.api.StatsAPI;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
@@ -44,6 +45,7 @@ import nl.lolmewn.stats.storage.FlatfileStorageEngine;
 import nl.lolmewn.stats.user.StatsUserManager;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -52,6 +54,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class BukkitMain extends JavaPlugin implements Main {
 
+    private StatsAPI api;
     private StatManager statManager;
     private StatsUserManager userManager;
 
@@ -81,6 +84,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
         this.registerListeners();
+        this.registerAPI();
     }
 
     @Override
@@ -233,5 +237,10 @@ public class BukkitMain extends JavaPlugin implements Main {
     @Override
     public String getName(UUID player) {
         return this.getServer().getOfflinePlayer(player).getName();
+    }
+
+    private void registerAPI() {
+        this.api = new StatsAPI(this);
+        this.getServer().getServicesManager().register(StatsAPI.class, api, this, ServicePriority.Normal);
     }
 }
