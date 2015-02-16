@@ -20,6 +20,8 @@ public class StatsCommand implements CommandExecutor {
         this.plugin = plugin;
         this.subCommands = new HashMap<>();
         this.subCommands.put("root", new StatsRootCommand(plugin));
+        this.subCommands.put("player", new StatsPlayerCommand(plugin));
+        this.subCommands.put("stat", new StatsStatCommand(plugin));
     }
 
     @Override

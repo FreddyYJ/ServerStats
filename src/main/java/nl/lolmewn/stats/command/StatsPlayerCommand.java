@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import nl.lolmewn.stats.BukkitMain;
 import nl.lolmewn.stats.Messages;
+import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
@@ -13,30 +14,47 @@ import nl.lolmewn.stats.debug.Timings;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  *
  * @author Lolmewn
  */
-public class StatsRootCommand extends SubCommand {
+public class StatsPlayerCommand extends SubCommand {
 
     private final BukkitMain plugin;
 
-    public StatsRootCommand(BukkitMain plugin) {
+    public StatsPlayerCommand(BukkitMain plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Timings.startTiming("cmd-root", System.nanoTime());
-        StatsHolder holder = plugin.getUserManager().getUser(((Player) sender).getUniqueId());
+        Timings.startTiming("cmd-player", System.nanoTime());
+        if(args.length == 0){
+            sender.sendMessage(Messages.getMessage("needs-more-arguments", new Pair("%usage%", "/stats player <player>")));
+            return;
+        }
+        OfflinePlayer player = plugin.getServer().getPlayer(args[0]);
+        if(player == null){
+            player = plugin.getServer().getOfflinePlayer(args[0]);
+        }
+        if(!player.hasPlayedBefore()){
+            sender.sendMessage(Messages.getMessage("player-not-found", new Pair("%input%", args[0])));
+            return;
+        }
+        StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
+        if(holder == null){
+            // probably need to load
+            //TODO implement thread -> load -> show
+            return;
+        }
         List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
         for (String statDesc : statsToShow) {
             show(sender, holder, statDesc);
         }
-        plugin.debug("cmd-root: " + Timings.finishTimings("cmd-root", System.nanoTime()));
+        plugin.debug("cmd-player: " + Timings.finishTimings("cmd-root", System.nanoTime()));
     }
 
     @Override
@@ -46,12 +64,12 @@ public class StatsRootCommand extends SubCommand {
 
     @Override
     public boolean playerOnly() {
-        return true;
+        return false;
     }
 
     @Override
     public String getPermissionNode() {
-        return "stats.view";
+        return "stats.view.others";
     }
 
     private void show(CommandSender sender, StatsHolder holder, String statDesc) {
