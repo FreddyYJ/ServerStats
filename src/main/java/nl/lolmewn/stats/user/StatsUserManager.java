@@ -135,4 +135,17 @@ public class StatsUserManager implements UserManager {
         }
     }
 
+    @Override
+    public void resetUser(UUID uuid) {
+        if(!this.users.containsKey(uuid)){
+            return;
+        }
+        try {
+            this.storage.delete(this.getUser(uuid));
+        } catch (StorageException ex) {
+            Logger.getLogger(StatsUserManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.users.get(uuid).getStats().clear(); //TODO check if this actually works o.o
+    }
+
 }

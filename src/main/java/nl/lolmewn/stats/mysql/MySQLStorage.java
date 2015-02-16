@@ -203,4 +203,21 @@ public class MySQLStorage implements StorageEngine {
         return name.toLowerCase().replace(" ", "_");
     }
 
+    @Override
+    public void delete(StatsHolder user) throws StorageException {
+        try {
+            try (Connection con = this.source.getConnection()) {
+                for (MySQLTable table : this.tables.values()) {
+                    try (PreparedStatement st = con.prepareStatement("DELETE FROM " + table.getName() + " WHERE uuid=?")) {
+                        st.setString(1, user.getUuid().toString());
+                        st.execute();
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new StorageException("Something went wrong while trying to delete user " + user.getUuid().toString(), ex);
+        }
+        // idea for improvement: iterate over the user's stats instead of over every table
+    }
+
 }
