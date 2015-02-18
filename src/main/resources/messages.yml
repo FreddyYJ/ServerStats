@@ -17,3 +17,8 @@ commands:
     - "The %name% statistic"
     - "%description%"
     - "%total% in total, from which %currWorldTotal% from this world%"
+    reset:
+        confirm: "Please perform the command again to confirm you want to reset %target%"
+        target-self: "yourself"
+        target-all: "everyone"
+        success: "Stats have been reset."
