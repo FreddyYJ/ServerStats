@@ -1,4 +1,4 @@
-package nl.lolmewn.stats.debug;
+package nl.lolmewn.stats.util;
 
 import java.util.HashMap;
 

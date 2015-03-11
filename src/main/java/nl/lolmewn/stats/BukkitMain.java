@@ -11,7 +11,7 @@ import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.command.StatsCommand;
-import nl.lolmewn.stats.debug.Timings;
+import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
@@ -62,6 +62,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     public void onLoad() {
         this.checkFiles();
         this.statManager = new DefaultStatManager();
+        this.loadStats();
         try {
             new Messages(this);
         } catch (IOException ex) {
@@ -81,7 +82,6 @@ public class BukkitMain extends JavaPlugin implements Main {
             this.getLogger().severe("The above error is preventing Stats from booting. Please fix the error and restart the server.");
             this.getServer().getPluginManager().disablePlugin(this);
         }
-        this.loadStats();
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
         this.registerListeners();

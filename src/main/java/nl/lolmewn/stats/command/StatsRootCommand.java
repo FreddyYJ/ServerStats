@@ -9,7 +9,7 @@ import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
-import nl.lolmewn.stats.debug.Timings;
+import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;

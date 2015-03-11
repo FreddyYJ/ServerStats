@@ -3,13 +3,23 @@ package nl.lolmewn.stats;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.UserManager;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.user.StatsStatHolder;
 import nl.lolmewn.stats.user.StatsUserManager;
+import nl.lolmewn.stats.util.UUIDFetcher;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
@@ -77,10 +87,51 @@ public class Stats2Converter {
                     .setPrefix(conf.getString("prefix"))
                     .setUsername(conf.getString("user"))
             );
-            UserManager userManager = new StatsUserManager(plugin, storage);
-        } catch (StorageException ex) {
+
+            Connection con = storage.getConnection();
+            ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + conf.getString("prefix") + "players");
+            
+            HashMap<Integer, String> needsLookup = new HashMap<>();
+            HashMap<Integer, StatsStatHolder> users = new HashMap<>();
+            
+            while (set.next()) {
+                if (set.getString("uuid") == null) {
+                    needsLookup.put(set.getInt("player_id"), set.getString(set.getString("name")));
+                } else {
+                    users.put(
+                            set.getInt("player_id"),
+                            new StatsStatHolder(
+                                    UUID.fromString(set.getString("uuid")),
+                                    set.getString("name")
+                            )
+                    );
+                }
+            }
+            UUIDFetcher fetcher = new UUIDFetcher(new ArrayList<>(needsLookup.values()));
+            Map<String, UUID> uuids = fetcher.call();
+            for (Entry<Integer, String> lookedUp : needsLookup.entrySet()) {
+                users.put(lookedUp.getKey(), new StatsStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
+            }
+            
+            for(StatsStatHolder holder : users.values()){
+                convertUser(holder, con);
+            }
+           
+            // rename all old tables to prefix_old_name
+            
+            storage.generateTables();
+            for(StatsStatHolder holder : users.values()){
+                storage.save(holder);
+            }
+        } catch (StorageException | SQLException ex) {
+            Logger.getLogger(Stats2Converter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(Stats2Converter.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void convertUser(StatsStatHolder holder, Connection con) throws SQLException {
+        
     }
 
 }

@@ -203,6 +203,10 @@ public class MySQLStorage implements StorageEngine {
         return name.toLowerCase().replace(" ", "_");
     }
 
+    public Connection getConnection() throws SQLException {
+        return source.getConnection();
+    }
+
     @Override
     public void delete(StatsHolder user) throws StorageException {
         try {
