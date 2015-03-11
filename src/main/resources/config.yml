@@ -7,3 +7,5 @@ statsCommand:
     - "playtime,world=world"
     - "playtime,world=!world"
     - "blocks broken,world=world|world_nether"
+    
+config-version: 1

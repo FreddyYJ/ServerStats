@@ -6,4 +6,4 @@ port: 3306
 user: minecraft
 pass: mySuperSecretPassword
 database: Stats
-prefix: Stats_
+prefix: Stats3_

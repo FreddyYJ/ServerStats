@@ -72,6 +72,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     @Override
     public void onEnable() {
+        this.checkConversionNeeded();
         try {
             this.loadUserManager();
             this.scheduleDataSaver();
@@ -242,5 +243,16 @@ public class BukkitMain extends JavaPlugin implements Main {
     private void registerAPI() {
         this.api = new StatsAPI(this);
         this.getServer().getServicesManager().register(StatsAPI.class, api, this, ServicePriority.Normal);
+    }
+
+    private void checkConversionNeeded() {
+        File file = new File(this.getDataFolder(), "config.yml");
+        if (!file.exists()) {
+            // nop
+            return;
+        }
+        if (getConfig().contains("version")) {
+            new Stats2Converter(this);
+        }
     }
 }
