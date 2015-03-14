@@ -30,7 +30,7 @@ public class BukkitLastLeave extends LastLeave implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(1,
+        holder.addEntry(this, new DefaultStatEntry(System.currentTimeMillis(),
                 new MetadataPair("world", player.getWorld().getName())
         ));
     }
