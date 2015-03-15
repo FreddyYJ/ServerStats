@@ -11,7 +11,6 @@ import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.command.StatsCommand;
-import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
@@ -43,6 +42,7 @@ import nl.lolmewn.stats.stats.bukkit.BukkitWorldChange;
 import nl.lolmewn.stats.stats.bukkit.BukkitXpGained;
 import nl.lolmewn.stats.storage.FlatfileStorageEngine;
 import nl.lolmewn.stats.user.StatsUserManager;
+import nl.lolmewn.stats.util.Timings;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
@@ -84,6 +84,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         }
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
+        this.startStats();
         this.registerListeners();
         this.registerAPI();
     }
@@ -253,6 +254,12 @@ public class BukkitMain extends JavaPlugin implements Main {
         }
         if (getConfig().contains("version")) {
             new Stats2Converter(this);
+        }
+    }
+
+    private void startStats() {
+        for (Stat stat : this.getStatManager().getStats()) {
+            stat.setEnabled(true); // TODO check in stat config if it should be enabled
         }
     }
 }

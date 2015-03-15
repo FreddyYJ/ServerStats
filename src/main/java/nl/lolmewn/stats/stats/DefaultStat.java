@@ -9,7 +9,7 @@ import nl.lolmewn.stats.api.stat.Stat;
  */
 public abstract class DefaultStat implements Stat {
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     @Override
     public String getDescription() {

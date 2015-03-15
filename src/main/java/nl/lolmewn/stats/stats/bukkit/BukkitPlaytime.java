@@ -6,6 +6,7 @@ import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.Playtime;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  *
@@ -13,12 +14,16 @@ import org.bukkit.entity.Player;
  */
 public class BukkitPlaytime extends Playtime {
 
+    private final BukkitMain plugin;
+    private BukkitRunnable task;
+
     public BukkitPlaytime(BukkitMain plugin) {
-        schedulePlaytimeRecording(plugin);
+        this.plugin = plugin;
     }
 
-    private void schedulePlaytimeRecording(final BukkitMain plugin) {
-        plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
+    private void schedulePlaytimeRecording() {
+        task = new BukkitRunnable() {
+
             @Override
             public void run() {
                 if (!BukkitPlaytime.this.isEnabled()) {
@@ -38,6 +43,18 @@ public class BukkitPlaytime extends Playtime {
                     );
                 }
             }
-        }, 0L, 20L);
+        };
+        task.runTaskTimer(plugin, 0l, 20l);
+    }
+
+    @Override
+    public void setEnabled(boolean value) {
+        super.setEnabled(value);
+        if (value && task == null) {
+            schedulePlaytimeRecording();
+        }
+        if (!value && task != null) {
+            task.cancel();
+        }
     }
 }
