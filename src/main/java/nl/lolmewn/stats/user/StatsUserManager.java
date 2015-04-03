@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.BukkitMain;
 import nl.lolmewn.stats.api.StatManager;
+import nl.lolmewn.stats.api.event.StatsHolderLoadedEvent;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.StorageEngine;
@@ -104,6 +105,7 @@ public class StatsUserManager implements UserManager {
         }
         this.removeUser(other.getUuid());
         this.addUser(holder);
+        plugin.getServer().getPluginManager().callEvent(new StatsHolderLoadedEvent(holder));
     }
     
     public void merge(){
