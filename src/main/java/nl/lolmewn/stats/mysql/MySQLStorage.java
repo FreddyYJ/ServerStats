@@ -127,7 +127,7 @@ public class MySQLStorage implements StorageEngine {
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
                     update.append(" SET value=? WHERE uuid=? ");
-                    for (String metadataName : entry.getMetadata().keySet()) {
+                    for (String metadataName : stat.getDataTypes().keySet()) {
                         update.append("AND ").append(metadataName.replace(" ", ""));
                         update.append("=? ");
                     }
@@ -135,7 +135,7 @@ public class MySQLStorage implements StorageEngine {
                     updatePS.setDouble(1, entry.getValue());
                     updatePS.setString(2, holder.getUuid().toString());
                     int idx = 3;
-                    for (String metadataName : entry.getMetadata().keySet()) {
+                    for (String metadataName : stat.getDataTypes().keySet()) {
                         updatePS.setObject(idx++, entry.getMetadata().get(metadataName));
                     }
                     if (!updatePS.execute() && updatePS.getUpdateCount() == 0) {
