@@ -46,6 +46,12 @@ public class StatsStatHolder implements StatsHolder {
         if (!this.hasStat(stat)) {
             this.entries.put(stat, Collections.synchronizedList(new LinkedList<StatEntry>()));
         }
+        for (StatEntry existing : entries.get(stat)) {
+            if (existing.getMetadata().equals(entry.getMetadata())) {
+                existing.setValue(existing.getValue() + entry.getValue());
+                return;
+            }
+        }
         this.entries.get(stat).add(entry);
     }
 
@@ -63,7 +69,7 @@ public class StatsStatHolder implements StatsHolder {
      * @return List of {@link nl.lolmewn.stats.api.stat.StatEntry}s
      */
     @Override
-    public Collection<StatEntry> getStats(Stat stat) {
+    public synchronized Collection<StatEntry> getStats(Stat stat) {
         return hasStat(stat) ? entries.get(stat) : new ArrayList<StatEntry>();
     }
 

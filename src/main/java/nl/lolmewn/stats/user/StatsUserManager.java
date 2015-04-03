@@ -1,10 +1,7 @@
 package nl.lolmewn.stats.user;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -18,7 +15,6 @@ import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.api.user.UserManager;
-import nl.lolmewn.stats.stat.DefaultStatEntry;
 
 /**
  *
@@ -75,7 +71,7 @@ public class StatsUserManager implements UserManager {
             public void run() {
                 try {
                     final StatsHolder loadedHolder = storage.load(holder.getUuid(), statManager);
-                    if(loadedHolder == null){
+                    if (loadedHolder == null) {
                         return; // There was none yet
                     }
                     plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
@@ -107,39 +103,39 @@ public class StatsUserManager implements UserManager {
         this.addUser(holder);
         plugin.getServer().getPluginManager().callEvent(new StatsHolderLoadedEvent(holder));
     }
-    
-    public void merge(){
-        for(StatsHolder holder : this.getUsers()){
-            merge(holder.getUuid());
-        }
+
+    public void merge() {
+//        for(StatsHolder holder : this.getUsers()){
+//            merge(holder.getUuid());
+//        }
     }
-    
-    public void merge(UUID uuid){
-        StatsHolder holder = this.getUser(uuid);
-        if(holder == null){
-            return;
-        }
-        for(Stat stat : holder.getStats()){
-            Map<Map<String, Object>, Double> map = new HashMap<>();
-            Iterator<StatEntry> it = holder.getStats(stat).iterator();
-            while(it.hasNext()){
-                StatEntry entry = it.next();
-                if(map.containsKey(entry.getMetadata())){
-                    map.put(entry.getMetadata(), map.get(entry.getMetadata()) + entry.getValue());
-                }else{
-                    map.put(entry.getMetadata(), entry.getValue());
-                }
-                it.remove();
-            }
-            for(Entry<Map<String, Object>, Double> entry : map.entrySet()){
-                holder.addEntry(stat, new DefaultStatEntry(entry.getValue(), entry.getKey()));
-            }
-        }
+
+    public void merge(UUID uuid) {
+//        StatsHolder holder = this.getUser(uuid);
+//        if(holder == null){
+//            return;
+//        }
+//        for(Stat stat : holder.getStats()){
+//            Map<Map<String, Object>, Double> map = new HashMap<>();
+//            Iterator<StatEntry> it = holder.getStats(stat).iterator();
+//            while(it.hasNext()){
+//                StatEntry entry = it.next();
+//                if(map.containsKey(entry.getMetadata())){
+//                    map.put(entry.getMetadata(), map.get(entry.getMetadata()) + entry.getValue());
+//                }else{
+//                    map.put(entry.getMetadata(), entry.getValue());
+//                }
+//                it.remove();
+//            }
+//            for(Entry<Map<String, Object>, Double> entry : map.entrySet()){
+//                holder.addEntry(stat, new DefaultStatEntry(entry.getValue(), entry.getKey()));
+//            }
+//        }
     }
 
     @Override
     public void resetUser(UUID uuid) {
-        if(!this.users.containsKey(uuid)){
+        if (!this.users.containsKey(uuid)) {
             return;
         }
         try {
