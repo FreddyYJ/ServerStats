@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.StatsAPI;
 import nl.lolmewn.stats.api.stat.Stat;
+import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.command.StatsCommand;
@@ -41,6 +42,7 @@ import nl.lolmewn.stats.stats.bukkit.BukkitWordsSaid;
 import nl.lolmewn.stats.stats.bukkit.BukkitWorldChange;
 import nl.lolmewn.stats.stats.bukkit.BukkitXpGained;
 import nl.lolmewn.stats.storage.FlatfileStorageEngine;
+import nl.lolmewn.stats.storage.StorageEngineManager;
 import nl.lolmewn.stats.user.StatsUserManager;
 import nl.lolmewn.stats.util.Timings;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -57,6 +59,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     private StatsAPI api;
     private StatManager statManager;
     private StatsUserManager userManager;
+    private final StorageEngineManager storageManager = new StorageEngineManager();
 
     @Override
     public void onLoad() {
@@ -75,7 +78,8 @@ public class BukkitMain extends JavaPlugin implements Main {
     public void onEnable() {
         this.checkConversionNeeded();
         try {
-            this.loadUserManager();
+            this.loadStorageEngines();
+            this.scheduleUserManagerLoading();
             this.scheduleDataSaver();
         } catch (StorageException ex) {
             Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
@@ -161,52 +165,32 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void loadUserManager() throws StorageException {
+        if (userManager != null) {
+            getLogger().info("User manager already started, not starting another");
+            return;
+        }
+        StorageEngine engine;
         switch (this.getConfig().getString("storage", "mysql").toLowerCase()) {
             case "flatfile":
             case "flat":
             case "file":
-                this.userManager = new StatsUserManager(
-                        this,
-                        new FlatfileStorageEngine(
-                                new File(
-                                        this.getDataFolder(),
-                                        "users/"
-                                ),
-                                this.getStatManager()
-                        )
-                );
+                engine = this.getStorageEngineManager().getStorageEngine("flatfile");
                 break;
             default:
+                if (this.getStorageEngineManager().hasStorageEngine(this.getConfig().getString("storage").toLowerCase())) {
+                    engine = this.getStorageEngineManager().getStorageEngine(this.getConfig().getString("storage").toLowerCase());
+                    break;
+                }
                 this.getLogger().warning("Warning: No known storage type was selected in the config - defaulting to mysql.");
             // falling through
             case "mysql":
-                YamlConfiguration conf = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "mysql.yml"));
-                final MySQLStorage storage = new MySQLStorage(
-                        this,
-                        new MySQLConfig()
-                        .setDatabase(conf.getString("database"))
-                        .setHost(conf.getString("host"))
-                        .setPassword(conf.getString("pass"))
-                        .setPort(conf.getInt("port", 3306))
-                        .setPrefix(conf.getString("prefix"))
-                        .setUsername(conf.getString("user"))
-                );
-                this.userManager = new StatsUserManager(
-                        this,
-                        storage
-                );
-                this.getServer().getScheduler().runTask(this, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            storage.generateTables();
-                        } catch (StorageException ex) {
-                            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                });
+                engine = this.getStorageEngineManager().getStorageEngine("mysql");
         }
+        this.userManager = new StatsUserManager(
+                this,
+                engine
+        );
+        engine.enable();
     }
 
     private void scheduleDataSaver() {
@@ -261,5 +245,59 @@ public class BukkitMain extends JavaPlugin implements Main {
         for (Stat stat : this.getStatManager().getStats()) {
             stat.setEnabled(true); // TODO check in stat config if it should be enabled
         }
+    }
+
+    private void loadStorageEngines() throws StorageException {
+        /**
+         * Flatfile
+         */
+        getStorageEngineManager().addStorageEngine("flatfile", new FlatfileStorageEngine(new File(
+                this.getDataFolder(),
+                "users/"
+        ), statManager));
+
+        /**
+         * MySQL
+         */
+        YamlConfiguration conf = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "mysql.yml"));
+        final MySQLStorage storage = new MySQLStorage(
+                this,
+                new MySQLConfig()
+                .setDatabase(conf.getString("database"))
+                .setHost(conf.getString("host"))
+                .setPassword(conf.getString("pass"))
+                .setPort(conf.getInt("port", 3306))
+                .setPrefix(conf.getString("prefix"))
+                .setUsername(conf.getString("user"))
+        );
+        getStorageEngineManager().addStorageEngine("mysql", storage);
+    }
+
+    @Override
+    public void scheduleTask(Runnable runnable, int ticks) {
+        this.getServer().getScheduler().runTaskLater(this, runnable, ticks);
+    }
+
+    @Override
+    public StorageEngineManager getStorageEngineManager() {
+        return storageManager;
+    }
+
+    private void scheduleUserManagerLoading() {
+        this.getServer().getScheduler().runTask(this, new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    loadUserManager();
+                } catch (StorageException ex) {
+                    Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+                    getLogger().severe("The error above means the user manager failed to start");
+                    getLogger().severe("The plugin cannot function without it, so it'll disable now");
+                    getLogger().severe("Please fix the issue before starting the plugin again");
+                    getServer().getPluginManager().disablePlugin(BukkitMain.this);
+                }
+            }
+        });
     }
 }

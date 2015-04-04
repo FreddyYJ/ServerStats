@@ -22,6 +22,7 @@ public class StatsStatHolder implements StatsHolder {
     private final String name;
     private boolean temp = true;
     private final Map<Stat, List<StatEntry>> entries;
+    private final List<StatEntry> removedEntries = new ArrayList<>();
 
     public StatsStatHolder(UUID uuid, String name) {
         this.uuid = uuid;
@@ -81,6 +82,24 @@ public class StatsStatHolder implements StatsHolder {
     @Override
     public boolean hasStat(Stat stat) {
         return entries.containsKey(stat);
+    }
+
+    @Override
+    public void removeStat(Stat stat) {
+        if (!hasStat(stat)) {
+            return;
+        }
+        this.removedEntries.addAll(this.getStats(stat));
+        this.entries.remove(stat);
+    }
+
+    @Override
+    public void removeEntry(Stat stat, StatEntry entry) {
+        if (!hasStat(stat)) {
+            return;
+        }
+        this.removedEntries.add(entry);
+        this.entries.get(stat).remove(entry);
     }
 
 }

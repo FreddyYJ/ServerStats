@@ -35,19 +35,14 @@ import org.apache.commons.dbcp2.BasicDataSource;
 public class MySQLStorage implements StorageEngine {
 
     private final Main plugin;
-    private final BasicDataSource source;
-    private final String prefix;
-    private final Map<String, MySQLTable> tables;
+    private final MySQLConfig config;
+    private BasicDataSource source;
+    private String prefix;
+    private Map<String, MySQLTable> tables;
 
     public MySQLStorage(Main main, MySQLConfig config) throws StorageException {
         this.plugin = main;
-        this.source = new BasicDataSource();
-        this.source.setDriverClassName("com.mysql.jdbc.Driver");
-        this.source.setUrl("jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabase() + "?zeroDateTimeBehavior=convertToNull");
-        this.source.setUsername(config.getUsername());
-        this.source.setPassword(config.getPassword());
-        this.prefix = config.getPrefix();
-        this.tables = new HashMap<>();
+        this.config = config;
     }
 
     @Override
@@ -212,7 +207,7 @@ public class MySQLStorage implements StorageEngine {
         try {
             try (Connection con = this.source.getConnection()) {
                 for (MySQLTable table : this.tables.values()) {
-                    try (PreparedStatement st = con.prepareStatement("DELETE FROM " + table.getName() + " WHERE uuid=?")) {
+                    try (PreparedStatement st = con.prepareStatement("DELETE FROM " + prefix + table.getName() + " WHERE uuid=?")) {
                         st.setString(1, user.getUuid().toString());
                         st.execute();
                     }
@@ -222,6 +217,37 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Something went wrong while trying to delete user " + user.getUuid().toString(), ex);
         }
         // idea for improvement: iterate over the user's stats instead of over every table
+    }
+
+    @Override
+    public void enable() throws StorageException {
+        this.source = new BasicDataSource();
+        this.source.setDriverClassName("com.mysql.jdbc.Driver");
+        this.source.setUrl("jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabase() + "?zeroDateTimeBehavior=convertToNull");
+        this.source.setUsername(config.getUsername());
+        this.source.setPassword(config.getPassword());
+        this.prefix = config.getPrefix();
+        this.tables = new HashMap<>();
+        this.plugin.scheduleTask(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    generateTables();
+                } catch (StorageException ex) {
+                    Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }, 1);
+    }
+
+    @Override
+    public void disable() throws StorageException {
+        try {
+            this.source.close();
+        } catch (SQLException ex) {
+            throw new StorageException("Exception while disabling the StorageEngine", ex);
+        }
     }
 
 }
