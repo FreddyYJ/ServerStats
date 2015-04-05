@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.user.DefaultStatsHolder;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
@@ -19,7 +20,7 @@ public class Events implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onLogin(PlayerJoinEvent event){
         try {
             plugin.getUserManager().loadUser(event.getPlayer().getUniqueId(), plugin.getStatManager());
