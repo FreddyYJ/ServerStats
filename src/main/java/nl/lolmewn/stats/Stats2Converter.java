@@ -4,7 +4,9 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,8 @@ import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.stat.DefaultStatEntry;
+import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.user.StatsStatHolder;
 import nl.lolmewn.stats.util.UUIDFetcher;
 import nl.lolmewn.stats.util.Util;
@@ -29,6 +33,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Stats2Converter {
 
     private final BukkitMain plugin;
+    private String prefix;
     private final HashMap<String, Stat> playerStatsLookup = new HashMap<>();
 
     public Stats2Converter(BukkitMain plugin) {
@@ -43,12 +48,28 @@ public class Stats2Converter {
         playerStatsLookup.put("bucketfill", Util.findStat(plugin.getStatManager(), "Buckets filled"));
         playerStatsLookup.put("commandsdone", Util.findStat(plugin.getStatManager(), "Commands done"));
         playerStatsLookup.put("damagetaken", Util.findStat(plugin.getStatManager(), "Damage taken"));
-        playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
-        playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
-        playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
-        playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
-        playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
-        playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
+        playerStatsLookup.put("eggsthrown", Util.findStat(plugin.getStatManager(), "Eggs thrown"));
+        playerStatsLookup.put("fishcatched", Util.findStat(plugin.getStatManager(), "Fish caught"));
+        playerStatsLookup.put("itemscrafted", Util.findStat(plugin.getStatManager(), "Items crafted"));
+        playerStatsLookup.put("itemdrops", Util.findStat(plugin.getStatManager(), "Items dropped"));
+        playerStatsLookup.put("itempickups", Util.findStat(plugin.getStatManager(), "Items picked up"));
+        playerStatsLookup.put("joins", Util.findStat(plugin.getStatManager(), "Joins"));
+        playerStatsLookup.put("lastjoin", Util.findStat(plugin.getStatManager(), "Last join"));
+        playerStatsLookup.put("lastleave", Util.findStat(plugin.getStatManager(), "Last seen"));
+        playerStatsLookup.put("money", Util.findStat(plugin.getStatManager(), "Money"));
+        playerStatsLookup.put("omnomnom", Util.findStat(plugin.getStatManager(), "Omnomnom"));
+        playerStatsLookup.put("pvpstreak", Util.findStat(plugin.getStatManager(), "PVP streak"));
+        playerStatsLookup.put("pvptopstreak", Util.findStat(plugin.getStatManager(), "PVP top streak"));
+        playerStatsLookup.put("playtime", Util.findStat(plugin.getStatManager(), "Playtime"));
+        playerStatsLookup.put("shear", Util.findStat(plugin.getStatManager(), "Shears"));
+        playerStatsLookup.put("teleports", Util.findStat(plugin.getStatManager(), "Teleports"));
+        playerStatsLookup.put("timeskicked", Util.findStat(plugin.getStatManager(), "Times kicked"));
+        playerStatsLookup.put("toolsbroken", Util.findStat(plugin.getStatManager(), "Tools broken"));
+        playerStatsLookup.put("trades", Util.findStat(plugin.getStatManager(), "Trades"));
+        playerStatsLookup.put("votes", Util.findStat(plugin.getStatManager(), "Votes"));
+        playerStatsLookup.put("wordssaid", Util.findStat(plugin.getStatManager(), "Words said"));
+        playerStatsLookup.put("worldchange", Util.findStat(plugin.getStatManager(), "Times changed world"));
+        playerStatsLookup.put("xpgained", Util.findStat(plugin.getStatManager(), "XP gained"));
         
         plugin.getLogger().info("Old version of Stats detected - converting config & data...");
         // First things first - we need to fix the MySQL connection. 
@@ -80,6 +101,7 @@ public class Stats2Converter {
         mysqlConf.set("port", oldConfig.getString("MySQL-Port"));
         mysqlConf.set("database", oldConfig.getString("MySQL-Database"));
         mysqlConf.set("prefix", oldConfig.getString("MySQL-Prefix"));
+        prefix = mysqlConf.getString("prefix");
         plugin.getLogger().info("Moving MySQL info over to the new config file (mysql.yml)...");
         try {
             mysqlConf.save(new File(plugin.getDataFolder(), "mysql.yml"));
@@ -95,7 +117,7 @@ public class Stats2Converter {
     private void convertDatabase() {
         plugin.getLogger().info("Converting all user data...");
         try {
-            plugin.getLogger().info("Launching new MySQL Storage Engine with converted DB data...");
+            plugin.getLogger().info("Launching new MySQL Storage Engine with converted DB config data...");
             YamlConfiguration conf = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "mysql.yml"));
             final MySQLStorage storage = new MySQLStorage(
                     plugin,
@@ -128,14 +150,20 @@ public class Stats2Converter {
                     );
                 }
             }
+            plugin.getLogger().info("Fetching the UUID of " + needsLookup.size() + " players...");
             UUIDFetcher fetcher = new UUIDFetcher(new ArrayList<>(needsLookup.values()));
             Map<String, UUID> uuids = fetcher.call();
             for (Entry<Integer, String> lookedUp : needsLookup.entrySet()) {
                 users.put(lookedUp.getKey(), new StatsStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
             }
             
-            for(StatsStatHolder holder : users.values()){
-                convertUser(holder, con);
+            plugin.getLogger().info("Converting " + users.size() + " players to new database format...");
+            int done = 0;
+            for(Entry<Integer, StatsStatHolder> entry : users.entrySet()){
+                convertUser(entry.getValue(), entry.getKey(), con);
+                if(done++ % 100 == 0){
+                    plugin.getLogger().info("Converted " + done + "/" + users.size() + " users...");
+                }
             }
            
             // rename all old tables to prefix_old_name
@@ -151,8 +179,32 @@ public class Stats2Converter {
         }
     }
 
-    private void convertUser(StatsStatHolder holder, Connection con) throws SQLException {
-        
+    private void convertUser(StatsStatHolder holder, int id, Connection con) throws SQLException {
+        PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "player WHERE player_id=?");
+        st.setInt(1, id);
+        ResultSet set = st.executeQuery();
+        ResultSetMetaData meta = set.getMetaData();
+        while(set.next()){
+            for(int i = 0; i < meta.getColumnCount(); i++){
+                String colName = meta.getColumnName(i);
+                if(playerStatsLookup.containsKey(colName)){
+                    Stat stat = playerStatsLookup.get(colName);
+                    if(stat == null){
+                        System.out.println("Wups, something went wrong while loading stat data: " + colName);
+                        break;
+                    }
+                    holder.addEntry(stat, 
+                            new DefaultStatEntry(
+                                    set.getDouble(colName),
+                                    new MetadataPair( // if stat doesn't have world, it'll be ignored
+                                            "world", 
+                                            set.getString("world")
+                                    )
+                            )
+                    );
+                }
+            }
+        }
     }
 
 }
