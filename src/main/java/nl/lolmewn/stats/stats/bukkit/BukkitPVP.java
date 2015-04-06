@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
 import java.util.UUID;
-import nl.lolmewn.stats.BukkitMain;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.stat.DefaultStatEntry;

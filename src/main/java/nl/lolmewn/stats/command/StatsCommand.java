@@ -2,7 +2,7 @@ package nl.lolmewn.stats.command;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import nl.lolmewn.stats.BukkitMain;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

@@ -1,6 +1,6 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.BukkitMain;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;

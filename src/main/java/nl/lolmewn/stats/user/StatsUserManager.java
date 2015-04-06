@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.lolmewn.stats.BukkitMain;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.event.StatsHolderLoadedEvent;
 import nl.lolmewn.stats.api.stat.Stat;

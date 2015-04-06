@@ -1,10 +1,13 @@
-package nl.lolmewn.stats;
+package nl.lolmewn.stats.bukkit;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.lolmewn.stats.DefaultStatManager;
+import nl.lolmewn.stats.Main;
+import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.StatsAPI;
 import nl.lolmewn.stats.api.stat.Stat;
@@ -67,7 +70,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager = new DefaultStatManager();
         this.loadStats();
         try {
-            new Messages(this);
+            new Messages(new BukkitMessages(this), new BukkitPainter());
         } catch (IOException ex) {
             Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
         }

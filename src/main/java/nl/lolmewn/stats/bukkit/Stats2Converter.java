@@ -1,5 +1,6 @@
-package nl.lolmewn.stats;
+package nl.lolmewn.stats.bukkit;
 
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;

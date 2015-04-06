@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import nl.lolmewn.stats.BukkitMain;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
 import org.bukkit.OfflinePlayer;
