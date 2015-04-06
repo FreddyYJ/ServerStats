@@ -45,12 +45,25 @@ public class Messages {
         return getMessage(path, "&cCouldn't find message (path: " + path + ")", replace);
     }
 
-    public static String getMessage(String path, String def, Pair... replace) {
+    public static String getMessage(String path, List<Pair<String, Object>> replace) {
+        return getMessage(path, "&cCouldn't find message (path: " + path + ")", replace);
+    }
+
+    public static String getMessage(String path, String def, Pair<String, Object>... replace) {
         String msg = config.getString(path, def);
-        for (Pair pair : replace) {
-            msg = msg.replace(pair.getKey(), pair.getValue());
+        for (Pair<String, Object> pair : replace) {
+            msg = msg.replace(pair.getKey(), pair.getValue().toString());
         }
         return colorise(msg);
+    }
+
+    public static String getMessage(String path, String def, List<Pair<String, Object>> replace) {
+        String msg = config.getString(path, def);
+        for (Pair<String, Object> pair : replace) {
+            msg = msg.replace(pair.getKey(), pair.getValue().toString());
+        }
+        return colorise(msg);
+
     }
 
     public static List<String> getMessages(String path) {
@@ -70,8 +83,8 @@ public class Messages {
         }
         List<String> re = new LinkedList<>();
         for (String message : msgs) {
-            for (Pair pair : replace) {
-                message = message.replace(pair.getKey(), pair.getValue());
+            for (Pair<String, Object> pair : replace) {
+                message = message.replace(pair.getKey(), pair.getValue().toString());
             }
             re.add(colorise(message));
 

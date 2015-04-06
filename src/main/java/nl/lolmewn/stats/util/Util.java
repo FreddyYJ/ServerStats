@@ -1,5 +1,9 @@
 package nl.lolmewn.stats.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
@@ -31,6 +35,18 @@ public class Util {
                         : "")
                 + ": " + entry.getValue();
 
+    }
+
+    public static List<Pair> getSafePairs(Stat stat, StatEntry entry) {
+        List<Pair> list = new ArrayList<>();
+        for (Entry<String, Object> metadata : entry.getMetadata().entrySet()) {
+            if (metadata.getValue() == null) {
+                continue;
+            }
+            list.add(new Pair(metadata.getKey(), metadata.getValue()));
+        }
+        list.add(new Pair<>("%value%", entry.getValue()));
+        return list;
     }
 
 }
