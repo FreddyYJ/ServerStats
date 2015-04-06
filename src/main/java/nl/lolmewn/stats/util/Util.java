@@ -1,6 +1,7 @@
 package nl.lolmewn.stats.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import nl.lolmewn.stats.Pair;
@@ -37,8 +38,8 @@ public class Util {
 
     }
 
-    public static List<Pair> getSafePairs(Stat stat, StatEntry entry) {
-        List<Pair> list = new ArrayList<>();
+    public static List<Pair<String, ?>> getSafePairs(Stat stat, StatEntry entry) {
+        List<Pair<String, ?>> list = new ArrayList<>();
         for (Entry<String, Object> metadata : entry.getMetadata().entrySet()) {
             if (metadata.getValue() == null) {
                 continue;
@@ -47,6 +48,16 @@ public class Util {
         }
         list.add(new Pair<>("%value%", entry.getValue()));
         return list;
+    }
+
+    public static List<Pair<String, ?>> removePair(List<Pair<String, ?>> pairs, String key) {
+        Iterator<Pair<String, ?>> it = pairs.iterator();
+        while (it.hasNext()) {
+            if (it.next().getKey().equals(key)) {
+                it.remove();
+            }
+        }
+        return pairs;
     }
 
 }

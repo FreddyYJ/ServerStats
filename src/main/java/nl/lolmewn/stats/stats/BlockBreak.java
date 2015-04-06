@@ -18,7 +18,7 @@ public class BlockBreak extends DefaultStat {
         return Messages.getMessage(this.getMessagesRootPath() + ".format",
                 new Pair("%world%", entry.getMetadata().get("world").toString()),
                 new Pair("%name%", entry.getMetadata().get("name").toString().toLowerCase().replace("_", " ")),
-                new Pair("%amount%", entry.getValue() + "")
+                new Pair("%amount%", entry.getValue())
         // No data, since that's just a number and will mean nothing.
         );
     }

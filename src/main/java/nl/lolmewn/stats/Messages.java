@@ -41,25 +41,25 @@ public class Messages {
         return colorise(config.getString(path, def));
     }
 
-    public static String getMessage(String path, Pair... replace) {
+    public static String getMessage(String path, Pair<String, ?>... replace) {
         return getMessage(path, "&cCouldn't find message (path: " + path + ")", replace);
     }
 
-    public static String getMessage(String path, List<Pair<String, Object>> replace) {
+    public static String getMessage(String path, List<Pair<String, ?>> replace) {
         return getMessage(path, "&cCouldn't find message (path: " + path + ")", replace);
     }
 
-    public static String getMessage(String path, String def, Pair<String, Object>... replace) {
+    public static String getMessage(String path, String def, Pair<String, ?>... replace) {
         String msg = config.getString(path, def);
-        for (Pair<String, Object> pair : replace) {
+        for (Pair<String, ?> pair : replace) {
             msg = msg.replace(pair.getKey(), pair.getValue().toString());
         }
         return colorise(msg);
     }
 
-    public static String getMessage(String path, String def, List<Pair<String, Object>> replace) {
+    public static String getMessage(String path, String def, List<Pair<String, ?>> replace) {
         String msg = config.getString(path, def);
-        for (Pair<String, Object> pair : replace) {
+        for (Pair<String, ?> pair : replace) {
             msg = msg.replace(pair.getKey(), pair.getValue().toString());
         }
         return colorise(msg);
@@ -75,7 +75,7 @@ public class Messages {
         return re;
     }
 
-    public static List<String> getMessages(String path, Pair... replace) {
+    public static List<String> getMessages(String path, Pair<String, ?>... replace) {
         List<String> msgs = config.getStringList(path);
         if (msgs.isEmpty()) {
             msgs.add("&cCouldn't find message (path: " + path + ")");
@@ -83,7 +83,7 @@ public class Messages {
         }
         List<String> re = new LinkedList<>();
         for (String message : msgs) {
-            for (Pair<String, Object> pair : replace) {
+            for (Pair<String, ?> pair : replace) {
                 message = message.replace(pair.getKey(), pair.getValue().toString());
             }
             re.add(colorise(message));

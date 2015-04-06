@@ -3,9 +3,9 @@ package nl.lolmewn.stats.stats;
 import java.util.HashMap;
 import java.util.Map;
 import nl.lolmewn.stats.Messages;
-import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.DataType;
+import nl.lolmewn.stats.util.Util;
 
 /**
  *
@@ -22,9 +22,9 @@ public abstract class SimpleStat extends DefaultStat {
     @Override
     public String format(StatEntry entry) {
         return Messages.getMessage(
-                this.getMessagesRootPath() + "." + name,
-                new Pair("world", entry.getMetadata().get("world").toString())
-        );
+                getMessagesRootPath() + ".format",
+                Util.getDefaultMessage(this, entry),
+                Util.getSafePairs(this, entry));
     }
 
     @Override
