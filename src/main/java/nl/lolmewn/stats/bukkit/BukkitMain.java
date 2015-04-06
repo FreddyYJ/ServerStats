@@ -30,6 +30,7 @@ import nl.lolmewn.stats.stats.bukkit.BukkitFishCaught;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsCrafted;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsDropped;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsPickedUp;
+import nl.lolmewn.stats.stats.bukkit.BukkitKill;
 import nl.lolmewn.stats.stats.bukkit.BukkitLastJoin;
 import nl.lolmewn.stats.stats.bukkit.BukkitLastLeave;
 import nl.lolmewn.stats.stats.bukkit.BukkitMove;
@@ -119,6 +120,16 @@ public class BukkitMain extends JavaPlugin implements Main {
         return userManager;
     }
 
+    @Override
+    public StorageEngineManager getStorageEngineManager() {
+        return storageManager;
+    }
+
+    @Override
+    public String getName(UUID player) {
+        return this.getServer().getOfflinePlayer(player).getName();
+    }
+
     private void checkFiles() {
         this.saveDefaultConfig();
         this.getConfig().options().copyDefaults(true);
@@ -143,6 +154,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitItemsCrafted(this));
         this.statManager.addStat(new BukkitItemsDropped(this));
         this.statManager.addStat(new BukkitItemsPickedUp(this));
+        this.statManager.addStat(new BukkitKill(this));
         this.statManager.addStat(new BukkitLastJoin(this));
         this.statManager.addStat(new BukkitLastLeave(this));
         this.statManager.addStat(new BukkitMove(this));
@@ -223,11 +235,6 @@ public class BukkitMain extends JavaPlugin implements Main {
         }
     }
 
-    @Override
-    public String getName(UUID player) {
-        return this.getServer().getOfflinePlayer(player).getName();
-    }
-
     private void registerAPI() {
         this.api = new StatsAPI(this);
         this.getServer().getServicesManager().register(StatsAPI.class, api, this, ServicePriority.Normal);
@@ -279,11 +286,6 @@ public class BukkitMain extends JavaPlugin implements Main {
     @Override
     public void scheduleTask(Runnable runnable, int ticks) {
         this.getServer().getScheduler().runTaskLater(this, runnable, ticks);
-    }
-
-    @Override
-    public StorageEngineManager getStorageEngineManager() {
-        return storageManager;
     }
 
     private void scheduleUserManagerLoading() {
