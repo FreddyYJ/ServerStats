@@ -2,6 +2,7 @@ package nl.lolmewn.stats.util;
 
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
+import nl.lolmewn.stats.api.stat.StatEntry;
 
 /**
  *
@@ -21,6 +22,15 @@ public class Util {
             }
         }
         return null;
+    }
+
+    public static String getDefaultMessage(Stat stat, StatEntry entry) {
+        return stat.getName()
+                + (entry.getMetadata().containsKey("world")
+                        ? "in " + entry.getMetadata().get("world").toString()
+                        : "")
+                + ": " + entry.getValue();
+
     }
 
 }

@@ -34,11 +34,19 @@ public class Messages {
     }
 
     public static String getMessage(String path) {
-        return colorise(config.getString(path, "&cCouldn't find message (path: " + path + ")"));
+        return getMessage(path, "&cCouldn't find message (path: " + path + ")");
+    }
+
+    public static String getMessage(String path, String def) {
+        return colorise(config.getString(path, def));
     }
 
     public static String getMessage(String path, Pair... replace) {
-        String msg = config.getString(path, "&cCouldn't find message (path: " + path + ")");
+        return getMessage(path, "&cCouldn't find message (path: " + path + ")", replace);
+    }
+
+    public static String getMessage(String path, String def, Pair... replace) {
+        String msg = config.getString(path, def);
         for (Pair pair : replace) {
             msg = msg.replace(pair.getKey(), pair.getValue());
         }

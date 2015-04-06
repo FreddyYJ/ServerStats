@@ -180,6 +180,9 @@ public class Stats2Converter {
     }
 
     private void convertUser(StatsStatHolder holder, int id, Connection con) throws SQLException {
+        /**
+         * Stats_player data
+         */
         PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "player WHERE player_id=?");
         st.setInt(1, id);
         ResultSet set = st.executeQuery();
@@ -205,6 +208,8 @@ public class Stats2Converter {
                 }
             }
         }
+        
+        
     }
 
 }
