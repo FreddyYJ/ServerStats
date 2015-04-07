@@ -19,6 +19,7 @@ import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.command.StatsCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.stats.Votes;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
 import nl.lolmewn.stats.stats.bukkit.BukkitBedEnter;
 import nl.lolmewn.stats.stats.bukkit.BukkitBlockBreak;
@@ -173,6 +174,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitTimesKicked(this));
         this.statManager.addStat(new BukkitToolsBroken(this));
         this.statManager.addStat(new BukkitTrades(this));
+        this.statManager.addStat(new Votes()); // TODO implement
         this.statManager.addStat(new BukkitWordsSaid(this));
         this.statManager.addStat(new BukkitWorldChange(this));
         this.statManager.addStat(new BukkitXpGained(this));

@@ -195,6 +195,7 @@ public class Stats2Converter {
             
             storage.generateTables();
             for (StatsStatHolder holder : users.values()) {
+                holder.setTemp(false);
                 storage.save(holder);
             }
         } catch (StorageException | SQLException ex) {
