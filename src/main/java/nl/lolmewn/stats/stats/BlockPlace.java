@@ -26,7 +26,7 @@ public class BlockPlace extends DefaultStat {
 
     @Override
     public String getName() {
-        return "Blocks broken";
+        return "Blocks placed";
     }
 
     @Override
