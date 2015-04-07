@@ -179,7 +179,7 @@ public class Stats2Converter {
             for (Entry<Integer, StatsStatHolder> entry : users.entrySet()) {
                 convertUser(entry.getValue(), entry.getKey(), con);
                 if (done++ % 100 == 0) {
-                    plugin.getLogger().info("Converted " + done + "/" + users.size() + " users...");
+                    plugin.getLogger().info("Loaded data for " + done + "/" + users.size() + " users...");
                 }
             }
 
@@ -203,12 +203,18 @@ public class Stats2Converter {
                     builder.append(", ");
                 }
             }
+            plugin.getLogger().info("Renaming old tables to old_<table>...");
             st.execute(builder.toString());
 
+            plugin.getLogger().info("Generating new tables...");
             storage.generateTables();
+            done = 0;
             for (StatsStatHolder holder : users.values()) {
                 holder.setTemp(false);
                 storage.save(holder);
+                if (done++ % 100 == 0) {
+                    plugin.getLogger().info("Saved data and succesfully converted " + done + "/" + users.size() + " users...");
+                }
             }
         } catch (StorageException | SQLException ex) {
             Logger.getLogger(Stats2Converter.class.getName()).log(Level.SEVERE, null, ex);
