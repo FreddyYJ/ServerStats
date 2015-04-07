@@ -2,6 +2,7 @@ package nl.lolmewn.stats.command;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.bukkit.BukkitMain;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,6 +34,7 @@ public class StatsCommand implements CommandExecutor {
         if(subCommands.containsKey(args[0].toLowerCase())){
             return subCommands.get(args[0].toLowerCase()).onCommand(sender, Arrays.copyOfRange(args, 1, args.length));
         }
+        sender.sendMessage(Messages.getMessage("command-not-found"));
         return true;
     }
 

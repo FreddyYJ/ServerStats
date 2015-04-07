@@ -5,7 +5,7 @@ no-perms: "You do not have permissions to do this!"
 no-stats-yet: "No data for this stat yet!"
 needs-more-arguments: "This command requires more arguments. Correct usage: %usage%"
 player-not-found: "Player by the name of %input% not found"
-
+command-not-found: "Unknown command. Type /stats help to view commands"
 
 stats:
     playtime:
