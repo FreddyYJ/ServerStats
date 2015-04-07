@@ -36,16 +36,16 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * @author Lolmewn
  */
 public class Stats2Converter {
-    
+
     private final BukkitMain plugin;
     private String prefix;
     private final HashMap<String, Stat> playerStatsLookup = new HashMap<>();
-    
+
     public Stats2Converter(BukkitMain plugin) {
         this.plugin = plugin;
         start();
     }
-    
+
     private void start() {
         playerStatsLookup.put("arrows", Util.findStat(plugin.getStatManager(), "Arrows"));
         playerStatsLookup.put("bedenter", Util.findStat(plugin.getStatManager(), "Beds entered"));
@@ -75,7 +75,7 @@ public class Stats2Converter {
         playerStatsLookup.put("wordssaid", Util.findStat(plugin.getStatManager(), "Words said"));
         playerStatsLookup.put("worldchange", Util.findStat(plugin.getStatManager(), "Times changed world"));
         playerStatsLookup.put("xpgained", Util.findStat(plugin.getStatManager(), "XP gained"));
-        
+
         plugin.getLogger().info("Old version of Stats detected - converting config & data...");
         // First things first - we need to fix the MySQL connection. 
         if (!convertConfig()) {
@@ -84,7 +84,7 @@ public class Stats2Converter {
         }
         convertDatabase();
     }
-    
+
     private boolean convertConfig() {
         // First things first - let's move the old config
         File configOld = new File(plugin.getDataFolder(), "config.yml");
@@ -118,7 +118,7 @@ public class Stats2Converter {
         plugin.getLogger().info("Do check out the new options in config.yml!");
         return true;
     }
-    
+
     private void convertDatabase() {
         plugin.getLogger().info("Converting all user data...");
         try {
@@ -135,16 +135,16 @@ public class Stats2Converter {
                     .setUsername(conf.getString("user"))
             );
             storage.enable();
-            
+
             Connection con = storage.getConnection();
             ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + conf.getString("prefix") + "players");
-            
+
             HashMap<Integer, String> needsLookup = new HashMap<>();
             HashMap<Integer, StatsStatHolder> users = new HashMap<>();
-            
+
             while (set.next()) {
                 if (set.getString("uuid") == null) {
-                    needsLookup.put(set.getInt("player_id"), set.getString(set.getString("name")));
+                    needsLookup.put(set.getInt("player_id"), set.getString("name"));
                 } else {
                     users.put(
                             set.getInt("player_id"),
@@ -159,9 +159,21 @@ public class Stats2Converter {
             UUIDFetcher fetcher = new UUIDFetcher(new ArrayList<>(needsLookup.values()));
             Map<String, UUID> uuids = fetcher.call();
             for (Entry<Integer, String> lookedUp : needsLookup.entrySet()) {
-                users.put(lookedUp.getKey(), new StatsStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
+                if (!uuids.containsKey(lookedUp.getValue())) {
+                    plugin.getLogger().warning("Couldn't find UUID for " + lookedUp.getValue() + ", checking Bukkit UUIDs...");
+                    UUID uuid;
+                    try {
+                        uuid = plugin.getServer().getOfflinePlayer(lookedUp.getValue()).getUniqueId();
+                        users.put(lookedUp.getKey(), new StatsStatHolder(uuid, lookedUp.getValue()));
+                        plugin.getLogger().info("Found it! Enabling convertion for user...");
+                    } catch (Exception e) {
+                        plugin.getLogger().severe("Bukkit can't find his UUID either. Ignoring user.");
+                    }
+                } else {
+                    users.put(lookedUp.getKey(), new StatsStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
+                }
             }
-            
+
             plugin.getLogger().info("Converting " + users.size() + " players to new database format...");
             int done = 0;
             for (Entry<Integer, StatsStatHolder> entry : users.entrySet()) {
@@ -192,7 +204,7 @@ public class Stats2Converter {
                 }
             }
             st.execute(builder.toString());
-            
+
             storage.generateTables();
             for (StatsStatHolder holder : users.values()) {
                 holder.setTemp(false);
@@ -204,7 +216,7 @@ public class Stats2Converter {
             Logger.getLogger(Stats2Converter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void convertUser(StatsStatHolder holder, int id, Connection con) throws SQLException {
 
         /**
@@ -246,7 +258,7 @@ public class Stats2Converter {
                 }
             }
         }
-        
+
         try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "block WHERE player_id=?")) {
             Stat bbreak = plugin.getStatManager().getStat("Blocks broken");
             Stat bplace = plugin.getStatManager().getStat("Blocks placed");
@@ -262,7 +274,7 @@ public class Stats2Converter {
                 holder.addEntry(set.getBoolean("break") ? bbreak : bplace, entry);
             }
         }
-        
+
         try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "death WHERE player_id=?")) {
             Stat death = plugin.getStatManager().getStat("Death");
             st.setInt(1, id);
@@ -275,7 +287,7 @@ public class Stats2Converter {
                 ));
             }
         }
-        
+
         try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "move WHERE player_id=?")) {
             Stat move = plugin.getStatManager().getStat("Move");
             st.setInt(1, id);
@@ -288,7 +300,7 @@ public class Stats2Converter {
                 ));
             }
         }
-        
+
         try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "kill WHERE player_id=?")) {
             Stat kill = plugin.getStatManager().getStat("Kill");
             st.setInt(1, id);
@@ -303,5 +315,5 @@ public class Stats2Converter {
             }
         }
     }
-    
+
 }
