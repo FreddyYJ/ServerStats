@@ -215,7 +215,7 @@ public class Stats2Converter {
             ResultSet set = st.executeQuery();
             ResultSetMetaData meta = set.getMetaData();
             while (set.next()) {
-                for (int i = 0; i < meta.getColumnCount(); i++) {
+                for (int i = 1; i < meta.getColumnCount(); i++) {
                     String colName = meta.getColumnName(i);
                     if (playerStatsLookup.containsKey(colName)) {
                         Stat stat = playerStatsLookup.get(colName);
@@ -287,7 +287,7 @@ public class Stats2Converter {
                 holder.addEntry(kill, new DefaultStatEntry(
                         set.getInt("amount"),
                         new MetadataPair("world", set.getString("world")),
-                        new MetadataPair("entityType", set.getString("cause")),
+                        new MetadataPair("entityType", set.getString("type")),
                         new MetadataPair("weapon", "Unknown")
                 ));
             }
