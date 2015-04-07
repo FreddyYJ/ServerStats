@@ -33,6 +33,7 @@ import nl.lolmewn.stats.stats.bukkit.BukkitFishCaught;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsCrafted;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsDropped;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsPickedUp;
+import nl.lolmewn.stats.stats.bukkit.BukkitJoins;
 import nl.lolmewn.stats.stats.bukkit.BukkitKill;
 import nl.lolmewn.stats.stats.bukkit.BukkitLastJoin;
 import nl.lolmewn.stats.stats.bukkit.BukkitLastLeave;
@@ -159,6 +160,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitItemsCrafted(this));
         this.statManager.addStat(new BukkitItemsDropped(this));
         this.statManager.addStat(new BukkitItemsPickedUp(this));
+        this.statManager.addStat(new BukkitJoins(this));
         this.statManager.addStat(new BukkitKill(this));
         this.statManager.addStat(new BukkitLastJoin(this));
         this.statManager.addStat(new BukkitLastLeave(this));
