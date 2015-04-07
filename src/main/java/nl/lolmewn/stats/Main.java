@@ -2,6 +2,7 @@ package nl.lolmewn.stats;
 
 import java.util.UUID;
 import nl.lolmewn.stats.api.StatManager;
+import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.user.UserManager;
 import nl.lolmewn.stats.storage.StorageEngineManager;
 
@@ -11,6 +12,8 @@ import nl.lolmewn.stats.storage.StorageEngineManager;
  */
 public interface Main {
     
+    public void disableStat(Stat stat);
+    public void enableStat(Stat stat);
     public StorageEngineManager getStorageEngineManager();
     public UserManager getUserManager();
     public StatManager getStatManager();

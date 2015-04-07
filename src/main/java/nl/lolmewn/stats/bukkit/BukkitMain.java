@@ -2,6 +2,8 @@ package nl.lolmewn.stats.bukkit;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,6 +53,8 @@ import nl.lolmewn.stats.storage.StorageEngineManager;
 import nl.lolmewn.stats.user.StatsUserManager;
 import nl.lolmewn.stats.util.Timings;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -94,7 +98,6 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
         this.startStats();
-        this.registerListeners();
         this.registerAPI();
     }
 
@@ -173,14 +176,6 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitXpGained(this));
     }
 
-    private void registerListeners() {
-        for (Stat stat : this.statManager.getStats()) {
-            if (stat instanceof Listener) {
-                this.getServer().getPluginManager().registerEvents((Listener) stat, this);
-            }
-        }
-    }
-
     private void loadUserManager() throws StorageException {
         if (userManager != null) {
             getLogger().info("User manager already started, not starting another");
@@ -255,7 +250,11 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     private void startStats() {
         for (Stat stat : this.getStatManager().getStats()) {
-            stat.setEnabled(true); // TODO check in stat config if it should be enabled
+            if (!getConfig().getStringList("disabled").contains(stat.getName())) {
+                enableStat(stat);
+            } else {
+                stat.setEnabled(false);
+            }
         }
     }
 
@@ -306,5 +305,37 @@ public class BukkitMain extends JavaPlugin implements Main {
                 }
             }
         });
+    }
+
+    @Override
+    public void disableStat(Stat stat) {
+        if (stat instanceof Listener) {
+            Method[] methods = stat.getClass().getMethods();
+            for (Method method : methods) {
+                EventHandler eventHandler = method.getAnnotation(EventHandler.class);
+                if (eventHandler != null) {
+                    Class[] params = method.getParameterTypes();
+                    if (params.length == 1) {
+                        Class event = params[0];
+                        try {
+                            Method listGetter = event.getMethod("getHandlerList");
+                            HandlerList list = (HandlerList) listGetter.invoke(null);
+                            list.unregister((Listener) stat);
+                        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }
+        }
+        stat.setEnabled(false);
+    }
+
+    @Override
+    public void enableStat(Stat stat) {
+        if (stat instanceof Listener) {
+            getServer().getPluginManager().registerEvents((Listener) stat, this);
+        }
+        stat.setEnabled(true);
     }
 }

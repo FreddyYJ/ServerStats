@@ -9,3 +9,6 @@ statsCommand:
     - "blocks broken,world=world|world_nether"
     
 config-version: 1
+
+disabled:
+- "Stat1"
