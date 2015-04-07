@@ -134,6 +134,7 @@ public class Stats2Converter {
                     .setPrefix(conf.getString("prefix"))
                     .setUsername(conf.getString("user"))
             );
+            storage.enable();
 
             Connection con = storage.getConnection();
             ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + conf.getString("prefix") + "players");
