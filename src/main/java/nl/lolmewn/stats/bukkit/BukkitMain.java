@@ -25,6 +25,7 @@ import nl.lolmewn.stats.stats.bukkit.BukkitBucketEmpty;
 import nl.lolmewn.stats.stats.bukkit.BukkitBucketFill;
 import nl.lolmewn.stats.stats.bukkit.BukkitCommandsDone;
 import nl.lolmewn.stats.stats.bukkit.BukkitDamageTaken;
+import nl.lolmewn.stats.stats.bukkit.BukkitDeath;
 import nl.lolmewn.stats.stats.bukkit.BukkitEggsThrown;
 import nl.lolmewn.stats.stats.bukkit.BukkitFishCaught;
 import nl.lolmewn.stats.stats.bukkit.BukkitItemsCrafted;
@@ -149,6 +150,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitBucketFill(this));
         this.statManager.addStat(new BukkitCommandsDone(this));
         this.statManager.addStat(new BukkitDamageTaken(this));
+        this.statManager.addStat(new BukkitDeath(this));
         this.statManager.addStat(new BukkitEggsThrown(this));
         this.statManager.addStat(new BukkitFishCaught(this));
         this.statManager.addStat(new BukkitItemsCrafted(this));
