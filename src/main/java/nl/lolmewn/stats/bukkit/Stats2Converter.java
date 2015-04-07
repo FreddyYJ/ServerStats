@@ -192,8 +192,7 @@ public class Stats2Converter {
                 }
             }
             st.execute(builder.toString());
-            
-            
+
             storage.generateTables();
             for (StatsStatHolder holder : users.values()) {
                 storage.save(holder);
@@ -223,15 +222,25 @@ public class Stats2Converter {
                             System.out.println("Wups, something went wrong while loading stat data: " + colName);
                             break;
                         }
-                        holder.addEntry(stat,
-                                new DefaultStatEntry(
-                                        set.getDouble(colName),
-                                        new MetadataPair( // if stat doesn't have world, it'll be ignored
-                                                "world",
-                                                set.getString("world")
-                                        )
-                                )
-                        );
+                        double value;
+                        if (colName.equalsIgnoreCase("lastjoin") || colName.equalsIgnoreCase("lastleave")) {
+                            value = set.getTimestamp(colName).getTime();
+                        } else {
+                            value = set.getDouble(colName);
+                        }
+                        if (stat.getDataTypes().containsKey("world")) {
+                            holder.addEntry(stat,
+                                    new DefaultStatEntry(
+                                            value,
+                                            new MetadataPair( // if stat doesn't have world, it'll be ignored
+                                                    "world",
+                                                    set.getString("world")
+                                            )
+                                    )
+                            );
+                        } else {
+                            holder.addEntry(stat, new DefaultStatEntry(value));
+                        }
                     }
                 }
             }
