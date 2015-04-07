@@ -97,6 +97,7 @@ public class BukkitMain extends JavaPlugin implements Main {
             this.getLogger().severe("The above error is preventing Stats from booting. Please fix the error and restart the server.");
             this.getServer().getPluginManager().disablePlugin(this);
         }
+        this.checkMessagesFileComplete();
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
         this.startStats();
@@ -341,5 +342,23 @@ public class BukkitMain extends JavaPlugin implements Main {
             getServer().getPluginManager().registerEvents((Listener) stat, this);
         }
         stat.setEnabled(true);
+    }
+
+    private void checkMessagesFileComplete() {
+        YamlConfiguration conf = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "messages.yml"));
+        for (Stat stat : this.statManager.getStats()) {
+            if (!conf.contains("stats." + stat.getName().replace(" ", "_") + ".format")) {
+                conf.set("stats." + stat.getName().replace(" ", "_") + ".format", "%value%"
+                        + (stat.getDataTypes().containsKey("world")
+                                ? " in world %world%"
+                                : "")
+                );
+            }
+            try {
+                conf.save(new File(this.getDataFolder(), "messages.yml"));
+            } catch (IOException ex) {
+                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

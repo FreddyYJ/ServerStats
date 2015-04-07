@@ -30,11 +30,10 @@ public class Util {
     }
 
     public static String getDefaultMessage(Stat stat, StatEntry entry) {
-        return stat.getName()
+        return "%value%"
                 + (entry.getMetadata().containsKey("world")
-                        ? "in " + entry.getMetadata().get("world").toString()
-                        : "")
-                + ": " + entry.getValue();
+                        ? " in world %world%"
+                        : "");
 
     }
 
