@@ -8,8 +8,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -168,6 +171,28 @@ public class Stats2Converter {
             }
 
             // rename all old tables to prefix_old_name
+            List<String> oldTables = new ArrayList<String>() {
+                {
+                    this.add(prefix + "player");
+                    this.add(prefix + "kill");
+                    this.add(prefix + "death");
+                    this.add(prefix + "move");
+                    this.add(prefix + "players");
+                }
+            };
+            Statement st = con.createStatement();
+            StringBuilder builder = new StringBuilder();
+            builder.append("RENAME TABLE ");
+            for (Iterator<String> it = oldTables.iterator(); it.hasNext();) {
+                String table = it.next();
+                builder.append(table).append(" TO ").append("old_").append(table);
+                if (it.hasNext()) {
+                    builder.append(", ");
+                }
+            }
+            st.execute(builder.toString());
+            
+            
             storage.generateTables();
             for (StatsStatHolder holder : users.values()) {
                 storage.save(holder);
