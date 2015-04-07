@@ -246,6 +246,9 @@ public class Stats2Converter {
                             value = set.getTimestamp(colName) == null ? 0 : set.getTimestamp(colName).getTime();
                         } else {
                             value = set.getDouble(colName);
+                            if (value == 0) {
+                                continue;
+                            }
                         }
                         if (stat.getDataTypes().containsKey("world")) {
                             holder.addEntry(stat,
