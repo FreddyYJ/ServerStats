@@ -1,6 +1,5 @@
 package nl.lolmewn.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +16,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.api.stat.Stat;
+import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
@@ -25,6 +25,7 @@ import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.user.StatsStatHolder;
 import nl.lolmewn.stats.util.UUIDFetcher;
 import nl.lolmewn.stats.util.Util;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
@@ -71,7 +72,7 @@ public class Stats2Converter {
         playerStatsLookup.put("wordssaid", Util.findStat(plugin.getStatManager(), "Words said"));
         playerStatsLookup.put("worldchange", Util.findStat(plugin.getStatManager(), "Times changed world"));
         playerStatsLookup.put("xpgained", Util.findStat(plugin.getStatManager(), "XP gained"));
-        
+
         plugin.getLogger().info("Old version of Stats detected - converting config & data...");
         // First things first - we need to fix the MySQL connection. 
         if (!convertConfig()) {
@@ -130,14 +131,13 @@ public class Stats2Converter {
                     .setPrefix(conf.getString("prefix"))
                     .setUsername(conf.getString("user"))
             );
-            
 
             Connection con = storage.getConnection();
             ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + conf.getString("prefix") + "players");
-            
+
             HashMap<Integer, String> needsLookup = new HashMap<>();
             HashMap<Integer, StatsStatHolder> users = new HashMap<>();
-            
+
             while (set.next()) {
                 if (set.getString("uuid") == null) {
                     needsLookup.put(set.getInt("player_id"), set.getString(set.getString("name")));
@@ -157,20 +157,19 @@ public class Stats2Converter {
             for (Entry<Integer, String> lookedUp : needsLookup.entrySet()) {
                 users.put(lookedUp.getKey(), new StatsStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
             }
-            
+
             plugin.getLogger().info("Converting " + users.size() + " players to new database format...");
             int done = 0;
-            for(Entry<Integer, StatsStatHolder> entry : users.entrySet()){
+            for (Entry<Integer, StatsStatHolder> entry : users.entrySet()) {
                 convertUser(entry.getValue(), entry.getKey(), con);
-                if(done++ % 100 == 0){
+                if (done++ % 100 == 0) {
                     plugin.getLogger().info("Converted " + done + "/" + users.size() + " users...");
                 }
             }
-           
+
             // rename all old tables to prefix_old_name
-            
             storage.generateTables();
-            for(StatsStatHolder holder : users.values()){
+            for (StatsStatHolder holder : users.values()) {
                 storage.save(holder);
             }
         } catch (StorageException | SQLException ex) {
@@ -181,36 +180,92 @@ public class Stats2Converter {
     }
 
     private void convertUser(StatsStatHolder holder, int id, Connection con) throws SQLException {
+
         /**
          * Stats_player data
          */
-        PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "player WHERE player_id=?");
-        st.setInt(1, id);
-        ResultSet set = st.executeQuery();
-        ResultSetMetaData meta = set.getMetaData();
-        while(set.next()){
-            for(int i = 0; i < meta.getColumnCount(); i++){
-                String colName = meta.getColumnName(i);
-                if(playerStatsLookup.containsKey(colName)){
-                    Stat stat = playerStatsLookup.get(colName);
-                    if(stat == null){
-                        System.out.println("Wups, something went wrong while loading stat data: " + colName);
-                        break;
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "player WHERE player_id=?")) {
+            st.setInt(1, id);
+            ResultSet set = st.executeQuery();
+            ResultSetMetaData meta = set.getMetaData();
+            while (set.next()) {
+                for (int i = 0; i < meta.getColumnCount(); i++) {
+                    String colName = meta.getColumnName(i);
+                    if (playerStatsLookup.containsKey(colName)) {
+                        Stat stat = playerStatsLookup.get(colName);
+                        if (stat == null) {
+                            System.out.println("Wups, something went wrong while loading stat data: " + colName);
+                            break;
+                        }
+                        holder.addEntry(stat,
+                                new DefaultStatEntry(
+                                        set.getDouble(colName),
+                                        new MetadataPair( // if stat doesn't have world, it'll be ignored
+                                                "world",
+                                                set.getString("world")
+                                        )
+                                )
+                        );
                     }
-                    holder.addEntry(stat, 
-                            new DefaultStatEntry(
-                                    set.getDouble(colName),
-                                    new MetadataPair( // if stat doesn't have world, it'll be ignored
-                                            "world", 
-                                            set.getString("world")
-                                    )
-                            )
-                    );
                 }
             }
         }
-        
-        
+
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "block WHERE player_id=?")) {
+            Stat bbreak = plugin.getStatManager().getStat("Blocks broken");
+            Stat bplace = plugin.getStatManager().getStat("Blocks placed");
+            st.setInt(1, id);
+            ResultSet set = st.executeQuery();
+            while (set.next()) {
+                StatEntry entry = new DefaultStatEntry(
+                        set.getInt("amount"),
+                        new MetadataPair("name", Material.getMaterial(set.getInt("blockID")).toString()),
+                        new MetadataPair("data", set.getByte("blockData")),
+                        new MetadataPair("world", set.getString("world"))
+                );
+                holder.addEntry(set.getBoolean("break") ? bbreak : bplace, entry);
+            }
+        }
+
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "death WHERE player_id=?")) {
+            Stat death = plugin.getStatManager().getStat("Death");
+            st.setInt(1, id);
+            ResultSet set = st.executeQuery();
+            while (set.next()) {
+                holder.addEntry(death, new DefaultStatEntry(
+                        set.getInt("amount"),
+                        new MetadataPair("world", set.getString("world")),
+                        new MetadataPair("cause", set.getString("cause"))
+                ));
+            }
+        }
+
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "move WHERE player_id=?")) {
+            Stat move = plugin.getStatManager().getStat("Move");
+            st.setInt(1, id);
+            ResultSet set = st.executeQuery();
+            while (set.next()) {
+                holder.addEntry(move, new DefaultStatEntry(
+                        set.getDouble("distance"),
+                        new MetadataPair("world", set.getString("world")),
+                        new MetadataPair("type", set.getString("type"))
+                ));
+            }
+        }
+
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "kill WHERE player_id=?")) {
+            Stat kill = plugin.getStatManager().getStat("Kill");
+            st.setInt(1, id);
+            ResultSet set = st.executeQuery();
+            while (set.next()) {
+                holder.addEntry(kill, new DefaultStatEntry(
+                        set.getInt("amount"),
+                        new MetadataPair("world", set.getString("world")),
+                        new MetadataPair("entityType", set.getString("cause")),
+                        new MetadataPair("weapon", "Unknown")
+                ));
+            }
+        }
     }
 
 }
