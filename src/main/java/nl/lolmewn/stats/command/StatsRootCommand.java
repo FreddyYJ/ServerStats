@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import nl.lolmewn.stats.bukkit.BukkitMain;
+import mkremins.fanciful.FancyMessage;
 import nl.lolmewn.stats.Messages;
+import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
-import nl.lolmewn.stats.util.Timings;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
+import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -89,12 +91,10 @@ public class StatsRootCommand extends SubCommand {
                             containsOne.put(paramName, param);
                         }
                     }
+                } else if (value.startsWith("!")) {
+                    cannotContain.put(paramName, value.substring(1));
                 } else {
-                    if (value.startsWith("!")) {
-                        cannotContain.put(paramName, value.substring(1));
-                    } else {
-                        containsOne.put(paramName, value);
-                    }
+                    containsOne.put(paramName, value);
                 }
             }
         } else {
@@ -102,7 +102,7 @@ public class StatsRootCommand extends SubCommand {
         }
         List<StatEntry> validEntries = new ArrayList<>();
         if (!holder.hasStat(stat)) {
-            sender.sendMessage(Messages.getMessage("no-stats-yet"));
+            sender.sendMessage(Messages.getMessage("no-stats-yet", new Pair("%stat%", stat.getName())));
             return;
         }
         for (StatEntry entry : holder.getStats(stat)) {
@@ -113,7 +113,16 @@ public class StatsRootCommand extends SubCommand {
         if (validEntries.size() == 1) {
             sender.sendMessage(stat.format(validEntries.get(0)));
         } else if (validEntries.isEmpty()) {
-            sender.sendMessage(Messages.getMessage("no-stats-yet"));
+            if (!cannotContain.isEmpty() || !containsOne.isEmpty()) {
+                new FancyMessage(
+                        Messages.getMessage("no-stats-yet-params", new Pair("%stat%", stat.getName()), new Pair("%fanciful%", ""))
+                ).then("metadata").tooltip(
+                        cannotContain.toString().replace("{", "").replace("}", "").replace("=", "!=")
+                                + " " + containsOne.toString().replace("{", "").replace("}", ""))
+                        .send(sender);
+            } else {
+                sender.sendMessage(Messages.getMessage("no-stats-yet", new Pair("%stat%", stat.getName())));
+            }
         } else {
             sender.sendMessage(stat.format(this.generateCommonEntry(validEntries)));
         }
@@ -126,7 +135,7 @@ public class StatsRootCommand extends SubCommand {
             }
         }
         for (String metaName : orList.keySet()) {
-            if (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(orList.get(metaName))) {
+            if (entry.getMetadata().containsKey(metaName) && orList.get(metaName).contains(entry.getMetadata().get(metaName).toString())) {
                 return true; // found item
             }
         }
