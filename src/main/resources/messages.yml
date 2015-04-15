@@ -2,7 +2,8 @@
 console-only: "Only the console can do this!"
 player-only: "You have to be a player to do this!"
 no-perms: "You do not have permissions to do this!"
-no-stats-yet: "No data for this stat yet!"
+no-stats-yet: "No data for stat %stat% yet!"
+no-stats-yet-params: "No data yet for stat %stat% with %params%" 
 needs-more-arguments: "This command requires more arguments. Correct usage: %usage%"
 player-not-found: "Player by the name of %input% not found"
 command-not-found: "Unknown command. Type /stats help to view commands"
@@ -11,12 +12,74 @@ stats:
     playtime:
         description: "Time played"
         format: "%days% days, %hours% hours, %minutes% minutes and %seconds% seconds"
-        
+    Fish_caught:
+        format: '%value% in world %world%'
+    Items_picked_up:
+        format: '%value% in world %world%'
+    Playtime:
+        format: '%value% in world %world%'
+    Blocks_broken:
+        format: '%value% in world %world%'
+    Items_dropped:
+        format: '%value% in world %world%'
+    Times_kicked:
+        format: '%value%'
+    PVP:
+        format: '%value% in world %world%'
+    Arrows:
+        format: '%value% in world %world%'
+    Buckets_emptied:
+        format: '%value% in world %world%'
+    Damage_taken:
+        format: '%value% in world %world%'
+    Tools_broken:
+        format: '%value% in world %world%'
+    Move:
+        format: '%value% in world %world%'
+    Shears:
+        format: '%value% in world %world%'
+    Votes:
+        format: '%value%'
+    Kill:
+        format: '%value% in world %world%'
+    Last_seen:
+        format: '%value% in world %world%'
+    Last_join:
+        format: '%value% in world %world%'
+    Trades:
+        format: '%value% in world %world%'
+    Blocks_placed:
+        format: '%value% in world %world%'
+    Items_crafted:
+        format: '%value% in world %world%'
+    Teleports:
+        format: '%value% in world %world%'
+    Words_said:
+        format: '%value% in world %world%'
+    Joins:
+        format: '%value%'
+    XP_gained:
+        format: '%value% in world %world%'
+    Eggs_thrown:
+        format: '%value% in world %world%'
+    Times_changed_world:
+        format: '%value%'
+    Buckets_filled:
+        format: '%value% in world %world%'
+    Omnomnom:
+        format: '%value% in world %world%'
+    Death:
+        format: '%value% in world %world%'
+    Beds_entered:
+        format: '%value% in world %world%'
+    Commands_done:
+        format: '%value% in world %world%'
+
 commands:
     stat:
     - "The %name% statistic"
     - "%description%"
-    - "%total% in total, from which %currWorldTotal% from this world%"
+    - "%total% in total, from which %currWorldTotal% from this world"
     reset:
         confirm: "Please perform the command again to confirm you want to reset %target%"
         target-self: "yourself"
