@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -118,8 +117,7 @@ public class MySQLStorage implements StorageEngine {
             for (Stat stat : holder.getStats()) {
                 String table = prefix + formatStatName(stat.getName());
                 // TODO improve saving method by updating the value
-                for (Iterator<StatEntry> it = holder.getStats(stat).iterator(); it.hasNext();) {
-                    StatEntry entry = it.next();
+                for (StatEntry entry : holder.getStats(stat)) {
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
                     update.append(" SET value=? WHERE uuid=? ");
@@ -143,8 +141,7 @@ public class MySQLStorage implements StorageEngine {
                             insert.append(", ").append(metadataName.replace(" ", ""));
                         }
                         insert.append(") VALUES (?, ?");
-                        for (Iterator<String> meta = entry.getMetadata().keySet().iterator(); it.hasNext();) {
-                            meta.next();
+                        for (String metadataName : stat.getDataTypes().keySet()) {
                             insert.append(",? ");
                         }
                         insert.append(")");
@@ -152,7 +149,7 @@ public class MySQLStorage implements StorageEngine {
                         insertPS.setString(1, holder.getUuid().toString());
                         insertPS.setDouble(2, entry.getValue());
                         idx = 3;
-                        for (String metadataName : entry.getMetadata().keySet()) {
+                        for (String metadataName : stat.getDataTypes().keySet()) {
                             insertPS.setObject(idx++, entry.getMetadata().get(metadataName));
                         }
                         insertPS.execute();
