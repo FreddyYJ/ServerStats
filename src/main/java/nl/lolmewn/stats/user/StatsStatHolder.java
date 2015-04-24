@@ -47,13 +47,13 @@ public class StatsStatHolder implements StatsHolder {
         if (!this.hasStat(stat)) {
             this.entries.put(stat, Collections.synchronizedList(new LinkedList<StatEntry>()));
         }
-        for (StatEntry existing : entries.get(stat)) {
+        for (StatEntry existing : getStats(stat)) {
             if (existing.getMetadata().equals(entry.getMetadata())) {
                 existing.setValue(existing.getValue() + entry.getValue());
                 return;
             }
         }
-        this.entries.get(stat).add(entry);
+        getStats(stat).add(entry);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class StatsStatHolder implements StatsHolder {
             return;
         }
         this.removedEntries.addAll(this.getStats(stat));
-        this.entries.remove(stat);
+        getStats().remove(stat);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class StatsStatHolder implements StatsHolder {
             return;
         }
         this.removedEntries.add(entry);
-        this.entries.get(stat).remove(entry);
+        getStats(stat).remove(entry);
     }
 
 }

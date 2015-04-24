@@ -118,7 +118,8 @@ public class MySQLStorage implements StorageEngine {
             for (Stat stat : holder.getStats()) {
                 String table = prefix + formatStatName(stat.getName());
                 // TODO improve saving method by updating the value
-                for (StatEntry entry : holder.getStats(stat)) {
+                for (Iterator<StatEntry> it = holder.getStats(stat).iterator(); it.hasNext();) {
+                    StatEntry entry = it.next();
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
                     update.append(" SET value=? WHERE uuid=? ");
@@ -142,8 +143,8 @@ public class MySQLStorage implements StorageEngine {
                             insert.append(", ").append(metadataName.replace(" ", ""));
                         }
                         insert.append(") VALUES (?, ?");
-                        for (Iterator<String> it = entry.getMetadata().keySet().iterator(); it.hasNext();) {
-                            it.next();
+                        for (Iterator<String> meta = entry.getMetadata().keySet().iterator(); it.hasNext();) {
+                            meta.next();
                             insert.append(",? ");
                         }
                         insert.append(")");
