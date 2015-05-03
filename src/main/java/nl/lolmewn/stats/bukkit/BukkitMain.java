@@ -2,6 +2,7 @@ package nl.lolmewn.stats.bukkit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -144,6 +145,10 @@ public class BukkitMain extends JavaPlugin implements Main {
         File mysql = new File(this.getDataFolder(), "mysql.yml");
         if (!mysql.exists()) {
             this.saveResource("mysql.yml", true);
+        }
+        File mess = new File(this.getDataFolder(), "messages.yml");
+        if(!mess.exists()){
+            this.saveResource("messages.yml", true);
         }
     }
 
@@ -346,19 +351,25 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     private void checkMessagesFileComplete() {
         YamlConfiguration conf = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "messages.yml"));
+        YamlConfiguration jar = YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("messages.yml")));
+        for (String path : jar.getKeys(true)) {
+            if (!conf.contains(path)) {
+                conf.set(path, jar.get(path));
+            }
+        }
         for (Stat stat : this.statManager.getStats()) {
             if (!conf.contains("stats." + stat.getName().replace(" ", "_") + ".format")) {
                 conf.set("stats." + stat.getName().replace(" ", "_") + ".format", "%value%"
                         + (stat.getDataTypes().containsKey("world")
-                                ? " in world %world%"
-                                : "")
+                        ? " in world %world%"
+                        : "")
                 );
             }
-            try {
-                conf.save(new File(this.getDataFolder(), "messages.yml"));
-            } catch (IOException ex) {
-                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        }
+        try {
+            conf.save(new File(this.getDataFolder(), "messages.yml"));
+        } catch (IOException ex) {
+            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
