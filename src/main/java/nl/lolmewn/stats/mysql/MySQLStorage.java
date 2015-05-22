@@ -46,9 +46,11 @@ public class MySQLStorage implements StorageEngine {
 
     @Override
     public StatsHolder load(UUID userUuid, StatManager statManager) throws StorageException {
+        System.out.println("Loading data for " + userUuid + "...");
         StatsStatHolder holder = new StatsStatHolder(userUuid, plugin.getName(userUuid));
         try (Connection con = source.getConnection()) {
             for (Stat stat : statManager.getStats()) {
+                System.out.println("Loading stat data for " + stat.getName() + "...");
                 String table = prefix + formatStatName(stat.getName());
                 PreparedStatement st = con.prepareStatement("SELECT * FROM " + table + " WHERE uuid=?");
                 st.setString(1, userUuid.toString());
@@ -90,6 +92,7 @@ public class MySQLStorage implements StorageEngine {
                         params.add(new MetadataPair(param.getKey(), value));
                     }
                     StatEntry entry = new DefaultStatEntry(set.getDouble("value"), params);
+                    System.out.println("Adding entry using params " + params + ", value=" + set.getDouble("value") + "...");
                     holder.addEntry(stat, entry);
                 }
             }
