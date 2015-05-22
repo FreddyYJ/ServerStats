@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.LastLeave;
@@ -30,6 +30,7 @@ public class BukkitLastLeave extends LastLeave implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
+        holder.getStats(this).clear();
         holder.addEntry(this, new DefaultStatEntry(System.currentTimeMillis(),
                 new MetadataPair("world", player.getWorld().getName())
         ));
