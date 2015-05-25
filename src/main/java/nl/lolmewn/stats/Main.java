@@ -12,6 +12,7 @@ import nl.lolmewn.stats.storage.StorageEngineManager;
  */
 public interface Main {
     
+    public void debug(String message);
     public void disableStat(Stat stat);
     public void enableStat(Stat stat);
     public StorageEngineManager getStorageEngineManager();

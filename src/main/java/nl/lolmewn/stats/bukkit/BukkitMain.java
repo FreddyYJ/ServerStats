@@ -235,6 +235,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         }, 200L, 200L);
     }
 
+    @Override
     public void debug(String message) {
         if (this.getConfig().getBoolean("debug", false)) {
             this.getServer().getConsoleSender().sendMessage("[Debug] " + message);

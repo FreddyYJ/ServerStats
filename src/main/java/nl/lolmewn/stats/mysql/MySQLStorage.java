@@ -46,7 +46,7 @@ public class MySQLStorage implements StorageEngine {
 
     @Override
     public StatsHolder load(UUID userUuid, StatManager statManager) throws StorageException {
-        System.out.println("Loading data for " + userUuid + "...");
+        plugin.debug("Loading data for " + userUuid + "...");
         StatsStatHolder holder = new StatsStatHolder(userUuid, plugin.getName(userUuid));
         try (Connection con = source.getConnection()) {
             int i = 0;
@@ -54,18 +54,18 @@ public class MySQLStorage implements StorageEngine {
                 try {
                     Thread.sleep(100);
                     if (i++ % 10 == 0) {
-                        System.out.println("User still locked, waiting...");
+                        plugin.debug("User still locked, waiting...");
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             if (i == 50) {
-                System.out.println("User was still locked, disregarding lock as it has been over 5s and I don't like waiting.");
+                plugin.debug("User was still locked, disregarding lock as it has been over 5s and I don't like waiting.");
             }
             long start = System.currentTimeMillis();
             for (Stat stat : statManager.getStats()) {
-                System.out.println("Loading stat data for " + stat.getName() + "...");
+                plugin.debug("Loading stat data for " + stat.getName() + "...");
                 String table = prefix + formatStatName(stat.getName());
                 PreparedStatement st = con.prepareStatement("SELECT * FROM " + table + " WHERE uuid=?");
                 st.setString(1, userUuid.toString());
@@ -107,11 +107,11 @@ public class MySQLStorage implements StorageEngine {
                         params.add(new MetadataPair(param.getKey(), value));
                     }
                     StatEntry entry = new DefaultStatEntry(set.getDouble("value"), params);
-                    System.out.println("Adding entry using params " + params + ", value=" + set.getDouble("value") + "...");
+                    plugin.debug("Adding entry using params " + params + ", value=" + set.getDouble("value") + "...");
                     holder.addEntry(stat, entry);
                 }
             }
-            System.out.println("Took " + (System.currentTimeMillis() - start) + "ms");
+            plugin.debug("Took " + (System.currentTimeMillis() - start) + "ms");
         } catch (SQLException ex) {
             throw new StorageException("Something went wrong while loading the user!", ex);
         }
