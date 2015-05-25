@@ -214,6 +214,7 @@ public class MySQLStorage implements StorageEngine {
         this.tables.put(locks.getName(), locks);
         try (Connection con = this.source.getConnection()) {
             con.createStatement().execute(playersTable.generateCreateQuery());
+            con.createStatement().execute(locks.generateCreateQuery());
             for (Stat stat : plugin.getStatManager().getStats()) {
                 String tableName = prefix + formatStatName(stat.getName());
                 MySQLTable table = new MySQLTable(tableName);
