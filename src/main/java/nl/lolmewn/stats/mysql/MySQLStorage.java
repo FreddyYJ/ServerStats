@@ -49,6 +49,21 @@ public class MySQLStorage implements StorageEngine {
         System.out.println("Loading data for " + userUuid + "...");
         StatsStatHolder holder = new StatsStatHolder(userUuid, plugin.getName(userUuid));
         try (Connection con = source.getConnection()) {
+            int i = 0;
+            while (isLocked(con, userUuid) && i < 50) {
+                try {
+                    Thread.sleep(100);
+                    if (i++ % 10 == 0) {
+                        System.out.println("User still locked, waiting...");
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (i == 50) {
+                System.out.println("User was still locked, disregarding lock as it has been over 5s and I don't like waiting.");
+            }
+            long start = System.currentTimeMillis();
             for (Stat stat : statManager.getStats()) {
                 System.out.println("Loading stat data for " + stat.getName() + "...");
                 String table = prefix + formatStatName(stat.getName());
@@ -95,12 +110,34 @@ public class MySQLStorage implements StorageEngine {
                     System.out.println("Adding entry using params " + params + ", value=" + set.getDouble("value") + "...");
                     holder.addEntry(stat, entry);
                 }
+                System.out.println("Took " + (System.currentTimeMillis() - start) + "ms");
             }
         } catch (SQLException ex) {
             throw new StorageException("Something went wrong while loading the user!", ex);
         }
         holder.setTemp(false);
         return holder;
+    }
+
+    public boolean isLocked(Connection con, UUID uuid) throws SQLException {
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "locks WHERE uuid=?")) {
+            st.setString(1, uuid.toString());
+            return st.executeQuery().next();
+        }
+    }
+
+    public void lock(Connection con, UUID uuid) throws SQLException {
+        try (PreparedStatement st = con.prepareStatement("INSERT INTO " + prefix + "locks (uuid) VALUES (?)")) {
+            st.setString(1, uuid.toString());
+            st.execute();
+        }
+    }
+
+    public void unlock(Connection con, UUID uuid) throws SQLException {
+        try (PreparedStatement st = con.prepareStatement("DELETE FROM " + prefix + "locks WHERE uuid=?")) {
+            st.setString(1, uuid.toString());
+            st.execute();
+        }
     }
 
     @Override
@@ -159,6 +196,7 @@ public class MySQLStorage implements StorageEngine {
                     }
                 }
             }
+            unlock(con, user.getUuid()); // if they're never locked, not my problem!
         } catch (SQLException ex) {
             throw new StorageException("Something went wrong while saving the user!", ex);
         }
@@ -168,6 +206,12 @@ public class MySQLStorage implements StorageEngine {
         MySQLTable playersTable = new MySQLTable(prefix + "players");
         playersTable.addColumn("uuid", DataType.STRING).addAttributes(MySQLAttribute.PRIMARY_KEY, MySQLAttribute.NOT_NULL, MySQLAttribute.UNIQUE);
         playersTable.addColumn("name", DataType.STRING).addAttribute(MySQLAttribute.NOT_NULL);
+        this.tables.put(playersTable.getName(), playersTable);
+        MySQLTable locks = new MySQLTable(prefix + "locks");
+        locks.addColumn("uuid", DataType.STRING)
+                .addAttributes(MySQLAttribute.NOT_NULL, MySQLAttribute.PRIMARY_KEY, MySQLAttribute.UNIQUE)
+                .references(playersTable, playersTable.getColumn("uuid"));
+        this.tables.put(locks.getName(), locks);
         try (Connection con = this.source.getConnection()) {
             con.createStatement().execute(playersTable.generateCreateQuery());
             for (Stat stat : plugin.getStatManager().getStats()) {

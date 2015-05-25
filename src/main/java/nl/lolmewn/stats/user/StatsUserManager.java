@@ -78,7 +78,7 @@ public class StatsUserManager implements UserManager {
 
                         @Override
                         public void run() {
-                            sync(loadedHolder);
+                            sync(loadedHolder); //blocking on the lock in the db
                         }
                     });
                 } catch (StorageException ex) {
@@ -102,35 +102,6 @@ public class StatsUserManager implements UserManager {
         this.removeUser(other.getUuid());
         this.addUser(holder);
         plugin.getServer().getPluginManager().callEvent(new StatsHolderLoadedEvent(holder));
-    }
-
-    public void merge() {
-//        for(StatsHolder holder : this.getUsers()){
-//            merge(holder.getUuid());
-//        }
-    }
-
-    public void merge(UUID uuid) {
-//        StatsHolder holder = this.getUser(uuid);
-//        if(holder == null){
-//            return;
-//        }
-//        for(Stat stat : holder.getStats()){
-//            Map<Map<String, Object>, Double> map = new HashMap<>();
-//            Iterator<StatEntry> it = holder.getStats(stat).iterator();
-//            while(it.hasNext()){
-//                StatEntry entry = it.next();
-//                if(map.containsKey(entry.getMetadata())){
-//                    map.put(entry.getMetadata(), map.get(entry.getMetadata()) + entry.getValue());
-//                }else{
-//                    map.put(entry.getMetadata(), entry.getValue());
-//                }
-//                it.remove();
-//            }
-//            for(Entry<Map<String, Object>, Double> entry : map.entrySet()){
-//                holder.addEntry(stat, new DefaultStatEntry(entry.getValue(), entry.getKey()));
-//            }
-//        }
     }
 
     @Override

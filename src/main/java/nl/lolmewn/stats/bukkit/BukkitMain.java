@@ -223,7 +223,6 @@ public class BukkitMain extends JavaPlugin implements Main {
                 Timings.startTiming("user-saving", System.nanoTime());
                 synchronized (userManager) {
                     for (StatsHolder holder : userManager.getUsers()) {
-                        userManager.merge(holder.getUuid());
                         try {
                             userManager.saveUser(holder.getUuid());
                         } catch (StorageException ex) {
