@@ -110,8 +110,8 @@ public class MySQLStorage implements StorageEngine {
                     System.out.println("Adding entry using params " + params + ", value=" + set.getDouble("value") + "...");
                     holder.addEntry(stat, entry);
                 }
-                System.out.println("Took " + (System.currentTimeMillis() - start) + "ms");
             }
+            System.out.println("Took " + (System.currentTimeMillis() - start) + "ms");
         } catch (SQLException ex) {
             throw new StorageException("Something went wrong while loading the user!", ex);
         }
