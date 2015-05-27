@@ -98,8 +98,9 @@ public class StatsStatHolder implements StatsHolder {
         if (!hasStat(stat)) {
             return;
         }
-        this.removedEntries.add(entry);
-        getStats(stat).remove(entry);
+        if (getStats(stat).remove(entry)) {
+            this.removedEntries.add(entry);
+        }
     }
 
 }
