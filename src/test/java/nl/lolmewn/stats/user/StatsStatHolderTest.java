@@ -31,7 +31,6 @@ public class StatsStatHolderTest {
     public StatsStatHolderTest() {
         MockitoAnnotations.initMocks(this);
         when(exampleStat1.getName()).thenReturn("testStat");
-        System.out.println(exampleStat1.getName());
         when(exampleStat1.getDataTypes()).thenReturn(new HashMap<String, DataType>() {
             {
                 this.put("key", DataType.STRING);
