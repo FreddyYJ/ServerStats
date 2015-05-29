@@ -253,7 +253,7 @@ public class MySQLStorage implements StorageEngine {
         try {
             try (Connection con = this.source.getConnection()) {
                 for (MySQLTable table : this.tables.values()) {
-                    try (PreparedStatement st = con.prepareStatement("DELETE FROM " + prefix + table.getName() + " WHERE uuid=?")) {
+                    try (PreparedStatement st = con.prepareStatement("DELETE FROM " + table.getName() + " WHERE uuid=?")) {
                         st.setString(1, user.getUuid().toString());
                         st.execute();
                     }
