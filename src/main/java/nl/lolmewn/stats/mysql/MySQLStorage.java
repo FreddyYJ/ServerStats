@@ -155,9 +155,11 @@ public class MySQLStorage implements StorageEngine {
             playersPS.execute();
 
             for (Stat stat : holder.getStats()) {
+                plugin.debug("Saving stat data for " + stat.getName() + "...");
                 String table = prefix + formatStatName(stat.getName());
                 // TODO improve saving method by updating the value
                 for (StatEntry entry : holder.getStats(stat)) {
+                    plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
                     update.append(" SET value=? WHERE uuid=? ");
