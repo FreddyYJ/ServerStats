@@ -79,6 +79,10 @@ public class StatsStatHolder implements StatsHolder {
         return uuid;
     }
 
+    public List<StatEntry> getRemovedEntries() {
+        return removedEntries;
+    }
+
     @Override
     public boolean hasStat(Stat stat) {
         return entries.containsKey(stat);
@@ -99,7 +103,7 @@ public class StatsStatHolder implements StatsHolder {
             return;
         }
         if (getStats(stat).remove(entry)) {
-            if(getStats(stat).isEmpty()){
+            if (getStats(stat).isEmpty()) {
                 removeStat(stat);
             }
             this.removedEntries.add(entry);

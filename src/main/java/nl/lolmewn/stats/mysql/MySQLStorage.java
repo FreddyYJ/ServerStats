@@ -157,6 +157,25 @@ public class MySQLStorage implements StorageEngine {
             for (Stat stat : holder.getStats()) {
                 plugin.debug("Saving stat data for " + stat.getName() + "...");
                 String table = prefix + formatStatName(stat.getName());
+
+                // first, delete the values that were locally deleted. If new values were added, they will be INSERTed anyway
+                for (StatEntry deleted : holder.getRemovedEntries()) {
+                    StringBuilder sb = new StringBuilder("DELETE FROM ");
+                    sb.append(table).append(" WHERE uuid=? ");
+                    for (String metadataName : stat.getDataTypes().keySet()) {
+                        sb.append("AND ").append(metadataName.replace(" ", ""));
+                        sb.append("=? ");
+                    }
+                    PreparedStatement deletePS = con.prepareStatement(sb.toString());
+                    deletePS.setString(1, holder.getUuid().toString());
+                    int idx = 2;
+                    for (String metadataName : stat.getDataTypes().keySet()) {
+                        deletePS.setObject(idx++, deleted.getMetadata().get(metadataName));
+                    }
+                    deletePS.execute();
+                }
+                holder.getRemovedEntries().clear();
+
                 // TODO improve saving method by updating the value
                 for (StatEntry entry : holder.getStats(stat)) {
                     plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
