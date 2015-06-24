@@ -21,20 +21,22 @@ import org.bukkit.event.player.PlayerQuitEvent;
  *
  * @author Lolmewn
  */
-public class Events implements Listener {
+public class PlayerIOEvents implements Listener {
 
     private final BukkitMain plugin;
 
-    public Events(BukkitMain plugin) {
+    public PlayerIOEvents(BukkitMain plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onLogin(PlayerJoinEvent event) {
         try {
-            plugin.getUserManager().loadUser(event.getPlayer().getUniqueId(), plugin.getStatManager());
+            if (plugin.getUserManager().getUser(event.getPlayer().getUniqueId()) == null) {
+                plugin.getUserManager().loadUser(event.getPlayer().getUniqueId(), plugin.getStatManager());
+            }
         } catch (Exception ex) {
-            Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlayerIOEvents.class.getName()).log(Level.SEVERE, null, ex);
             plugin.getLogger().severe("The error above means Stats was unable to load player " + event.getPlayer().getName());
             plugin.getLogger().severe("In an attempt to not completely ruin your server, we've given him an empty Stats account");
             plugin.getUserManager().addUser(new DefaultStatsHolder(event.getPlayer().getUniqueId()));
@@ -67,16 +69,16 @@ public class Events implements Listener {
                             mysql.lock(con, uuid);
                             plugin.getUserManager().saveUser(uuid);
                         } catch (SQLException | StorageException ex) {
-                            Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(PlayerIOEvents.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        if(plugin.getServer().getPlayer(uuid) == null){
+                        if (plugin.getServer().getPlayer(uuid) == null) {
                             plugin.getUserManager().removeUser(uuid);
                         }
                     }
                 });
             }
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
-            Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PlayerIOEvents.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

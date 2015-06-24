@@ -1,8 +1,10 @@
 package nl.lolmewn.stats.signs;
 
 import java.util.Collection;
+import java.util.UUID;
+import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
-import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.api.user.UserManager;
 
 /**
  *
@@ -10,11 +12,14 @@ import nl.lolmewn.stats.api.user.StatsHolder;
  */
 public interface StatsSign {
     
-    public Collection<StatsHolder> getHolders();
+    public void addHolder(UUID uuid);
+    public void addStat(Stat stat);
+    public Collection<UUID> getHolders();
     public SignLocation getLocation();
     public Collection<Stat> getStats();
-    public SignType getSignType();
+    public SignPlayerType getSignType();
     public boolean isActive();
+    public void update(StatManager statManager, UserManager userManager);
     public void setText(String... text);
     
 }

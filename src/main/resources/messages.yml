@@ -8,6 +8,11 @@ needs-more-arguments: "This command requires more arguments. Correct usage: %usa
 player-not-found: "Player by the name of %input% not found"
 command-not-found: "Unknown command. Type /stats help to view commands"
 
+sign:
+    unknown-stat: "The stat type of the sign is unknown, or the stat was not found"
+    unknown-player: "The player type of the sign is unknown, or no player could be found by that name"
+    combi-unsuported: "This combination of types is unsupported. For a list of supported types, see //TODO link here"
+
 stats:
     playtime:
         description: "Time played"

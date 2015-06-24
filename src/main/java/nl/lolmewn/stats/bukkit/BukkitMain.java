@@ -1,6 +1,7 @@
 package nl.lolmewn.stats.bukkit;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +21,7 @@ import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.command.StatsCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
+import nl.lolmewn.stats.signs.SignManager;
 import nl.lolmewn.stats.stats.Votes;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
 import nl.lolmewn.stats.stats.bukkit.BukkitBedEnter;
@@ -72,12 +74,19 @@ public class BukkitMain extends JavaPlugin implements Main {
     private StatManager statManager;
     private StatsUserManager userManager;
     private final StorageEngineManager storageManager = new StorageEngineManager();
+    private SignManager signManager;
 
     @Override
     public void onLoad() {
         this.checkFiles();
         this.statManager = new DefaultStatManager();
         this.loadStats();
+        this.signManager = new SignManager(new File(this.getDataFolder(), "signs.json"), statManager);
+        try {
+            this.signManager.load();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             new Messages(new BukkitMessages(this), new BukkitPainter());
         } catch (IOException ex) {
@@ -99,7 +108,7 @@ public class BukkitMain extends JavaPlugin implements Main {
             this.getServer().getPluginManager().disablePlugin(this);
         }
         this.checkMessagesFileComplete();
-        this.getServer().getPluginManager().registerEvents(new Events(this), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerIOEvents(this), this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
         this.startStats();
         this.registerAPI();
@@ -114,6 +123,13 @@ public class BukkitMain extends JavaPlugin implements Main {
                 } catch (Exception ex) {
                     Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
+        }
+        if(this.signManager != null){
+            try {
+                signManager.save();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -133,6 +149,10 @@ public class BukkitMain extends JavaPlugin implements Main {
         return storageManager;
     }
 
+    public SignManager getSignManager() {
+        return signManager;
+    }
+
     @Override
     public String getName(UUID player) {
         return this.getServer().getOfflinePlayer(player).getName();
@@ -147,7 +167,7 @@ public class BukkitMain extends JavaPlugin implements Main {
             this.saveResource("mysql.yml", true);
         }
         File mess = new File(this.getDataFolder(), "messages.yml");
-        if(!mess.exists()){
+        if (!mess.exists()) {
             this.saveResource("messages.yml", true);
         }
     }

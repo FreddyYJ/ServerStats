@@ -1,6 +1,7 @@
 package nl.lolmewn.stats.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -32,8 +33,8 @@ public class Util {
     public static String getDefaultMessage(Stat stat, StatEntry entry) {
         return "%value%"
                 + (entry.getMetadata().containsKey("world")
-                        ? " in world %world%"
-                        : "");
+                ? " in world %world%"
+                : "");
 
     }
 
@@ -57,6 +58,14 @@ public class Util {
             }
         }
         return pairs;
+    }
+
+    public static double sumAll(Collection<StatEntry> entries) {
+        double sum = 0;
+        for (StatEntry entry : entries) {
+            sum += entry.getValue();
+        }
+        return sum;
     }
 
 }
