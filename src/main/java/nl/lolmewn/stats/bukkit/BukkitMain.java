@@ -18,6 +18,8 @@ import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.signs.BukkitStatsSign;
+import nl.lolmewn.stats.bukkit.signs.SignTask;
 import nl.lolmewn.stats.command.StatsCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
@@ -81,10 +83,12 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.checkFiles();
         this.statManager = new DefaultStatManager();
         this.loadStats();
-        this.signManager = new SignManager(new File(this.getDataFolder(), "signs.json"), statManager);
+        this.signManager = new SignManager(new File(this.getDataFolder(), "signs.json"), statManager, BukkitStatsSign.class);
         try {
             this.signManager.load();
         } catch (FileNotFoundException ex) {
+            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
@@ -109,6 +113,8 @@ public class BukkitMain extends JavaPlugin implements Main {
         }
         this.checkMessagesFileComplete();
         this.getServer().getPluginManager().registerEvents(new PlayerIOEvents(this), this);
+        this.getServer().getPluginManager().registerEvents(new SignEvents(this), this);
+        new SignTask(this);
         this.getCommand("stats").setExecutor(new StatsCommand(this));
         this.startStats();
         this.registerAPI();
@@ -125,10 +131,12 @@ public class BukkitMain extends JavaPlugin implements Main {
                 }
             }
         }
-        if(this.signManager != null){
+        if (this.signManager != null) {
             try {
                 signManager.save();
             } catch (FileNotFoundException ex) {
+                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
                 Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

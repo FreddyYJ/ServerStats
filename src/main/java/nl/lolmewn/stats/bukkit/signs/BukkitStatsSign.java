@@ -14,7 +14,9 @@ import nl.lolmewn.stats.signs.SignLocation;
 import nl.lolmewn.stats.signs.SignPlayerType;
 import nl.lolmewn.stats.signs.SignStatType;
 import nl.lolmewn.stats.signs.StatsSign;
+import nl.lolmewn.stats.util.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -33,9 +35,9 @@ public class BukkitStatsSign implements StatsSign {
     private final SignPlayerType playerType;
     private final SignStatType statType;
 
-    private final Random rand;
-    private final Queue<UUID> pDisplayQueue = new ConcurrentLinkedQueue<>();
-    private final Queue<Stat> sDisplayQueue = new ConcurrentLinkedQueue<>();
+    private transient final Random rand;
+    private transient final Queue<UUID> pDisplayQueue = new ConcurrentLinkedQueue<>();
+    private transient final Queue<Stat> sDisplayQueue = new ConcurrentLinkedQueue<>();
 
     public BukkitStatsSign(SignLocation location, SignPlayerType playerType, SignStatType statType) {
         this.location = location;
@@ -125,7 +127,13 @@ public class BukkitStatsSign implements StatsSign {
             holder = userManager.getUser(uuid);
         } while (holder == null);
         Stat stat = getStat(statManager);
-        
+        double value = Util.sumAll(holder.getStats(stat));
+        setText(
+                ChatColor.BLACK + "[" + ChatColor.YELLOW + "Stats" + ChatColor.BLACK + "]",
+                stat.getName(),
+                "by " + Bukkit.getServer().getOfflinePlayer(holder.getUuid()).getName(),
+                String.valueOf(value));
+
     }
 
     private UUID getUUID() {

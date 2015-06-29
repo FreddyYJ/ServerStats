@@ -1,6 +1,8 @@
 package nl.lolmewn.stats.bukkit;
 
 import nl.lolmewn.stats.Messages;
+import nl.lolmewn.stats.bukkit.signs.BukkitSignLocation;
+import nl.lolmewn.stats.bukkit.signs.BukkitStatsSign;
 import nl.lolmewn.stats.signs.SignPlayerType;
 import nl.lolmewn.stats.signs.SignStatType;
 import nl.lolmewn.stats.util.Util;
@@ -16,13 +18,13 @@ import org.bukkit.inventory.ItemStack;
  * @author Lolmewn
  */
 public class SignEvents implements Listener {
-
+    
     private final BukkitMain plugin;
-
+    
     public SignEvents(BukkitMain plugin) {
         this.plugin = plugin;
     }
-
+    
     @EventHandler
     public void signChange(SignChangeEvent event) {
         if (!event.getLine(0).equalsIgnoreCase("[Stats]")) {
@@ -45,21 +47,26 @@ public class SignEvents implements Listener {
             cancelEvent(event);
             return;
         }
-        if(playerType == SignPlayerType.MULTIPLE || statType == SignStatType.MULTIPLE){
+        if (playerType == SignPlayerType.MULTIPLE || statType == SignStatType.MULTIPLE) {
             //TODO implement some kind of conversation on what type they want
             event.getPlayer().sendMessage("Unimplemented - this feature will be live soon!");
             cancelEvent(event);
             return;
         }
-        SignPlayerType type = getSignType(statType, playerType);
+        BukkitStatsSign sign = new BukkitStatsSign(new BukkitSignLocation(event.getBlock().getLocation()), playerType, statType);
+        sign.addHolder(plugin.getServer().getOfflinePlayer(event.getLine(2)).getUniqueId());
+        sign.addStat(Util.findStat(plugin.getStatManager(), event.getLine(1)));
+        plugin.getSignManager().addSign(sign);
+        event.getPlayer().sendMessage("Stats sign succesfully created!");
+        sign.update(plugin.getStatManager(), plugin.getUserManager());
     }
-
+    
     public void cancelEvent(SignChangeEvent event) {
         event.setCancelled(true);
         event.getBlock().setType(Material.AIR);
         event.getPlayer().getInventory().addItem(new ItemStack(Material.SIGN, 1));
     }
-
+    
     private SignStatType getStatType(String line) {
         if (line.equalsIgnoreCase("all")) {
             return SignStatType.ALL;
@@ -72,7 +79,7 @@ public class SignEvents implements Listener {
         }
         return null;
     }
-
+    
     private SignPlayerType getPlayerType(String line) {
         if (line.equalsIgnoreCase("all")) {
             return SignPlayerType.ALL;
@@ -92,5 +99,5 @@ public class SignEvents implements Listener {
             return null;
         }
     }
-
+    
 }
