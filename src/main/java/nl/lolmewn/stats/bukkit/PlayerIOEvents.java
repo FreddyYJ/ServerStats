@@ -66,7 +66,9 @@ public class PlayerIOEvents implements Listener {
                     @Override
                     public void run() {
                         try (Connection con = mysql.getConnection()) {
-                            mysql.lock(con, uuid);
+                            if (!mysql.isLocked(con, uuid)) {
+                                mysql.lock(con, uuid);
+                            }
                             plugin.getUserManager().saveUser(uuid);
                         } catch (SQLException | StorageException ex) {
                             Logger.getLogger(PlayerIOEvents.class.getName()).log(Level.SEVERE, null, ex);
