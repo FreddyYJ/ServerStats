@@ -48,6 +48,7 @@ public class MySQLStorage implements StorageEngine {
     public StatsHolder load(UUID userUuid, StatManager statManager) throws StorageException {
         plugin.debug("Loading data for " + userUuid + "...");
         StatsStatHolder holder = new StatsStatHolder(userUuid, plugin.getName(userUuid));
+        String table = null;
         try (Connection con = source.getConnection()) {
             int i = 0;
             while (isLocked(con, userUuid) && i < 50) {
@@ -66,7 +67,7 @@ public class MySQLStorage implements StorageEngine {
             long start = System.currentTimeMillis();
             for (Stat stat : statManager.getStats()) {
                 plugin.debug("Loading stat data for " + stat.getName() + "...");
-                String table = prefix + formatStatName(stat.getName());
+                table = prefix + formatStatName(stat.getName());
                 PreparedStatement st = con.prepareStatement("SELECT * FROM " + table + " WHERE uuid=?");
                 st.setString(1, userUuid.toString());
                 ResultSet set = st.executeQuery();
@@ -113,6 +114,13 @@ public class MySQLStorage implements StorageEngine {
             }
             plugin.debug("Took " + (System.currentTimeMillis() - start) + "ms");
         } catch (SQLException ex) {
+            if (ex.getMessage().contains("Unknown column")) {
+                System.out.println("Please note: Stats encountered an error while trying to load user " + userUuid.toString());
+                System.out.println("It seems a column could not be found in the database; this is likely caused by the faulty conversion of the database from Stats 2 to Stats 3.");
+                System.out.println("For now, you can either go back to Stats 2 (how to on the DBO page), wait until this error gets fixed by the developer or manually delete the table.");
+                System.out.println("Full error below!");
+            }
+            System.out.println("The table causing the error: " + table);
             throw new StorageException("Something went wrong while loading the user!", ex);
         }
         holder.setTemp(false);
@@ -146,6 +154,7 @@ public class MySQLStorage implements StorageEngine {
         if (holder.isTemp()) {
             return;
         }
+        String table = null;
         try (Connection con = source.getConnection()) {
             // First, make sure there's a column in the Stats_players table to maintain integrity of the table
             String playersQuery = "INSERT INTO " + prefix + "players (uuid, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name=VALUES(name)";
@@ -156,7 +165,7 @@ public class MySQLStorage implements StorageEngine {
 
             for (Stat stat : holder.getStats()) {
                 plugin.debug("Saving stat data for " + stat.getName() + "...");
-                String table = prefix + formatStatName(stat.getName());
+                table = prefix + formatStatName(stat.getName());
 
                 // first, delete the values that were locally deleted. If new values were added, they will be INSERTed anyway
                 for (StatEntry deleted : holder.getRemovedEntries()) {
@@ -219,6 +228,13 @@ public class MySQLStorage implements StorageEngine {
             }
             unlock(con, user.getUuid()); // if they're never locked, not my problem!
         } catch (SQLException ex) {
+            if (ex.getMessage().contains("Unknown column")) {
+                System.out.println("Please note: Stats encountered an error while trying to save user " + user.getUuid().toString());
+                System.out.println("It seems a column could not be found in the database; this is likely caused by the faulty conversion of the database from Stats 2 to Stats 3.");
+                System.out.println("For now, you can either go back to Stats 2 (how to on the DBO page), wait until this error gets fixed by the developer or manually delete the table.");
+                System.out.println("Full error below!");
+            }
+            System.out.println("The table causing the error: " + table);
             throw new StorageException("Something went wrong while saving the user!", ex);
         }
     }
