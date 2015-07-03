@@ -28,7 +28,7 @@ public class BukkitKill extends Kill implements Listener {
         if (!this.isEnabled()) {
             return;
         }
-        if ((event.getEntity().getKiller() == null)) {
+        if (event.getEntity().getKiller() == null) {
             return; // natural cause-ish.
         }
         Player player = event.getEntity().getKiller();
