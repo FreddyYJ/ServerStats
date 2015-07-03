@@ -15,7 +15,6 @@ import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 
 /**
  *
@@ -30,7 +29,7 @@ public class StatsPlayerCommand extends SubCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(Dispatcher sender, String[] args) {
         Timings.startTiming("cmd-player", System.nanoTime());
         if(args.length == 0){
             sender.sendMessage(Messages.getMessage("needs-more-arguments", new Pair("%usage%", "/stats player <player>")));
@@ -72,7 +71,7 @@ public class StatsPlayerCommand extends SubCommand {
         return "stats.view.others";
     }
 
-    private void show(CommandSender sender, StatsHolder holder, String statDesc) {
+    private void show(Dispatcher sender, StatsHolder holder, String statDesc) {
         Stat stat;
         HashMap<String, String> cannotContain = new HashMap<>();
         HashMap<String, String> containsOne = new HashMap<>();

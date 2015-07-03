@@ -8,7 +8,6 @@ import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -25,7 +24,7 @@ public class StatsResetCommand extends SubCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(Dispatcher sender, String[] args) {
         if (toReset.containsKey(sender.getName())) {
             //confirmed
             List<UUID> list = toReset.get(sender.getName());

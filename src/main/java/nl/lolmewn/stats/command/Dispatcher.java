@@ -13,6 +13,8 @@ public interface Dispatcher {
     public void sendMessage(String message);
 
     public boolean isPlayer();
+    
+    public boolean isConsole();
 
     public UUID getUniqueId();
 

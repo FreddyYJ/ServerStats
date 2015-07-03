@@ -20,7 +20,7 @@ import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.bukkit.signs.BukkitStatsSign;
 import nl.lolmewn.stats.bukkit.signs.SignTask;
-import nl.lolmewn.stats.command.StatsCommand;
+import nl.lolmewn.stats.command.bukkit.BukkitCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.signs.SignManager;
@@ -115,7 +115,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getServer().getPluginManager().registerEvents(new PlayerIOEvents(this), this);
         this.getServer().getPluginManager().registerEvents(new SignEvents(this), this);
         new SignTask(this);
-        this.getCommand("stats").setExecutor(new StatsCommand(this));
+        this.getCommand("stats").setExecutor(new BukkitCommand(this));
         this.startStats();
         this.registerAPI();
     }

@@ -1,13 +1,11 @@
 package nl.lolmewn.stats.command;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.util.Util;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -22,14 +20,14 @@ public class StatsStatCommand extends SubCommand{
     }
     
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(Dispatcher sender, String[] args) {
         if(args.length == 0){
             sender.sendMessage(Messages.getMessage("needs-more-arguments", new Pair("%usage%", "/stats stat <statname>")));
             return;
         }
         String statName = args[0];
         Stat stat = Util.findStat(plugin.getStatManager(), statName);
-        StatsHolder holder = plugin.getUserManager().getUser(((Player)sender).getUniqueId());
+        StatsHolder holder = plugin.getUserManager().getUser((sender).getUniqueId());
     }
 
     @Override

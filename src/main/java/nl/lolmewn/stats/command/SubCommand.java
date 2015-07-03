@@ -1,9 +1,6 @@
 package nl.lolmewn.stats.command;
 
 import nl.lolmewn.stats.Messages;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -11,18 +8,18 @@ import org.bukkit.entity.Player;
  */
 public abstract class SubCommand {
     
-    public abstract void execute(CommandSender sender, String[] args);
+    public abstract void execute(Dispatcher sender, String[] args);
     
     public abstract boolean consoleOnly();
     public abstract boolean playerOnly();
     public abstract String getPermissionNode();
     
-    public boolean onCommand(CommandSender sender, String[] args){
-        if(consoleOnly() && !(sender instanceof ConsoleCommandSender)){
+    public boolean onCommand(Dispatcher sender, String[] args){
+        if(consoleOnly() && !sender.isConsole()){
             sender.sendMessage(Messages.getMessage("console-only"));
             return true;
         }
-        if(playerOnly() && !(sender instanceof Player)){
+        if(playerOnly() && !sender.isPlayer()){
             sender.sendMessage(Messages.getMessage("player-only"));
             return true;
         }

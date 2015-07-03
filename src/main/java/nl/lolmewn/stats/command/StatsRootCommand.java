@@ -31,7 +31,7 @@ public class StatsRootCommand extends SubCommand {
     }
 
     @Override
-    public void execute(CommandSender sender, String[] args) {
+    public void execute(Dispatcher sender, String[] args) {
         Timings.startTiming("cmd-root", System.nanoTime());
         StatsHolder holder = plugin.getUserManager().getUser(((Player) sender).getUniqueId());
         List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
@@ -56,7 +56,7 @@ public class StatsRootCommand extends SubCommand {
         return "stats.view";
     }
 
-    private void show(CommandSender sender, StatsHolder holder, String statDesc) {
+    private void show(Dispatcher sender, StatsHolder holder, String statDesc) {
         Stat stat;
         HashMap<String, String> cannotContain = new HashMap<>();
         HashMap<String, String> containsOne = new HashMap<>();
@@ -110,6 +110,7 @@ public class StatsRootCommand extends SubCommand {
                 validEntries.add(entry);
             }
         }
+        CommandSender cs = sender.isConsole() ? plugin.getServer().getConsoleSender() : plugin.getServer().getPlayer(sender.getUniqueId());
         if (validEntries.size() == 1) {
             sender.sendMessage(stat.format(validEntries.get(0)));
         } else if (validEntries.isEmpty()) {
@@ -119,7 +120,7 @@ public class StatsRootCommand extends SubCommand {
                 ).then("metadata").tooltip(
                         cannotContain.toString().replace("{", "").replace("}", "").replace("=", "!=")
                                 + " " + containsOne.toString().replace("{", "").replace("}", ""))
-                        .send(sender);
+                        .send(cs);
             } else {
                 sender.sendMessage(Messages.getMessage("no-stats-yet", new Pair("%stat%", stat.getName())));
             }
