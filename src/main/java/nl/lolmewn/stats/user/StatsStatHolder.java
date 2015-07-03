@@ -79,7 +79,7 @@ public class StatsStatHolder implements StatsHolder {
         return uuid;
     }
 
-    public List<StatEntry> getRemovedEntries() {
+    public synchronized List<StatEntry> getRemovedEntries() {
         return removedEntries;
     }
 
@@ -93,7 +93,9 @@ public class StatsStatHolder implements StatsHolder {
         if (!hasStat(stat)) {
             return;
         }
-        this.removedEntries.addAll(this.getStats(stat));
+        synchronized (removedEntries) {
+            this.removedEntries.addAll(this.getStats(stat));
+        }
         getStats().remove(stat);
     }
 
@@ -106,7 +108,9 @@ public class StatsStatHolder implements StatsHolder {
             if (getStats(stat).isEmpty()) {
                 removeStat(stat);
             }
-            this.removedEntries.add(entry);
+            synchronized (removedEntries) {
+                this.removedEntries.add(entry);
+            }
         }
     }
 
