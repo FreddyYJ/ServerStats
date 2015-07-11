@@ -187,6 +187,7 @@ public class BukkitStatsSign implements StatsSign {
                         sDisplayQueue.add(stat);
                     }
                 }
+                break;
             default:
                 sDisplayQueue.addAll(stats);
         }
