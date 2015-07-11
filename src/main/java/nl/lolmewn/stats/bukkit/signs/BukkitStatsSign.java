@@ -38,6 +38,13 @@ public class BukkitStatsSign implements StatsSign {
     private transient final Random rand;
     private transient final Queue<UUID> pDisplayQueue = new ConcurrentLinkedQueue<>();
     private transient final Queue<Stat> sDisplayQueue = new ConcurrentLinkedQueue<>();
+    
+    public BukkitStatsSign(){
+        location = null;
+        playerType = null;
+        statType = null;
+        rand = null;
+    }
 
     public BukkitStatsSign(SignLocation location, SignPlayerType playerType, SignStatType statType) {
         this.location = location;

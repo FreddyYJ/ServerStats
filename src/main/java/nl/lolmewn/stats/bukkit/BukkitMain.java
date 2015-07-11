@@ -18,7 +18,6 @@ import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
-import nl.lolmewn.stats.bukkit.signs.BukkitStatsSign;
 import nl.lolmewn.stats.bukkit.signs.SignTask;
 import nl.lolmewn.stats.command.bukkit.BukkitCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
@@ -83,7 +82,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.checkFiles();
         this.statManager = new DefaultStatManager();
         this.loadStats();
-        this.signManager = new SignManager(new File(this.getDataFolder(), "signs.json"), statManager, BukkitStatsSign.class);
+        this.signManager = new SignManager(new File(this.getDataFolder(), "signs.json"), statManager);
         try {
             this.signManager.load();
         } catch (FileNotFoundException ex) {
