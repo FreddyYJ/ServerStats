@@ -23,7 +23,9 @@ public class TimesKicked extends DefaultStat {
 
     @Override
     public Map<String, DataType> getDataTypes() {
-        return new HashMap<>(0);
+        return new HashMap<String, DataType>(){{
+            this.put("world", DataType.STRING);
+        }};
     }
 
     @Override
