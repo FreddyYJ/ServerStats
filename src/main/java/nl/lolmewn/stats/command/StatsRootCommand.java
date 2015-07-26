@@ -16,7 +16,6 @@ import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -33,7 +32,7 @@ public class StatsRootCommand extends SubCommand {
     @Override
     public void execute(Dispatcher sender, String[] args) {
         Timings.startTiming("cmd-root", System.nanoTime());
-        StatsHolder holder = plugin.getUserManager().getUser(((Player) sender).getUniqueId());
+        StatsHolder holder = plugin.getUserManager().getUser(sender.getUniqueId());
         List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
         for (String statDesc : statsToShow) {
             show(sender, holder, statDesc);
