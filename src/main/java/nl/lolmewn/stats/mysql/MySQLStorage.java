@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -163,10 +164,10 @@ public class MySQLStorage implements StorageEngine {
             playersPS.setString(2, holder.getName());
             playersPS.execute();
 
-            for (Stat stat : holder.getStats()) {
+            for (Iterator<Stat> statIterator = holder.getStats().iterator(); statIterator.hasNext();) {
+                Stat stat = statIterator.next();
                 plugin.debug("Saving stat data for " + stat.getName() + "...");
                 table = prefix + formatStatName(stat.getName());
-
                 // first, delete the values that were locally deleted. If new values were added, they will be INSERTed anyway
                 for (StatEntry deleted : holder.getRemovedEntries()) {
                     StringBuilder sb = new StringBuilder("DELETE FROM ");
@@ -184,9 +185,9 @@ public class MySQLStorage implements StorageEngine {
                     deletePS.execute();
                 }
                 holder.getRemovedEntries().clear();
-
                 // TODO improve saving method by updating the value
-                for (StatEntry entry : holder.getStats(stat)) {
+                for (Iterator<StatEntry> entryIterator = holder.getStats(stat).iterator(); entryIterator.hasNext();) {
+                    StatEntry entry = entryIterator.next();
                     plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
