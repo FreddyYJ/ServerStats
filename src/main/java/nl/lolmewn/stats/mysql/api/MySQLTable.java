@@ -121,7 +121,7 @@ public class MySQLTable {
                 createQuery.append(") ON DELETE CASCADE ON UPDATE CASCADE");
             }
         }
-        createQuery.append(");");
+        createQuery.append(" ENGINE = INNODB);");
         return createQuery.toString();
     }
 
