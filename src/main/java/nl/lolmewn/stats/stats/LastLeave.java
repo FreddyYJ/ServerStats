@@ -33,4 +33,9 @@ public class LastLeave extends SimpleStat {
         );
     }
 
+    @Override
+    public boolean isSummable() {
+        return false;
+    }
+
 }

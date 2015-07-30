@@ -53,28 +53,6 @@ public class StatsStatHolderTest {
     }
 
     /**
-     * Test of isTemp method, of class StatsStatHolder.
-     */
-    @Test
-    public void testIsTemp() {
-        System.out.println("isTemp");
-        StatsStatHolder instance = new StatsStatHolder(uuid, name);
-        assertTrue(instance.isTemp());
-
-    }
-
-    /**
-     * Test of setTemp method, of class StatsStatHolder.
-     */
-    @Test
-    public void testSetTemp() {
-        System.out.println("setTemp");
-        StatsStatHolder instance = new StatsStatHolder(uuid, name);
-        instance.setTemp(false);
-        assertFalse(instance.isTemp());
-    }
-
-    /**
      * Test of getName method, of class StatsStatHolder.
      */
     @Test

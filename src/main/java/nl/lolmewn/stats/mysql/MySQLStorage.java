@@ -26,6 +26,7 @@ import nl.lolmewn.stats.mysql.api.MySQLAttribute;
 import nl.lolmewn.stats.mysql.api.MySQLTable;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
+import nl.lolmewn.stats.stats.DefaultStat;
 import nl.lolmewn.stats.user.MySQLStatHolder;
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -190,13 +191,17 @@ public class MySQLStorage implements StorageEngine {
                     deletePS.execute();
                 }
                 holder.getRemovedEntries().clear();
-                // TODO improve saving method by updating the value
-                for (Iterator<StatEntry> entryIterator = holder.getStats(stat).iterator(); entryIterator.hasNext();) {
-                    StatEntry entry = entryIterator.next();
+
+                StatEntry entry;
+                while ((entry = holder.getAdditions().poll()) != null) {
                     plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
-                    update.append(" SET value=? WHERE uuid=? ");
+                    update.append(" SET value=");
+                    if (stat instanceof DefaultStat && ((DefaultStat) stat).isSummable()) {
+                        update.append("value+");
+                    }
+                    update.append("? WHERE uuid=? ");
                     for (String metadataName : stat.getDataTypes().keySet()) {
                         update.append("AND ").append(metadataName.replace(" ", ""));
                         update.append("=? ");

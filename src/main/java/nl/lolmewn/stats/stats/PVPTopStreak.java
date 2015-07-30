@@ -10,4 +10,9 @@ public class PVPTopStreak extends SimpleStat {
         super("PVP top streak");
     }
 
+    @Override
+    public boolean isSummable() {
+        return false;
+    }
+
 }

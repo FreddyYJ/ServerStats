@@ -7,7 +7,7 @@ import nl.lolmewn.stats.api.stat.Stat;
  *
  * @author Lolmewn
  */
-public abstract class DefaultStat implements Stat {
+public abstract class DefaultStat implements Stat, Summable {
 
     private boolean enabled = false;
 
@@ -28,6 +28,11 @@ public abstract class DefaultStat implements Stat {
 
     public String getMessagesRootPath() {
         return "stats." + this.getName().toLowerCase().replace(" ", "_");
+    }
+
+    @Override
+    public boolean isSummable() {
+        return true;
     }
 
 }

@@ -23,7 +23,7 @@ public class LastJoin extends SimpleStat {
                 getMessagesRootPath() + ".format",
                 Util.getDefaultMessage(this, entry),
                 new Pair<>(
-                        "%value%", 
+                        "%value%",
                         DateFormat.getDateTimeInstance().format(
                                 new Date(
                                         (long) entry.getValue()
@@ -31,6 +31,11 @@ public class LastJoin extends SimpleStat {
                         )
                 )
         );
+    }
+
+    @Override
+    public boolean isSummable() {
+        return false;
     }
 
 }

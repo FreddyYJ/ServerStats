@@ -25,6 +25,7 @@ import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
+import nl.lolmewn.stats.user.MySQLStatHolder;
 import nl.lolmewn.stats.user.StatsStatHolder;
 import nl.lolmewn.stats.util.UUIDFetcher;
 import nl.lolmewn.stats.util.Util;
@@ -140,7 +141,7 @@ public class Stats2Converter {
             ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + conf.getString("prefix") + "players");
 
             HashMap<Integer, String> needsLookup = new HashMap<>();
-            HashMap<Integer, StatsStatHolder> users = new HashMap<>();
+            HashMap<Integer, MySQLStatHolder> users = new HashMap<>();
 
             while (set.next()) {
                 if (set.getString("uuid") == null) {
@@ -148,7 +149,7 @@ public class Stats2Converter {
                 } else {
                     users.put(
                             set.getInt("player_id"),
-                            new StatsStatHolder(
+                            new MySQLStatHolder(
                                     UUID.fromString(set.getString("uuid")),
                                     set.getString("name")
                             )
@@ -164,19 +165,19 @@ public class Stats2Converter {
                     UUID uuid;
                     try {
                         uuid = plugin.getServer().getOfflinePlayer(lookedUp.getValue()).getUniqueId();
-                        users.put(lookedUp.getKey(), new StatsStatHolder(uuid, lookedUp.getValue()));
+                        users.put(lookedUp.getKey(), new MySQLStatHolder(uuid, lookedUp.getValue()));
                         plugin.getLogger().info("Found it! Enabling convertion for user...");
                     } catch (Exception e) {
                         plugin.getLogger().severe("Bukkit can't find his UUID either. Ignoring user.");
                     }
                 } else {
-                    users.put(lookedUp.getKey(), new StatsStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
+                    users.put(lookedUp.getKey(), new MySQLStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
                 }
             }
 
             plugin.getLogger().info("Converting " + users.size() + " players to new database format...");
             int done = 0;
-            for (Entry<Integer, StatsStatHolder> entry : users.entrySet()) {
+            for (Entry<Integer, MySQLStatHolder> entry : users.entrySet()) {
                 convertUser(entry.getValue(), entry.getKey(), con);
                 if (done++ % 100 == 0) {
                     plugin.getLogger().info("Loaded data for " + done + "/" + users.size() + " users...");
@@ -191,6 +192,7 @@ public class Stats2Converter {
                     this.add(prefix + "death");
                     this.add(prefix + "move");
                     this.add(prefix + "players");
+                    this.add(prefix + "pvp"); // TODO write converter for PVP table
                 }
             };
             Statement st = con.createStatement();
@@ -209,7 +211,7 @@ public class Stats2Converter {
             plugin.getLogger().info("Generating new tables...");
             storage.generateTables();
             done = 0;
-            for (StatsStatHolder holder : users.values()) {
+            for (MySQLStatHolder holder : users.values()) {
                 holder.setTemp(false);
                 storage.save(holder);
                 if (done++ % 100 == 0) {

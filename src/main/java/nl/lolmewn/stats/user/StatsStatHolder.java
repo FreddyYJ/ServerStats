@@ -20,7 +20,6 @@ public class StatsStatHolder implements StatsHolder {
 
     private final UUID uuid;
     private final String name;
-    private boolean temp = true;
     private final Map<Stat, List<StatEntry>> entries;
     private final List<StatEntry> removedEntries = new ArrayList<>();
 
@@ -28,14 +27,6 @@ public class StatsStatHolder implements StatsHolder {
         this.uuid = uuid;
         this.name = name;
         this.entries = new ConcurrentHashMap<>();
-    }
-
-    public boolean isTemp() {
-        return temp;
-    }
-
-    public void setTemp(boolean value) {
-        this.temp = value;
     }
 
     public String getName() {
