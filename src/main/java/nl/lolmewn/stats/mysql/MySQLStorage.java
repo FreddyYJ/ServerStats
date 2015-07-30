@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,7 +26,7 @@ import nl.lolmewn.stats.mysql.api.MySQLAttribute;
 import nl.lolmewn.stats.mysql.api.MySQLTable;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
-import nl.lolmewn.stats.user.StatsStatHolder;
+import nl.lolmewn.stats.user.MySQLStatHolder;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 /**
@@ -48,7 +49,7 @@ public class MySQLStorage implements StorageEngine {
     @Override
     public StatsHolder load(UUID userUuid, StatManager statManager) throws StorageException {
         plugin.debug("Loading data for " + userUuid + "...");
-        StatsStatHolder holder = new StatsStatHolder(userUuid, plugin.getName(userUuid));
+        MySQLStatHolder holder = new MySQLStatHolder(userUuid, plugin.getName(userUuid));
         String table = null;
         try (Connection con = source.getConnection()) {
             int i = 0;
@@ -151,7 +152,7 @@ public class MySQLStorage implements StorageEngine {
 
     @Override
     public void save(StatsHolder user) throws StorageException {
-        StatsStatHolder holder = (StatsStatHolder) user;
+        MySQLStatHolder holder = (MySQLStatHolder) user;
         if (holder.isTemp()) {
             return;
         }
@@ -180,7 +181,11 @@ public class MySQLStorage implements StorageEngine {
                     deletePS.setString(1, holder.getUuid().toString());
                     int idx = 2;
                     for (String metadataName : stat.getDataTypes().keySet()) {
-                        deletePS.setObject(idx++, deleted.getMetadata().get(metadataName));
+                        if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
+                            deletePS.setObject(idx++, new Timestamp((long) deleted.getMetadata().get(metadataName)));
+                        } else {
+                            deletePS.setObject(idx++, deleted.getMetadata().get(metadataName));
+                        }
                     }
                     deletePS.execute();
                 }
@@ -201,7 +206,11 @@ public class MySQLStorage implements StorageEngine {
                     updatePS.setString(2, holder.getUuid().toString());
                     int idx = 3;
                     for (String metadataName : stat.getDataTypes().keySet()) {
-                        updatePS.setObject(idx++, entry.getMetadata().get(metadataName));
+                        if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
+                            updatePS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
+                        } else {
+                            updatePS.setObject(idx++, entry.getMetadata().get(metadataName));
+                        }
                     }
                     if (!updatePS.execute() && updatePS.getUpdateCount() == 0) {
                         //Need to insert
@@ -221,7 +230,11 @@ public class MySQLStorage implements StorageEngine {
                         insertPS.setDouble(2, entry.getValue());
                         idx = 3;
                         for (String metadataName : stat.getDataTypes().keySet()) {
-                            insertPS.setObject(idx++, entry.getMetadata().get(metadataName));
+                            if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
+                                insertPS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
+                            } else {
+                                insertPS.setObject(idx++, entry.getMetadata().get(metadataName));
+                            }
                         }
                         insertPS.execute();
                     }
