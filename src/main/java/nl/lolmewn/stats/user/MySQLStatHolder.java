@@ -25,6 +25,10 @@ public class MySQLStatHolder extends StatsStatHolder {
         additions.add(new Pair(stat, entry));
     }
 
+    public void addEntryLoaded(Stat stat, StatEntry entry) {
+        super.addEntry(stat, entry);
+    }
+
     public ConcurrentLinkedQueue<Pair<Stat, StatEntry>> getAdditions() {
         return additions;
     }

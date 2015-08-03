@@ -113,7 +113,7 @@ public class MySQLStorage implements StorageEngine {
                     }
                     StatEntry entry = new DefaultStatEntry(set.getDouble("value"), params);
                     plugin.debug("Adding entry using params " + params + ", value=" + set.getDouble("value") + "...");
-                    holder.addEntry(stat, entry);
+                    holder.addEntryLoaded(stat, entry);
                 }
             }
             plugin.debug("Took " + (System.currentTimeMillis() - start) + "ms");
