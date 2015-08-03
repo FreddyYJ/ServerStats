@@ -197,6 +197,7 @@ public class MySQLStorage implements StorageEngine {
             Pair<Stat, StatEntry> qEntry;
             while ((qEntry = holder.getAdditions().poll()) != null) {
                 Stat stat = qEntry.getKey();
+                table = prefix + formatStatName(stat.getName());
                 StatEntry entry = qEntry.getValue();
                 plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
                 StringBuilder update = new StringBuilder("UPDATE ");
