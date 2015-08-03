@@ -2,6 +2,7 @@ package nl.lolmewn.stats.user;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 
@@ -12,7 +13,7 @@ import nl.lolmewn.stats.api.stat.StatEntry;
 public class MySQLStatHolder extends StatsStatHolder {
 
     private boolean temp = true;
-    private final ConcurrentLinkedQueue<StatEntry> additions = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Pair<Stat, StatEntry>> additions = new ConcurrentLinkedQueue<>();
 
     public MySQLStatHolder(UUID uuid, String name) {
         super(uuid, name);
@@ -21,10 +22,10 @@ public class MySQLStatHolder extends StatsStatHolder {
     @Override
     public void addEntry(Stat stat, StatEntry entry) {
         super.addEntry(stat, entry);
-        additions.add(entry);
+        additions.add(new Pair(stat, entry));
     }
 
-    public ConcurrentLinkedQueue<StatEntry> getAdditions() {
+    public ConcurrentLinkedQueue<Pair<Stat, StatEntry>> getAdditions() {
         return additions;
     }
 

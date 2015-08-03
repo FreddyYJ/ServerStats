@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.Main;
+import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
@@ -192,57 +193,59 @@ public class MySQLStorage implements StorageEngine {
                 }
                 holder.getRemovedEntries().clear();
 
-                StatEntry entry;
-                while ((entry = holder.getAdditions().poll()) != null) {
-                    plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
-                    StringBuilder update = new StringBuilder("UPDATE ");
-                    update.append(table);
-                    update.append(" SET value=");
-                    if (stat instanceof DefaultStat && ((DefaultStat) stat).isSummable()) {
-                        update.append("value+");
+            }
+            Pair<Stat, StatEntry> qEntry;
+            while ((qEntry = holder.getAdditions().poll()) != null) {
+                Stat stat = qEntry.getKey();
+                StatEntry entry = qEntry.getValue();
+                plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
+                StringBuilder update = new StringBuilder("UPDATE ");
+                update.append(table);
+                update.append(" SET value=");
+                if (stat instanceof DefaultStat && ((DefaultStat) stat).isSummable()) {
+                    update.append("value+");
+                }
+                update.append("? WHERE uuid=? ");
+                for (String metadataName : stat.getDataTypes().keySet()) {
+                    update.append("AND ").append(metadataName.replace(" ", ""));
+                    update.append("=? ");
+                }
+                PreparedStatement updatePS = con.prepareStatement(update.toString());
+                updatePS.setDouble(1, entry.getValue());
+                updatePS.setString(2, holder.getUuid().toString());
+                int idx = 3;
+                for (String metadataName : stat.getDataTypes().keySet()) {
+                    if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
+                        updatePS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
+                    } else {
+                        updatePS.setObject(idx++, entry.getMetadata().get(metadataName));
                     }
-                    update.append("? WHERE uuid=? ");
+                }
+                if (!updatePS.execute() && updatePS.getUpdateCount() == 0) {
+                    //Need to insert
+                    StringBuilder insert = new StringBuilder("INSERT INTO ");
+                    insert.append(table);
+                    insert.append(" (uuid, value");
+                    for (String metadataName : entry.getMetadata().keySet()) {
+                        insert.append(", ").append(metadataName.replace(" ", ""));
+                    }
+                    insert.append(") VALUES (?, ?");
                     for (String metadataName : stat.getDataTypes().keySet()) {
-                        update.append("AND ").append(metadataName.replace(" ", ""));
-                        update.append("=? ");
+                        insert.append(",? ");
                     }
-                    PreparedStatement updatePS = con.prepareStatement(update.toString());
-                    updatePS.setDouble(1, entry.getValue());
-                    updatePS.setString(2, holder.getUuid().toString());
-                    int idx = 3;
+                    insert.append(")");
+                    PreparedStatement insertPS = con.prepareStatement(insert.toString());
+                    insertPS.setString(1, holder.getUuid().toString());
+                    insertPS.setDouble(2, entry.getValue());
+                    idx = 3;
                     for (String metadataName : stat.getDataTypes().keySet()) {
                         if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
-                            updatePS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
+                            insertPS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
                         } else {
-                            updatePS.setObject(idx++, entry.getMetadata().get(metadataName));
+                            insertPS.setObject(idx++, entry.getMetadata().get(metadataName));
                         }
                     }
-                    if (!updatePS.execute() && updatePS.getUpdateCount() == 0) {
-                        //Need to insert
-                        StringBuilder insert = new StringBuilder("INSERT INTO ");
-                        insert.append(table);
-                        insert.append(" (uuid, value");
-                        for (String metadataName : entry.getMetadata().keySet()) {
-                            insert.append(", ").append(metadataName.replace(" ", ""));
-                        }
-                        insert.append(") VALUES (?, ?");
-                        for (String metadataName : stat.getDataTypes().keySet()) {
-                            insert.append(",? ");
-                        }
-                        insert.append(")");
-                        PreparedStatement insertPS = con.prepareStatement(insert.toString());
-                        insertPS.setString(1, holder.getUuid().toString());
-                        insertPS.setDouble(2, entry.getValue());
-                        idx = 3;
-                        for (String metadataName : stat.getDataTypes().keySet()) {
-                            if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
-                                insertPS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
-                            } else {
-                                insertPS.setObject(idx++, entry.getMetadata().get(metadataName));
-                            }
-                        }
-                        insertPS.execute();
-                    }
+                    insertPS.execute();
                 }
             }
             unlock(con, user.getUuid()); // if they're never locked, not my problem!
