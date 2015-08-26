@@ -1,9 +1,10 @@
 package nl.lolmewn.stats.stats.bukkit;
 
 import java.util.UUID;
-import nl.lolmewn.stats.bukkit.BukkitMain;
+import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.PVP;
@@ -51,7 +52,19 @@ public class BukkitPVP extends PVP implements Listener {
                             new MetadataPair("world", killer.getWorld().getName())
                     )
             );
+            streaks(killer, dead);
         }
+    }
+
+    public void streaks(Player killer, Player victim) {
+        StatsHolder holder = this.plugin.getUserManager().getUser(killer.getUniqueId());
+        Stat streak = plugin.getStatManager().getStat("PVP streak");
+        holder.addEntry(streak, new DefaultStatEntry(1,
+                new MetadataPair("world", killer.getWorld().getName()))
+        );
+
+        StatsHolder dead = this.plugin.getUserManager().getUser(victim.getUniqueId());
+        dead.removeStat(streak);
     }
 
 }
