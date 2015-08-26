@@ -41,6 +41,7 @@ public class Stats2Converter {
     private final BukkitMain plugin;
     private String prefix;
     private final HashMap<String, Stat> playerStatsLookup = new HashMap<>();
+    private final HashMap<Integer, MySQLStatHolder> users = new HashMap<>();
 
     public Stats2Converter(BukkitMain plugin) {
         this.plugin = plugin;
@@ -141,7 +142,6 @@ public class Stats2Converter {
             ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + conf.getString("prefix") + "players");
 
             HashMap<Integer, String> needsLookup = new HashMap<>();
-            HashMap<Integer, MySQLStatHolder> users = new HashMap<>();
 
             while (set.next()) {
                 if (set.getString("uuid") == null) {
@@ -322,6 +322,24 @@ public class Stats2Converter {
                         new MetadataPair("world", set.getString("world")),
                         new MetadataPair("entityType", set.getString("type")),
                         new MetadataPair("weapon", "Unknown")
+                ));
+            }
+        }
+
+        try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "pvp WHERE player_id=?")) {
+            Stat kill = plugin.getStatManager().getStat("PVP");
+            st.setInt(1, id);
+            ResultSet set = st.executeQuery();
+            while (set.next()) {
+                if(!users.containsKey(set.getInt("killed"))){
+                    continue;
+                }
+                holder.addEntry(kill, new DefaultStatEntry(
+                        set.getInt("amount"),
+                        new MetadataPair("world", set.getString("world")),
+                        new MetadataPair("weapon", set.getString("weapon")),
+                        new MetadataPair("victim", users.get(set.getInt("killed")).getUuid().toString()),
+                        new MetadataPair("time", System.currentTimeMillis())
                 ));
             }
         }
