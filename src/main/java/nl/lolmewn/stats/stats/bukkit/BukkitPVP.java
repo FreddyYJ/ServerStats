@@ -38,11 +38,15 @@ public class BukkitPVP extends PVP implements Listener {
         }
         if (event.getEntity().getKiller() != null) {
             Player killer = event.getEntity().getKiller();
+            StatsHolder holder = this.plugin.getUserManager().getUser(killer.getUniqueId());
+            if (holder == null) {
+                plugin.debug("Killer was not null but holder was not found: " + killer);
+                return;
+            }
             Player dead = event.getEntity();
             ItemStack weapon = killer.getItemInHand();
             String weaponName = weapon == null ? "Fists" : (weapon.getType().name().substring(0, 1) + weapon.getType().name().substring(1).toLowerCase().replace("_", " "));
             // This stat only tracks pvp
-            StatsHolder holder = this.plugin.getUserManager().getUser(killer.getUniqueId());
             holder.addEntry(this,
                     new DefaultStatEntry(
                             1,

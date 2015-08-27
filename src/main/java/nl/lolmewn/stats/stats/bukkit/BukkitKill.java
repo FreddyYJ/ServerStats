@@ -33,6 +33,10 @@ public class BukkitKill extends Kill implements Listener {
         }
         Player player = event.getEntity().getKiller();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
+        if (holder == null) {
+            plugin.debug("Killer was not null but holder was not found: " + player);
+            return;
+        }
         holder.addEntry(
                 this,
                 new DefaultStatEntry(
