@@ -49,7 +49,7 @@ public class MySQLStorage implements StorageEngine {
     }
 
     @Override
-    public StatsHolder load(UUID userUuid, StatManager statManager) throws StorageException {
+    public MySQLStatHolder load(UUID userUuid, StatManager statManager) throws StorageException {
         plugin.debug("Loading data for " + userUuid + "...");
         MySQLStatHolder holder = new MySQLStatHolder(userUuid, plugin.getName(userUuid));
         String table = null;
@@ -154,6 +154,10 @@ public class MySQLStorage implements StorageEngine {
 
     @Override
     public void save(StatsHolder user) throws StorageException {
+        if (!(user instanceof MySQLStatHolder)) {
+            // temp user for StatsUserManager
+            return;
+        }
         MySQLStatHolder holder = (MySQLStatHolder) user;
         if (holder.isTemp()) {
             return;
