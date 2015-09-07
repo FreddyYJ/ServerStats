@@ -35,6 +35,9 @@ public class StatsStatHolder implements StatsHolder {
 
     @Override
     public void addEntry(Stat stat, StatEntry entry) {
+        if (stat == null) {
+            throw new IllegalStateException("Stat can't be null");
+        }
         if (!this.hasStat(stat)) {
             this.entries.put(stat, Collections.synchronizedList(new LinkedList<StatEntry>()));
         }
@@ -76,6 +79,9 @@ public class StatsStatHolder implements StatsHolder {
 
     @Override
     public boolean hasStat(Stat stat) {
+        if (stat == null) {
+            throw new IllegalStateException("Stat can't be null");
+        }
         return entries.containsKey(stat);
     }
 
