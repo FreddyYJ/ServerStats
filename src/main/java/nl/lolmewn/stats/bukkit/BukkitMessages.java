@@ -25,8 +25,9 @@ public class BukkitMessages implements Config {
             config = YamlConfiguration.loadConfiguration(file);
             YamlConfiguration jar = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("messages.yml")));
             for (String path : jar.getKeys(true)) {
-                if (!config.contains(path)) {
-                    config.set(path, jar.get(path));
+                if (!config.contains(path.toLowerCase())) {
+                    config.set(path.toLowerCase(), config.contains(path) ? config.get(path) : jar.get(path));
+                    config.set(path, null);
                 }
             }
             config.save(file);
@@ -52,8 +53,8 @@ public class BukkitMessages implements Config {
     public int getInteger(String key, int def) {
         return config.getInt(key, def);
     }
-    
-    public List<String> getStringList(String key){
+
+    public List<String> getStringList(String key) {
         return config.getStringList(key);
     }
 
