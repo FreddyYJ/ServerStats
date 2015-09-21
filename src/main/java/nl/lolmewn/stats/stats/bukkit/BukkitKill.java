@@ -45,7 +45,7 @@ public class BukkitKill extends Kill implements Listener {
                         new MetadataPair("weapon",
                                 player.getItemInHand() == null
                                         ? "Fists"
-                                        : (player.getItemInHand().getItemMeta().hasDisplayName()
+                                        : (player.getItemInHand().hasItemMeta() && player.getItemInHand().getItemMeta().hasDisplayName()
                                                 ? player.getItemInHand().getItemMeta().getDisplayName()
                                                 : player.getItemInHand().getType().toString())
                         ),
