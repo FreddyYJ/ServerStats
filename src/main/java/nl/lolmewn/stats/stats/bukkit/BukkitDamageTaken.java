@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.DamageTaken;
@@ -32,6 +32,9 @@ public class BukkitDamageTaken extends DamageTaken implements Listener {
             return;
         }
         Player player = (Player) event.getEntity();
+        if (player.hasMetadata("NPC")) {
+            return;
+        }
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
         holder.addEntry(this, new DefaultStatEntry(event.getDamage(),
                 new MetadataPair("world", player.getWorld().getName()),

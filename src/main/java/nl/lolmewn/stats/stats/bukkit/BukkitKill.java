@@ -2,6 +2,7 @@ package nl.lolmewn.stats.stats.bukkit;
 
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.bukkit.BukkitMain;
+import nl.lolmewn.stats.bukkit.BukkitUtil;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.Kill;
@@ -31,6 +32,9 @@ public class BukkitKill extends Kill implements Listener {
         if (event.getEntity().getKiller() == null) {
             return; // natural cause-ish.
         }
+        if (event.getEntity().getKiller().hasMetadata("NPC")) {
+            return;
+        }
         Player player = event.getEntity().getKiller();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
         if (holder == null) {
@@ -42,13 +46,7 @@ public class BukkitKill extends Kill implements Listener {
                 new DefaultStatEntry(
                         1,
                         new MetadataPair("world", player.getWorld().getName()),
-                        new MetadataPair("weapon",
-                                player.getItemInHand() == null
-                                        ? "Fists"
-                                        : (player.getItemInHand().hasItemMeta() && player.getItemInHand().getItemMeta().hasDisplayName()
-                                                ? player.getItemInHand().getItemMeta().getDisplayName()
-                                                : player.getItemInHand().getType().toString())
-                        ),
+                        new MetadataPair("weapon", BukkitUtil.getWeaponName(player.getItemInHand())),
                         new MetadataPair("entityType", event.getEntity().getType().toString())
                 ));
     }

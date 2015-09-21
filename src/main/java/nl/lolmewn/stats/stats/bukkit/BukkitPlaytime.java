@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.Playtime;
@@ -30,6 +30,9 @@ public class BukkitPlaytime extends Playtime {
                     return;
                 }
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
+                    if (player.hasMetadata("NPC")) {
+                        continue;
+                    }
                     StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
                     holder.addEntry(
                             BukkitPlaytime.this,

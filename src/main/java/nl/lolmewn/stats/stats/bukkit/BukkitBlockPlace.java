@@ -27,6 +27,9 @@ public class BukkitBlockPlace extends BlockPlace implements Listener {
         if (!this.isEnabled()) {
             return;
         }
+        if (event.getPlayer().hasMetadata("NPC")) {
+            return;
+        }
         Block block = event.getBlock();
         StatsHolder holder = plugin.getUserManager().getUser(event.getPlayer().getUniqueId());
         holder.addEntry(this,

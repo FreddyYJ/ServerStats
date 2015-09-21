@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.WordsSaid;
@@ -26,6 +26,9 @@ public class BukkitWordsSaid extends WordsSaid implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void event(AsyncPlayerChatEvent event) {
         if (!this.isEnabled()) {
+            return;
+        }
+        if(event.getPlayer().hasMetadata("NPC")){
             return;
         }
         int words = event.getMessage().split(" ").length;

@@ -28,6 +28,9 @@ public class BukkitLastJoin extends LastJoin implements Listener {
         if (!this.isEnabled()) {
             return;
         }
+        if (event.getPlayer().hasMetadata("NPC")) {
+            return;
+        }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
         holder.getStats(this).clear();

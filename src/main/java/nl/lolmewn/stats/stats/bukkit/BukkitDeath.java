@@ -30,15 +30,18 @@ public class BukkitDeath extends Death implements Listener {
         if (!this.isEnabled()) {
             return;
         }
+        if (event.getEntity().hasMetadata("NPC")) {
+            return;
+        }
         EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
         String cause;
-        if(damageEvent != null){
-            if(damageEvent instanceof EntityDamageByEntityEvent){
-                cause = ((EntityDamageByEntityEvent)damageEvent).getDamager().getType().toString();
-            }else{
+        if (damageEvent != null) {
+            if (damageEvent instanceof EntityDamageByEntityEvent) {
+                cause = ((EntityDamageByEntityEvent) damageEvent).getDamager().getType().toString();
+            } else {
                 cause = damageEvent.getCause().toString();
             }
-        }else{
+        } else {
             cause = "Unknown";
         }
         Player player = event.getEntity();

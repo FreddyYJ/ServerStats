@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.Trades;
@@ -44,6 +44,9 @@ public class BukkitTrades extends Trades implements Listener {
             return;
         }
         Player player = (Player) event.getWhoClicked();
+        if(player.hasMetadata("NPC")){
+            return;
+        }
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
         holder.addEntry(this, new DefaultStatEntry(1,
                 new MetadataPair("world", player.getWorld().getName())

@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stats.WorldChanged;
 import org.bukkit.entity.Player;
@@ -25,6 +25,9 @@ public class BukkitWorldChange extends WorldChanged implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void event(PlayerChangedWorldEvent event) {
         if (!this.isEnabled()) {
+            return;
+        }
+        if(event.getPlayer().hasMetadata("NPC")){
             return;
         }
         Player player = event.getPlayer();
