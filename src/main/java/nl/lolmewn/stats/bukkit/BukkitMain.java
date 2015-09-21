@@ -123,6 +123,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     @Override
     public void onDisable() {
+        this.getServer().getScheduler().cancelTasks(this);
         if (this.userManager != null) {
             for (StatsHolder holder : this.userManager.getUsers()) {
                 try {
