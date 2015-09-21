@@ -97,7 +97,11 @@ public class StatsRootCommand extends SubCommand {
                 }
             }
         } else {
-            stat = plugin.getStatManager().getStat(statDesc);
+            stat = Util.findStat(plugin.getStatManager(), statDesc);
+            if (stat == null) {
+                plugin.getLogger().warning("Incorrect stat specified, not found: '" + statDesc + "'");
+                return;
+            }
         }
         List<StatEntry> validEntries = new ArrayList<>();
         if (!holder.hasStat(stat)) {
@@ -118,7 +122,7 @@ public class StatsRootCommand extends SubCommand {
                         Messages.getMessage("no-stats-yet-params", new Pair("%stat%", stat.getName()), new Pair("%fanciful%", ""))
                 ).then("metadata").tooltip(
                         cannotContain.toString().replace("{", "").replace("}", "").replace("=", "!=")
-                                + " " + containsOne.toString().replace("{", "").replace("}", ""))
+                        + " " + containsOne.toString().replace("{", "").replace("}", ""))
                         .send(cs);
             } else {
                 sender.sendMessage(Messages.getMessage("no-stats-yet", new Pair("%stat%", stat.getName())));
