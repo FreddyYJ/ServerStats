@@ -15,70 +15,69 @@ sign:
 
 stats:
     playtime:
-        description: "Time played"
-        format: "%days% days, %hours% hours, %minutes% minutes and %seconds% seconds"
-    Fish_caught:
+        description: Time played
+        format: '%days% days, %hours% hours, %minutes% minutes and %seconds% seconds'
+    fish_caught:
         format: '%value% in world %world%'
-    Items_picked_up:
+    items_picked_up:
         format: '%value% in world %world%'
-    Playtime:
+    blocks_broken:
         format: '%value% in world %world%'
-    Blocks_broken:
+    items_dropped:
         format: '%value% in world %world%'
-    Items_dropped:
-        format: '%value% in world %world%'
-    Times_kicked:
+    times_kicked:
         format: '%value%'
-    PVP:
+    pvp:
         format: '%value% in world %world%'
-    Arrows:
+    arrows:
         format: '%value% in world %world%'
-    Buckets_emptied:
+    buckets_emptied:
         format: '%value% in world %world%'
-    Damage_taken:
+    damage_taken:
         format: '%value% in world %world%'
-    Tools_broken:
+    tools_broken:
         format: '%value% in world %world%'
-    Move:
+    move:
         format: '%value% in world %world%'
-    Shears:
+    shears:
         format: '%value% in world %world%'
-    Votes:
+    votes:
         format: '%value%'
-    Kill:
+    kill:
         format: '%value% in world %world%'
-    Last_seen:
+    last_seen:
         format: '%value% in world %world%'
-    Last_join:
+    last_join:
         format: '%value% in world %world%'
-    Trades:
+    trades:
         format: '%value% in world %world%'
-    Blocks_placed:
+    blocks_placed:
         format: '%value% in world %world%'
-    Items_crafted:
+    items_crafted:
         format: '%value% in world %world%'
-    Teleports:
+    teleports:
         format: '%value% in world %world%'
-    Words_said:
+    words_said:
         format: '%value% in world %world%'
-    Joins:
+    xp_gained:
+        format: '%value% in world %world%'
+    eggs_thrown:
+        format: '%value% in world %world%'
+    times_changed_world:
         format: '%value%'
-    XP_gained:
+    buckets_filled:
         format: '%value% in world %world%'
-    Eggs_thrown:
+    omnomnom:
         format: '%value% in world %world%'
-    Times_changed_world:
-        format: '%value%'
-    Buckets_filled:
+    death:
         format: '%value% in world %world%'
-    Omnomnom:
+    beds_entered:
         format: '%value% in world %world%'
-    Death:
-        format: '%value% in world %world%'
-    Beds_entered:
-        format: '%value% in world %world%'
-    Commands_done:
-        format: '%value% in world %world%'
+    commands_done:
+         format: '%value% in world %world%'
+    joins:
+        format: '%value% times joined'
+
 
 commands:
     stat:
