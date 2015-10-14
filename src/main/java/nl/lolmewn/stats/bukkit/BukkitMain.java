@@ -25,7 +25,6 @@ import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.signs.SignManager;
 import nl.lolmewn.stats.stats.PVPStreak;
 import nl.lolmewn.stats.stats.PVPTopStreak;
-import nl.lolmewn.stats.stats.Votes;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
 import nl.lolmewn.stats.stats.bukkit.BukkitBedEnter;
 import nl.lolmewn.stats.stats.bukkit.BukkitBlockBreak;
@@ -53,6 +52,7 @@ import nl.lolmewn.stats.stats.bukkit.BukkitTeleports;
 import nl.lolmewn.stats.stats.bukkit.BukkitTimesKicked;
 import nl.lolmewn.stats.stats.bukkit.BukkitToolsBroken;
 import nl.lolmewn.stats.stats.bukkit.BukkitTrades;
+import nl.lolmewn.stats.stats.bukkit.BukkitVotes;
 import nl.lolmewn.stats.stats.bukkit.BukkitWordsSaid;
 import nl.lolmewn.stats.stats.bukkit.BukkitWorldChange;
 import nl.lolmewn.stats.stats.bukkit.BukkitXpGained;
@@ -212,7 +212,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitTimesKicked(this));
         this.statManager.addStat(new BukkitToolsBroken(this));
         this.statManager.addStat(new BukkitTrades(this));
-        this.statManager.addStat(new Votes()); // TODO implement
+        this.statManager.addStat(new BukkitVotes(this));
         this.statManager.addStat(new BukkitWordsSaid(this));
         this.statManager.addStat(new BukkitWorldChange(this));
         this.statManager.addStat(new BukkitXpGained(this));

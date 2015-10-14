@@ -29,6 +29,10 @@
             <id>fanciful-mvn-repo</id>
             <url>http://repo.franga2000.com/artifactory/public</url>
         </repository>
+        <repository>
+            <id>plugin-repo</id>
+            <url>http://bukkit.jacekk.co.uk/plugin_repo/</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
@@ -41,6 +45,12 @@
             <artifactId>bukkit</artifactId> 
             <version>1.7.9-R0.2</version>
             <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit.dev</groupId>
+            <artifactId>votifier</artifactId>
+            <version>1.9</version>
             <scope>provided</scope>
         </dependency>
         
