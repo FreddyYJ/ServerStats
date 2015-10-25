@@ -1,8 +1,6 @@
 package nl.lolmewn.stats.stats.bukkit;
 
 import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
@@ -84,17 +82,9 @@ public class BukkitPVP extends PVP implements Listener {
         if (!holder.hasStat(stat)) {
             return 0;
         }
-        return holder.getStats(stat).stream().filter(new Predicate<StatEntry>() {
-            @Override
-            public boolean test(StatEntry t) {
-                return t.getMetadata().containsKey("world") && t.getMetadata().get("world").equals(name);
-            }
-        }).mapToInt(new ToIntFunction<StatEntry>() {
-            @Override
-            public int applyAsInt(StatEntry value) {
-                return (int) value.getValue();
-            }
-        }).sum();
+        return holder.getStats(stat).stream().filter(
+                (StatEntry t) -> t.getMetadata().containsKey("world") && t.getMetadata().get("world").equals(name)
+        ).mapToInt((StatEntry value) -> (int) value.getValue()).sum();
     }
 
 }
