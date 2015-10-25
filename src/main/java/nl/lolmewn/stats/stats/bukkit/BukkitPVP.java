@@ -1,6 +1,8 @@
 package nl.lolmewn.stats.stats.bukkit;
 
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
@@ -63,12 +65,36 @@ public class BukkitPVP extends PVP implements Listener {
     public void streaks(Player killer, Player victim) {
         StatsHolder holder = this.plugin.getUserManager().getUser(killer.getUniqueId());
         Stat streak = plugin.getStatManager().getStat("PVP streak");
+        Stat topStreak = plugin.getStatManager().getStat("PVP top streak");
         holder.addEntry(streak, new DefaultStatEntry(1,
                 new MetadataPair("world", killer.getWorld().getName()))
         );
+        int currentTopStreak = getCurrentStreak(holder, topStreak, killer.getWorld().getName());
+        int currentStreak = getCurrentStreak(holder, streak, killer.getWorld().getName());
+        if (currentTopStreak < currentStreak) {
+            holder.removeStat(topStreak);
+            holder.addEntry(topStreak, new DefaultStatEntry(currentStreak, new MetadataPair("world", killer.getWorld().getName())));
+        }
 
         StatsHolder dead = this.plugin.getUserManager().getUser(victim.getUniqueId());
         dead.removeStat(streak);
+    }
+
+    private int getCurrentStreak(StatsHolder holder, Stat stat, final String name) {
+        if (!holder.hasStat(stat)) {
+            return 0;
+        }
+        return holder.getStats(stat).stream().filter(new Predicate<StatEntry>() {
+            @Override
+            public boolean test(StatEntry t) {
+                return t.getMetadata().containsKey("world") && t.getMetadata().get("world").equals(name);
+            }
+        }).mapToInt(new ToIntFunction<StatEntry>() {
+            @Override
+            public int applyAsInt(StatEntry value) {
+                return (int) value.getValue();
+            }
+        }).sum();
     }
 
 }
