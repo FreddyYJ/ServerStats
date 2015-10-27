@@ -61,6 +61,7 @@ import nl.lolmewn.stats.storage.StorageEngineManager;
 import nl.lolmewn.stats.user.StatsUserManager;
 import nl.lolmewn.stats.util.Timings;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -119,6 +120,8 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getCommand("stats").setExecutor(new BukkitCommand(this));
         this.startStats();
         this.registerAPI();
+        
+        this.loadOnlinePlayers();
     }
 
     @Override
@@ -402,6 +405,16 @@ public class BukkitMain extends JavaPlugin implements Main {
             conf.save(new File(this.getDataFolder(), "messages.yml"));
         } catch (IOException ex) {
             Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void loadOnlinePlayers() {
+        for(Player player : this.getServer().getOnlinePlayers()){
+            try {
+                this.getUserManager().loadUser(player.getUniqueId(), statManager);
+            } catch (StorageException ex) {
+                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }
