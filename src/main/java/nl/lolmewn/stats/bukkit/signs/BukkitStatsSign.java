@@ -182,11 +182,9 @@ public class BukkitStatsSign implements StatsSign {
         switch (statType) {
             case ALL:
             case RANDOM:
-                for (Stat stat : statManager.getStats()) {
-                    if (stat.isEnabled()) {
-                        sDisplayQueue.add(stat);
-                    }
-                }
+                statManager.getStats().stream().filter((stat) -> (stat.isEnabled())).forEach((stat) -> {
+                    sDisplayQueue.add(stat);
+        });
                 break;
             default:
                 sDisplayQueue.addAll(stats);
@@ -202,11 +200,9 @@ public class BukkitStatsSign implements StatsSign {
                 }
                 return false;
             default:
-                for (UUID uuid : users) {
-                    if (Bukkit.getServer().getPlayer(uuid) != null) {
-                        return true;
-                    }
-                }
+        if (users.stream().anyMatch((uuid) -> (Bukkit.getServer().getPlayer(uuid) != null))) {
+            return true;
+        }
                 return false;
         }
     }

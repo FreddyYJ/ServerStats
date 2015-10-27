@@ -40,12 +40,9 @@ public class Util {
 
     public static List<Pair<String, ?>> getSafePairs(Stat stat, StatEntry entry) {
         List<Pair<String, ?>> list = new ArrayList<>();
-        for (Entry<String, Object> metadata : entry.getMetadata().entrySet()) {
-            if (metadata.getValue() == null) {
-                continue;
-            }
+        entry.getMetadata().entrySet().stream().filter((metadata) -> !(metadata.getValue() == null)).forEach((metadata) -> {
             list.add(new Pair(metadata.getKey(), metadata.getValue()));
-        }
+        });
         list.add(new Pair<>("%value%", entry.getValue()));
         return list;
     }
@@ -62,9 +59,7 @@ public class Util {
 
     public static double sumAll(Collection<StatEntry> entries) {
         double sum = 0;
-        for (StatEntry entry : entries) {
-            sum += entry.getValue();
-        }
+        sum = entries.stream().map((entry) -> entry.getValue()).reduce(sum, (accumulator, _item) -> accumulator + _item);
         return sum;
     }
 

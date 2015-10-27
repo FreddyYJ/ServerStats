@@ -21,5 +21,6 @@ public interface Main {
     public StatManager getStatManager();
     public String getName(UUID player);
     public void scheduleTask(Runnable runnable, int ticks);
+    public void scheduleTaskAsync(Runnable runnable, int ticks);
 
 }

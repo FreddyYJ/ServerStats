@@ -86,11 +86,11 @@ public class StatsUserManager implements UserManager {
             this.addUser(holder);
             return;
         }
-        for (Stat stat : other.getStats()) {
-            for (StatEntry entry : other.getStats(stat)) {
+        other.getStats().stream().forEach((stat) -> {
+            other.getStats(stat).stream().forEach((entry) -> {
                 holder.addEntry(stat, entry);
-            }
-        }
+            });
+        });
         this.removeUser(other.getUuid());
         this.addUser(holder);
         plugin.getServer().getPluginManager().callEvent(new StatsHolderLoadedEvent(holder));

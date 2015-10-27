@@ -19,9 +19,9 @@ public class SignTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        for (StatsSign sign : plugin.getSignManager().getSigns()) {
+        plugin.getSignManager().getSigns().stream().forEach((sign) -> {
             sign.update(plugin.getStatManager(), plugin.getUserManager());
-        }
+        });
     }
 
 }

@@ -186,10 +186,12 @@ public class MySQLStorage implements StorageEngine {
                 for (StatEntry deleted : holder.getRemovedEntries()) {
                     StringBuilder sb = new StringBuilder("DELETE FROM ");
                     sb.append(table).append(" WHERE uuid=? ");
-                    for (String metadataName : stat.getDataTypes().keySet()) {
+                    stat.getDataTypes().keySet().stream().map((metadataName) -> {
                         sb.append("AND ").append(metadataName.replace(" ", ""));
+                        return metadataName;
+                    }).forEach((_item) -> {
                         sb.append("=? ");
-                    }
+                    });
                     PreparedStatement deletePS = con.prepareStatement(sb.toString());
                     deletePS.setString(1, holder.getUuid().toString());
                     int idx = 2;
@@ -217,10 +219,12 @@ public class MySQLStorage implements StorageEngine {
                         update.append("value+");
                     }
                     update.append("? WHERE uuid=? ");
-                    for (String metadataName : stat.getDataTypes().keySet()) {
+                    stat.getDataTypes().keySet().stream().map((metadataName) -> {
                         update.append("AND ").append(metadataName.replace(" ", ""));
+                        return metadataName;
+                    }).forEach((_item) -> {
                         update.append("=? ");
-                    }
+                    });
                     PreparedStatement updatePS = con.prepareStatement(update.toString());
                     updatePS.setDouble(1, entry.getValue());
                     updatePS.setString(2, holder.getUuid().toString());

@@ -53,9 +53,9 @@ public class Messages {
     public static List<String> getMessages(String path) {
         List<String> msgs = config.getStringList(path);
         List<String> re = new LinkedList<>();
-        for (String msg : msgs) {
+        msgs.stream().forEach((msg) -> {
             re.add(colorise(msg));
-        }
+        });
         return re;
     }
 
@@ -66,13 +66,14 @@ public class Messages {
             return msgs;
         }
         List<String> re = new LinkedList<>();
-        for (String message : msgs) {
+        msgs.stream().map((message) -> {
             for (Pair<String, ?> pair : replace) {
                 message = message.replace(pair.getKey(), pair.getValue().toString());
             }
+            return message;
+        }).forEach((message) -> {
             re.add(colorise(message));
-
-        }
+        });
         return re;
     }
 

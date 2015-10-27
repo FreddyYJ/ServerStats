@@ -159,7 +159,7 @@ public class Stats2Converter {
             plugin.getLogger().info("Fetching the UUID of " + needsLookup.size() + " players...");
             UUIDFetcher fetcher = new UUIDFetcher(new ArrayList<>(needsLookup.values()));
             Map<String, UUID> uuids = fetcher.call();
-            for (Entry<Integer, String> lookedUp : needsLookup.entrySet()) {
+            needsLookup.entrySet().stream().forEach((lookedUp) -> {
                 if (!uuids.containsKey(lookedUp.getValue())) {
                     plugin.getLogger().warning("Couldn't find UUID for " + lookedUp.getValue() + ", checking Bukkit UUIDs...");
                     UUID uuid;
@@ -173,7 +173,7 @@ public class Stats2Converter {
                 } else {
                     users.put(lookedUp.getKey(), new MySQLStatHolder(uuids.get(lookedUp.getValue()), lookedUp.getValue()));
                 }
-            }
+            });
 
             plugin.getLogger().info("Converting " + users.size() + " players to new database format...");
             int done = 0;

@@ -17,7 +17,6 @@ import nl.lolmewn.stats.api.StatsAPI;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
-import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.bukkit.signs.SignTask;
 import nl.lolmewn.stats.command.bukkit.BukkitCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
@@ -128,13 +127,13 @@ public class BukkitMain extends JavaPlugin implements Main {
     public void onDisable() {
         this.getServer().getScheduler().cancelTasks(this);
         if (this.userManager != null) {
-            for (StatsHolder holder : this.userManager.getUsers()) {
+            this.userManager.getUsers().stream().forEach((holder) -> {
                 try {
                     this.userManager.saveUser(holder.getUuid());
                 } catch (Exception ex) {
                     Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
+            });
         }
         if (this.signManager != null) {
             try {
@@ -254,13 +253,13 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
             Timings.startTiming("user-saving", System.nanoTime());
             synchronized (userManager) {
-                for (StatsHolder holder : userManager.getUsers()) {
+                userManager.getUsers().stream().forEach((holder) -> {
                     try {
                         userManager.saveUser(holder.getUuid());
                     } catch (StorageException ex) {
                         Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                }
+                });
             }
             debug("Saving users took " + Timings.finishTimings("user-saving", System.nanoTime()) + "ns");
         }, 200L, 200L);
@@ -295,13 +294,13 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void startStats() {
-        for (Stat stat : this.getStatManager().getStats()) {
+        this.getStatManager().getStats().stream().forEach((stat) -> {
             if (!getConfig().getStringList("disabled").contains(stat.getName())) {
                 enableStat(stat);
             } else {
                 stat.setEnabled(false);
             }
-        }
+        });
     }
 
     private void loadStorageEngines() throws StorageException {
@@ -333,6 +332,11 @@ public class BukkitMain extends JavaPlugin implements Main {
     @Override
     public void scheduleTask(Runnable runnable, int ticks) {
         this.getServer().getScheduler().runTaskLater(this, runnable, ticks);
+    }
+    
+    @Override
+    public void scheduleTaskAsync(Runnable runnable, int ticks) {
+        this.getServer().getScheduler().runTaskLaterAsynchronously(this, runnable, ticks);
     }
 
     private void scheduleUserManagerLoading() {
@@ -384,20 +388,16 @@ public class BukkitMain extends JavaPlugin implements Main {
     private void checkMessagesFileComplete() {
         YamlConfiguration conf = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "messages.yml"));
         YamlConfiguration jar = YamlConfiguration.loadConfiguration(new InputStreamReader(getResource("messages.yml")));
-        for (String path : jar.getKeys(true)) {
-            if (!conf.contains(path)) {
-                conf.set(path, jar.get(path));
-            }
-        }
-        for (Stat stat : this.statManager.getStats()) {
-            if (!conf.contains("stats." + stat.getName().replace(" ", "_") + ".format")) {
-                conf.set("stats." + stat.getName().replace(" ", "_") + ".format", "%value%"
-                        + (stat.getDataTypes().containsKey("world")
-                        ? " in world %world%"
-                        : "")
-                );
-            }
-        }
+        jar.getKeys(true).stream().filter((path) -> (!conf.contains(path))).forEach((path) -> {
+            conf.set(path, jar.get(path));
+        });
+        this.statManager.getStats().stream().filter((stat) -> (!conf.contains("stats." + stat.getName().replace(" ", "_") + ".format"))).forEach((stat) -> {
+            conf.set("stats." + stat.getName().replace(" ", "_") + ".format", "%value%"
+                    + (stat.getDataTypes().containsKey("world")
+                            ? " in world %world%"
+                            : "")
+            );
+        });
         try {
             conf.save(new File(this.getDataFolder(), "messages.yml"));
         } catch (IOException ex) {

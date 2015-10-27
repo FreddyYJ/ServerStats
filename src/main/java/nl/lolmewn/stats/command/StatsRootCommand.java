@@ -34,9 +34,9 @@ public class StatsRootCommand extends SubCommand {
         Timings.startTiming("cmd-root", System.nanoTime());
         StatsHolder holder = plugin.getUserManager().getUser(sender.getUniqueId());
         List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
-        for (String statDesc : statsToShow) {
+        statsToShow.stream().forEach((statDesc) -> {
             show(sender, holder, statDesc);
-        }
+        });
         plugin.debug("cmd-root: " + Timings.finishTimings("cmd-root", System.nanoTime()));
     }
 
@@ -108,11 +108,9 @@ public class StatsRootCommand extends SubCommand {
             sender.sendMessage(Messages.getMessage("no-stats-yet", new Pair("%stat%", stat.getName())));
             return;
         }
-        for (StatEntry entry : holder.getStats(stat)) {
-            if (isValid(entry, cannotContain, containsOne)) {
-                validEntries.add(entry);
-            }
-        }
+        holder.getStats(stat).stream().filter((entry) -> (isValid(entry, cannotContain, containsOne))).forEach((entry) -> {
+            validEntries.add(entry);
+        });
         CommandSender cs = sender.isConsole() ? plugin.getServer().getConsoleSender() : plugin.getServer().getPlayer(sender.getUniqueId());
         if (validEntries.size() == 1) {
             sender.sendMessage(stat.format(validEntries.get(0)));
@@ -133,24 +131,20 @@ public class StatsRootCommand extends SubCommand {
     }
 
     private boolean isValid(StatEntry entry, HashMap<String, String> blacklist, HashMap<String, String> orList) {
-        for (String metaName : blacklist.keySet()) {
-            if (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(blacklist.get(metaName))) {
-                return false; // found blacklisted item
-            }
-        }
-        for (String metaName : orList.keySet()) {
-            if (entry.getMetadata().containsKey(metaName) && orList.get(metaName).contains(entry.getMetadata().get(metaName).toString())) {
-                return true; // found item
-            }
-        }
+        if (!blacklist.keySet().stream().noneMatch((metaName) -> (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(blacklist.get(metaName))))) {
+            return false;
+        } // found blacklisted item
+        if (orList.keySet().stream().anyMatch((metaName) -> (entry.getMetadata().containsKey(metaName) && orList.get(metaName).contains(entry.getMetadata().get(metaName).toString())))) {
+            return true;
+        } // found item
         return orList.isEmpty();
     }
 
     private StatEntry generateCommonEntry(List<StatEntry> entries) {
         double value = 0;
         HashMap<String, Object> pairs = new HashMap<>();
-        for (StatEntry entry : entries) {
-            for (final Entry<String, Object> pair : entry.getMetadata().entrySet()) {
+        value = entries.stream().map((entry) -> {
+            entry.getMetadata().entrySet().stream().forEach((pair) -> {
                 if (pairs.containsKey(pair.getKey())) {
                     ((List) pairs.get(pair.getKey())).add(pair.getValue());
                 } else {
@@ -160,16 +154,16 @@ public class StatsRootCommand extends SubCommand {
                         }
                     });
                 }
-            }
-            value += entry.getValue();
-        }
-        for (String key : pairs.keySet()) {
+            });
+            return entry;
+        }).map((entry) -> entry.getValue()).reduce(value, (accumulator, _item) -> accumulator + _item);
+        pairs.keySet().stream().forEach((key) -> {
             if (pairs.get(key) instanceof List && ((List) pairs.get(key)).size() == 1) {
                 pairs.put(key, ((List) pairs.get(key)).get(0));
             } else {
                 pairs.put(key, StringUtils.join((List) pairs.get(key), ", "));
             }
-        }
+        });
         return new DefaultStatEntry(value, pairs);
     }
 

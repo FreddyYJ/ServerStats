@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
+import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
+import nl.lolmewn.stats.util.task.AsyncSyncTask;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.OfflinePlayer;
@@ -31,27 +36,52 @@ public class StatsPlayerCommand extends SubCommand {
     @Override
     public void execute(Dispatcher sender, String[] args) {
         Timings.startTiming("cmd-player", System.nanoTime());
-        if(args.length == 0){
+        if (args.length == 0) {
             sender.sendMessage(Messages.getMessage("needs-more-arguments", new Pair("%usage%", "/stats player <player>")));
             return;
         }
         OfflinePlayer player = plugin.getServer().getPlayer(args[0]);
-        if(player == null){
+        if (player == null) {
             player = plugin.getServer().getOfflinePlayer(args[0]);
         }
-        if(!player.hasPlayedBefore()){
+        if (!player.hasPlayedBefore()) {
             sender.sendMessage(Messages.getMessage("player-not-found", new Pair("%input%", args[0])));
             return;
         }
-        StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        if(holder == null){
+        final UUID uuid = player.getUniqueId();
+        StatsHolder holder = plugin.getUserManager().getUser(uuid);
+        if (holder == null) {
+            new AsyncSyncTask<StatsHolder>() {
+
+                @Override
+                public StatsHolder executeGetTask() {
+                    try {
+                        return plugin.getUserManager().loadUser(uuid, plugin.getStatManager());
+                    } catch (StorageException ex) {
+                        Logger.getLogger(StatsPlayerCommand.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return null;
+                }
+
+                @Override
+                public void executeUseTask(StatsHolder val) {
+                    if (val == null) {
+                        return;
+                    }
+                    List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
+                    statsToShow.stream().forEach((statDesc) -> {
+                        show(sender, holder, statDesc);
+                    });
+                }
+            };
             // probably need to load
             //TODO implement thread -> load -> show
             return;
-        }
-        List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
-        for (String statDesc : statsToShow) {
-            show(sender, holder, statDesc);
+        } else {
+            List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
+            statsToShow.stream().forEach((statDesc) -> {
+                show(sender, holder, statDesc);
+            });
         }
         plugin.debug("cmd-player: " + Timings.finishTimings("cmd-root", System.nanoTime()));
     }
@@ -106,12 +136,10 @@ public class StatsPlayerCommand extends SubCommand {
                             containsOne.put(paramName, param);
                         }
                     }
+                } else if (value.startsWith("!")) {
+                    cannotContain.put(paramName, value.substring(1));
                 } else {
-                    if (value.startsWith("!")) {
-                        cannotContain.put(paramName, value.substring(1));
-                    } else {
-                        containsOne.put(paramName, value);
-                    }
+                    containsOne.put(paramName, value);
                 }
             }
         } else {
@@ -122,11 +150,9 @@ public class StatsPlayerCommand extends SubCommand {
             sender.sendMessage(Messages.getMessage("no-stats-yet"));
             return;
         }
-        for (StatEntry entry : holder.getStats(stat)) {
-            if (isValid(entry, cannotContain, containsOne)) {
-                validEntries.add(entry);
-            }
-        }
+        holder.getStats(stat).stream().filter((entry) -> (isValid(entry, cannotContain, containsOne))).forEach((entry) -> {
+            validEntries.add(entry);
+        });
         if (validEntries.size() == 1) {
             sender.sendMessage(stat.format(validEntries.get(0)));
         } else if (validEntries.isEmpty()) {
@@ -137,24 +163,20 @@ public class StatsPlayerCommand extends SubCommand {
     }
 
     private boolean isValid(StatEntry entry, HashMap<String, String> blacklist, HashMap<String, String> orList) {
-        for (String metaName : blacklist.keySet()) {
-            if (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(blacklist.get(metaName))) {
-                return false; // found blacklisted item
-            }
-        }
-        for (String metaName : orList.keySet()) {
-            if (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(orList.get(metaName))) {
-                return true; // found item
-            }
-        }
+        if (!blacklist.keySet().stream().noneMatch((metaName) -> (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(blacklist.get(metaName))))) {
+            return false;
+        } // found blacklisted item
+        if (orList.keySet().stream().anyMatch((metaName) -> (entry.getMetadata().containsKey(metaName) && entry.getMetadata().get(metaName).equals(orList.get(metaName))))) {
+            return true;
+        } // found item
         return orList.isEmpty();
     }
 
     private StatEntry generateCommonEntry(List<StatEntry> entries) {
         double value = 0;
         HashMap<String, Object> pairs = new HashMap<>();
-        for (StatEntry entry : entries) {
-            for (final Entry<String, Object> pair : entry.getMetadata().entrySet()) {
+        value = entries.stream().map((entry) -> {
+            entry.getMetadata().entrySet().stream().forEach((pair) -> {
                 if (pairs.containsKey(pair.getKey())) {
                     ((List) pairs.get(pair.getKey())).add(pair.getValue());
                 } else {
@@ -164,16 +186,16 @@ public class StatsPlayerCommand extends SubCommand {
                         }
                     });
                 }
-            }
-            value += entry.getValue();
-        }
-        for (String key : pairs.keySet()) {
+            });
+            return entry;
+        }).map((entry) -> entry.getValue()).reduce(value, (accumulator, _item) -> accumulator + _item);
+        pairs.keySet().stream().forEach((key) -> {
             if (pairs.get(key) instanceof List && ((List) pairs.get(key)).size() == 1) {
                 pairs.put(key, ((List) pairs.get(key)).get(0));
             } else {
                 pairs.put(key, StringUtils.join((List) pairs.get(key), ", "));
             }
-        }
+        });
         return new DefaultStatEntry(value, pairs);
     }
 

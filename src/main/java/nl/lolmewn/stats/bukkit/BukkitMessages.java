@@ -24,12 +24,12 @@ public class BukkitMessages implements Config {
         } else {
             config = YamlConfiguration.loadConfiguration(file);
             YamlConfiguration jar = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("messages.yml")));
-            for (String path : jar.getKeys(true)) {
-                if (!config.contains(path.toLowerCase())) {
-                    config.set(path.toLowerCase(), config.contains(path) ? config.get(path) : jar.get(path));
-                    config.set(path, null);
-                }
-            }
+            jar.getKeys(true).stream().filter((path) -> (!config.contains(path.toLowerCase()))).map((path) -> {
+                config.set(path.toLowerCase(), config.contains(path) ? config.get(path) : jar.get(path));
+                return path;
+            }).forEach((path) -> {
+                config.set(path, null);
+            });
             config.save(file);
         }
     }

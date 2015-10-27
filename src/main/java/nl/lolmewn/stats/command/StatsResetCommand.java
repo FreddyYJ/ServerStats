@@ -28,9 +28,9 @@ public class StatsResetCommand extends SubCommand {
         if (toReset.containsKey(sender.getName())) {
             //confirmed
             List<UUID> list = toReset.get(sender.getName());
-            for (UUID uuid : list) {
+            list.stream().forEach((uuid) -> {
                 plugin.getUserManager().resetUser(uuid);
-            }
+            });
             sender.sendMessage(Messages.getMessage("commands.reset.success"));
             toReset.remove(sender.getName());
             return;

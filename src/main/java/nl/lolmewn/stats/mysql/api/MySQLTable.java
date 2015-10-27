@@ -110,17 +110,21 @@ public class MySQLTable {
                 createQuery.append(", ");
             }
         }
-        for (MySQLColumn column : this.getColumns()) {
-            if (column.references()) {
-                createQuery.append(", FOREIGN KEY (");
-                createQuery.append(column.getName());
-                createQuery.append(") REFERENCES ");
-                createQuery.append(column.getRefTable().getName());
-                createQuery.append("(");
-                createQuery.append(column.getRefColumn().getName());
-                createQuery.append(") ON DELETE CASCADE ON UPDATE CASCADE");
-            }
-        }
+        this.getColumns().stream().filter((column) -> (column.references())).map((column) -> {
+            createQuery.append(", FOREIGN KEY (");
+            createQuery.append(column.getName());
+            return column;
+        }).map((column) -> {
+            createQuery.append(") REFERENCES ");
+            createQuery.append(column.getRefTable().getName());
+            return column;
+        }).map((column) -> {
+            createQuery.append("(");
+            createQuery.append(column.getRefColumn().getName());
+            return column;
+        }).forEach((_item) -> {
+            createQuery.append(") ON DELETE CASCADE ON UPDATE CASCADE");
+        });
         createQuery.append(") ENGINE = INNODB;");
         return createQuery.toString();
     }
