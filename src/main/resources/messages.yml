@@ -89,3 +89,10 @@ commands:
         target-self: "yourself"
         target-all: "everyone"
         success: "Stats have been reset."
+    help-message:
+        root: Shows you your stats!
+        reset: Reset your own or other stats
+        player: Look up the stats of another player
+        stat: Look up more detailed stats about your progress in a statistic
+        help: Shows this message
+        

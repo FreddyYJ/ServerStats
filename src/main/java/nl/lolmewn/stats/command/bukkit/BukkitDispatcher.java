@@ -20,7 +20,7 @@ public class BukkitDispatcher implements Dispatcher {
 
     @Override
     public boolean hasPermission(String node) {
-        return sender.hasPermission(node);
+        return node == null || sender.hasPermission(node);
     }
 
     @Override

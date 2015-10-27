@@ -234,8 +234,8 @@ public class BukkitMain extends JavaPlugin implements Main {
                 engine = this.getStorageEngineManager().getStorageEngine("flatfile");
                 break;
             default:
-                if (this.getStorageEngineManager().hasStorageEngine(this.getConfig().getString("storage").toLowerCase())) {
-                    engine = this.getStorageEngineManager().getStorageEngine(this.getConfig().getString("storage").toLowerCase());
+                if (this.getStorageEngineManager().hasStorageEngine(this.getConfig().getString("storage"))) {
+                    engine = this.getStorageEngineManager().getStorageEngine(this.getConfig().getString("storage"));
                     break;
                 }
                 this.getLogger().warning("Warning: No known storage type was selected in the config - defaulting to mysql.");

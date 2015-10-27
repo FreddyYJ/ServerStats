@@ -99,7 +99,7 @@ public class StatsResetCommand extends SubCommand {
 
     @Override
     public String getPermissionNode() {
-        return null; // let command handle it
+        return "stats.reset"; // let command handle it
     }
 
 }

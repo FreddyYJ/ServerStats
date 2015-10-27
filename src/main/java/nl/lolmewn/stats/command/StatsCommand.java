@@ -2,6 +2,8 @@ package nl.lolmewn.stats.command;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.bukkit.BukkitMain;
 
@@ -19,6 +21,7 @@ public class StatsCommand extends Command {
         this.subCommands.put("root", new StatsRootCommand(plugin));
         this.subCommands.put("player", new StatsPlayerCommand(plugin));
         this.subCommands.put("stat", new StatsStatCommand(plugin));
+        this.subCommands.put("help", new StatsHelpCommand(this));
     }
 
     @Override
@@ -32,6 +35,10 @@ public class StatsCommand extends Command {
             return;
         }
         sender.sendMessage(Messages.getMessage("command-not-found"));
+    }
+    
+    public Set<Entry<String, SubCommand>> getSubCommands(){
+        return this.subCommands.entrySet();
     }
 
 }
