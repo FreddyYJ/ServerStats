@@ -93,7 +93,7 @@ public class MySQLTable {
             MySQLColumn column = it.next();
             createQuery.append(column.getName());
             createQuery.append(" ");
-            createQuery.append(this.getMySQLType(column.getType()));
+            createQuery.append(column.getMySQLType());
             createQuery.append(" ");
             Iterator<MySQLAttribute> attrIterator = column.getAttribues().listIterator();
             while (attrIterator.hasNext()) {
@@ -123,29 +123,6 @@ public class MySQLTable {
         }
         createQuery.append(") ENGINE = INNODB;");
         return createQuery.toString();
-    }
-
-    private String getMySQLType(DataType type) {
-        switch (type) {
-            case BOOLEAN:
-                return "BIT";
-            case DOUBLE:
-                return "DOUBLE";
-            case FLOAT:
-                return "FLOAT";
-            case INTEGER:
-                return "INT";
-            case LONG:
-                return "BIGINT";
-            case STRING:
-                return "VARCHAR(255)";
-            case TIMESTAMP:
-                return "TIMESTAMP";
-            case BYTE_ARRAY:
-                return "BLOB";
-        }
-        Logger.getLogger(MySQLTable.class.getName()).log(Level.SEVERE, "Unknown data type " + type.name() + ", attempting MySQL storage plan regardless");
-        return type.name();
     }
 
 }

@@ -251,22 +251,18 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void scheduleDataSaver() {
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-
-            @Override
-            public void run() {
-                Timings.startTiming("user-saving", System.nanoTime());
-                synchronized (userManager) {
-                    for (StatsHolder holder : userManager.getUsers()) {
-                        try {
-                            userManager.saveUser(holder.getUuid());
-                        } catch (StorageException ex) {
-                            Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+        this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+            Timings.startTiming("user-saving", System.nanoTime());
+            synchronized (userManager) {
+                for (StatsHolder holder : userManager.getUsers()) {
+                    try {
+                        userManager.saveUser(holder.getUuid());
+                    } catch (StorageException ex) {
+                        Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                debug("Saving users took " + Timings.finishTimings("user-saving", System.nanoTime()) + "ns");
             }
+            debug("Saving users took " + Timings.finishTimings("user-saving", System.nanoTime()) + "ns");
         }, 200L, 200L);
     }
 
@@ -275,6 +271,11 @@ public class BukkitMain extends JavaPlugin implements Main {
         if (this.getConfig().getBoolean("debug", false)) {
             this.getServer().getConsoleSender().sendMessage("[Debug] " + message);
         }
+    }
+    
+    @Override
+    public void info(String message){
+        this.getServer().getConsoleSender().sendMessage(message);
     }
 
     private void registerAPI() {
@@ -335,19 +336,15 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void scheduleUserManagerLoading() {
-        this.getServer().getScheduler().runTask(this, new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    loadUserManager();
-                } catch (StorageException ex) {
-                    Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
-                    getLogger().severe("The error above means the user manager failed to start");
-                    getLogger().severe("The plugin cannot function without it, so it'll disable now");
-                    getLogger().severe("Please fix the issue before starting the plugin again");
-                    getServer().getPluginManager().disablePlugin(BukkitMain.this);
-                }
+        this.getServer().getScheduler().runTask(this, () -> {
+            try {
+                loadUserManager();
+            } catch (StorageException ex) {
+                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+                getLogger().severe("The error above means the user manager failed to start");
+                getLogger().severe("The plugin cannot function without it, so it'll disable now");
+                getLogger().severe("Please fix the issue before starting the plugin again");
+                getServer().getPluginManager().disablePlugin(BukkitMain.this);
             }
         });
     }

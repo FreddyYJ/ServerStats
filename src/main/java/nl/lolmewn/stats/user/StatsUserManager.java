@@ -65,25 +65,17 @@ public class StatsUserManager implements UserManager {
     }
 
     private void loadAsync(final StatsHolder holder, final StatManager statManager) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    final StatsHolder loadedHolder = storage.load(holder.getUuid(), statManager);
-                    if (loadedHolder == null) {
-                        return; // There was none yet
-                    }
-                    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
-
-                        @Override
-                        public void run() {
-                            sync(loadedHolder); //blocking on the lock in the db
-                        }
-                    });
-                } catch (StorageException ex) {
-                    Logger.getLogger(StatsUserManager.class.getName()).log(Level.SEVERE, null, ex);
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                final StatsHolder loadedHolder = storage.load(holder.getUuid(), statManager);
+                if (loadedHolder == null) {
+                    return; // There was none yet
                 }
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    sync(loadedHolder); //blocking on the lock in the db
+                });
+            }catch (StorageException ex) {
+                Logger.getLogger(StatsUserManager.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

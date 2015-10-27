@@ -3,7 +3,9 @@ package nl.lolmewn.stats.mysql;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ import nl.lolmewn.stats.api.storage.StorageEngine;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.mysql.api.MySQLAttribute;
+import nl.lolmewn.stats.mysql.api.MySQLColumn;
 import nl.lolmewn.stats.mysql.api.MySQLTable;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
@@ -46,6 +49,10 @@ public class MySQLStorage implements StorageEngine {
     public MySQLStorage(Main main, MySQLConfig config) throws StorageException {
         this.plugin = main;
         this.config = config;
+    }
+
+    public void addTable(MySQLTable table) {
+        this.tables.put(table.getName(), table);
     }
 
     @Override
@@ -234,9 +241,9 @@ public class MySQLStorage implements StorageEngine {
                             insert.append(", ").append(metadataName.replace(" ", ""));
                         }
                         insert.append(") VALUES (?, ?");
-                        for (String metadataName : stat.getDataTypes().keySet()) {
+                        stat.getDataTypes().keySet().stream().forEach((ignored) -> {
                             insert.append(",? ");
-                        }
+                        });
                         insert.append(")");
                         PreparedStatement insertPS = con.prepareStatement(insert.toString());
                         insertPS.setString(1, holder.getUuid().toString());
@@ -293,15 +300,67 @@ public class MySQLStorage implements StorageEngine {
                         MySQLAttribute.NOT_NULL
                 ).references(playersTable, playersTable.getColumn("uuid"));
                 table.addColumn("value", DataType.DOUBLE).addAttribute(MySQLAttribute.NOT_NULL);
-                for (Entry<String, DataType> entry : stat.getDataTypes().entrySet()) {
+                stat.getDataTypes().entrySet().stream().forEach((entry) -> {
                     table.addColumn(entry.getKey(), entry.getValue());
-                }
+                });
                 String createQuery = table.generateCreateQuery();
                 con.createStatement().execute(createQuery);
             }
         } catch (SQLException ex) {
             throw new StorageException("Failed to generate tables for stats", ex);
         }
+    }
+
+    public void checkTables() throws StorageException {
+        try (Connection con = this.source.getConnection()) {
+            for (MySQLTable table : this.tables.values()) {
+                ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + table.getName() + " LIMIT 1");
+                ResultSetMetaData rsmd = set.getMetaData();
+                for (MySQLColumn column : table.getColumns()) {
+                    if (hasColumnName(rsmd, column.getName())) {
+                        continue; // column exists, all good.
+                    }
+                    // Column does not exist, let's make it
+                    plugin.info("[Stats] Found a column that doesn't exist yet in the table: " + column.getName());
+                    plugin.info("[Stats] Don't worry, I got you covered. Generating the column now!");
+                    Statement st = con.createStatement();
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("ALTER TABLE ")
+                            .append(table.getName())
+                            .append(" ADD COLUMN ")
+                            .append(table.getName())
+                            .append(" ")
+                            .append(column.getMySQLType()).append(" ");
+                    column.getAttribues().stream().forEach((attr) -> {
+                        sb.append(attr.getMySQLEquiv()).append(" ");
+                    });
+                    if (column.hasDefault()) {
+                        sb.append("DEFAULT ").append(column.getDefault());
+                    }
+                    st.executeUpdate(sb.toString());
+                }
+
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    for (MySQLColumn column : table.getColumns()) {
+                        if (!hasColumnName(rsmd, column.getName())) {
+                            plugin.info("[Stats] Found a column in table " + table.getName() + " that is not used: " + rsmd.getColumnName(i));
+                            plugin.info("[Stats] You can safely remove this column if you want, or leave it be.");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new StorageException("Failed to check tables for stats", ex);
+        }
+    }
+
+    private boolean hasColumnName(ResultSetMetaData rsmd, String name) throws SQLException {
+        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+            if (rsmd.getColumnName(i).equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String formatStatName(String name) {
@@ -338,15 +397,12 @@ public class MySQLStorage implements StorageEngine {
         this.source.setPassword(config.getPassword());
         this.prefix = config.getPrefix();
         this.tables = new HashMap<>();
-        this.plugin.scheduleTask(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    generateTables();
-                } catch (StorageException ex) {
-                    Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        this.plugin.scheduleTask(() -> {
+            try {
+                generateTables();
+                checkTables();
+            } catch (StorageException ex) {
+                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
             }
         }, 1);
     }

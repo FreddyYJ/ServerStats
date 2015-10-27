@@ -55,21 +55,17 @@ public class PlayerIOEvents implements Listener {
             final StorageEngine engine = (StorageEngine) engineField.get(plugin.getUserManager());
             if (engine instanceof MySQLStorage) {
                 final MySQLStorage mysql = (MySQLStorage) engine;
-                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try (Connection con = mysql.getConnection()) {
-                            if (!mysql.isLocked(con, uuid)) {
-                                mysql.lock(con, uuid);
-                            }
-                            plugin.getUserManager().saveUser(uuid);
-                        } catch (SQLException | StorageException ex) {
-                            Logger.getLogger(PlayerIOEvents.class.getName()).log(Level.SEVERE, null, ex);
+                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                    try (Connection con = mysql.getConnection()) {
+                        if (!mysql.isLocked(con, uuid)) {
+                            mysql.lock(con, uuid);
                         }
-                        if (plugin.getServer().getPlayer(uuid) == null) {
-                            plugin.getUserManager().removeUser(uuid);
-                        }
+                        plugin.getUserManager().saveUser(uuid);
+                    } catch (SQLException | StorageException ex) {
+                        Logger.getLogger(PlayerIOEvents.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    if (plugin.getServer().getPlayer(uuid) == null) {
+                        plugin.getUserManager().removeUser(uuid);
                     }
                 });
             }
