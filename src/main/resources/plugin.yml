@@ -3,6 +3,7 @@ main: nl.lolmewn.stats.bukkit.BukkitMain
 version: maven-version-number-jenkins-build-number
 description: Advanced statistics tracker and viewer. Check out your gathered stats and show them off!
 author: Lolmewn
+softdepend: [Votifier]
 commands:
   lolmewnstats:
     aliases: stats
