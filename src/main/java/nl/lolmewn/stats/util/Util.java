@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
@@ -39,6 +38,10 @@ public class Util {
     }
 
     public static List<Pair<String, ?>> getSafePairs(Stat stat, StatEntry entry) {
+        return getSafePairs(entry);
+    }
+
+    public static List<Pair<String, ?>> getSafePairs(StatEntry entry) {
         List<Pair<String, ?>> list = new ArrayList<>();
         entry.getMetadata().entrySet().stream().filter((metadata) -> !(metadata.getValue() == null)).forEach((metadata) -> {
             list.add(new Pair(metadata.getKey(), metadata.getValue()));
@@ -58,6 +61,9 @@ public class Util {
     }
 
     public static double sumAll(Collection<StatEntry> entries) {
+        if(entries == null){
+            return 0;
+        }
         double sum = 0;
         sum = entries.stream().map((entry) -> entry.getValue()).reduce(sum, (accumulator, _item) -> accumulator + _item);
         return sum;
