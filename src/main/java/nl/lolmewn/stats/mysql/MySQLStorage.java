@@ -332,7 +332,7 @@ public class MySQLStorage implements StorageEngine {
                     sb.append("ALTER TABLE ")
                             .append(table.getName())
                             .append(" ADD COLUMN ")
-                            .append(table.getName())
+                            .append(column.getName())
                             .append(" ")
                             .append(column.getMySQLType()).append(" ");
                     column.getAttribues().stream().forEach((attr) -> {
