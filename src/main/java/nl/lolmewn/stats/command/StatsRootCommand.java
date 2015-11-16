@@ -118,7 +118,7 @@ public class StatsRootCommand extends SubCommand {
             if (!cannotContain.isEmpty() || !containsOne.isEmpty()) {
                 new FancyMessage(
                         Messages.getMessage("no-stats-yet-fancy", new Pair("%stat%", stat.getName()), new Pair("%fancyMetadata%", ""))
-                ).then("metadata").color(ChatColor.UNDERLINE).tooltip(
+                ).then("metadata").style(ChatColor.UNDERLINE).tooltip(
                         cannotContain.toString().replace("{", "").replace("}", "").replace("=", "!=")
                         + " " + containsOne.toString().replace("{", "").replace("}", ""))
                         .send(cs);
