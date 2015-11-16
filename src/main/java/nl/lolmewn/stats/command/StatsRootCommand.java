@@ -3,7 +3,6 @@ package nl.lolmewn.stats.command;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import mkremins.fanciful.FancyMessage;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
@@ -15,6 +14,7 @@ import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 /**
@@ -118,7 +118,7 @@ public class StatsRootCommand extends SubCommand {
             if (!cannotContain.isEmpty() || !containsOne.isEmpty()) {
                 new FancyMessage(
                         Messages.getMessage("no-stats-yet-fancy", new Pair("%stat%", stat.getName()), new Pair("%fancyMetadata%", ""))
-                ).then("metadata").tooltip(
+                ).then("metadata").color(ChatColor.UNDERLINE).tooltip(
                         cannotContain.toString().replace("{", "").replace("}", "").replace("=", "!=")
                         + " " + containsOne.toString().replace("{", "").replace("}", ""))
                         .send(cs);

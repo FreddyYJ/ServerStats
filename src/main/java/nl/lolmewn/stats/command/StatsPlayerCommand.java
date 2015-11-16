@@ -3,23 +3,25 @@ package nl.lolmewn.stats.command;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.lolmewn.stats.bukkit.BukkitMain;
+import mkremins.fanciful.FancyMessage;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.StorageException;
 import nl.lolmewn.stats.api.user.StatsHolder;
-import nl.lolmewn.stats.util.Timings;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
-import nl.lolmewn.stats.util.task.AsyncSyncTask;
+import nl.lolmewn.stats.util.Timings;
 import nl.lolmewn.stats.util.Util;
+import nl.lolmewn.stats.util.task.AsyncSyncTask;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 
 /**
  *
@@ -156,7 +158,17 @@ public class StatsPlayerCommand extends SubCommand {
         if (validEntries.size() == 1) {
             sender.sendMessage(stat.format(validEntries.get(0)));
         } else if (validEntries.isEmpty()) {
-            sender.sendMessage(Messages.getMessage("no-stats-yet"));
+            if (!cannotContain.isEmpty() || !containsOne.isEmpty()) {
+                CommandSender cs = sender.isConsole() ? plugin.getServer().getConsoleSender() : plugin.getServer().getPlayer(sender.getUniqueId());
+                new FancyMessage(
+                        Messages.getMessage("no-stats-yet-fancy", new Pair("%stat%", stat.getName()), new Pair("%fancyMetadata%", ""))
+                ).then("metadata").color(ChatColor.UNDERLINE).tooltip(
+                        cannotContain.toString().replace("{", "").replace("}", "").replace("=", "!=")
+                        + " " + containsOne.toString().replace("{", "").replace("}", ""))
+                        .send(cs);
+            } else {
+                sender.sendMessage(Messages.getMessage("no-stats-yet", new Pair("%stat%", stat.getName())));
+            }
         } else {
             sender.sendMessage(stat.format(this.generateCommonEntry(validEntries)));
         }
