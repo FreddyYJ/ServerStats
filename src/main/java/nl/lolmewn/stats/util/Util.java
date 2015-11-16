@@ -43,14 +43,14 @@ public class Util {
 
     public static List<Pair<String, ?>> getSafePairs(StatEntry entry) {
         List<Pair<String, ?>> list = new ArrayList<>();
-        entry.getMetadata().entrySet().stream().filter((metadata) -> !(metadata.getValue() == null)).forEach((metadata) -> {
-            list.add(new Pair(metadata.getKey(), metadata.getValue()));
+        entry.getMetadata().entrySet().stream().filter((metadata) -> metadata.getValue() != null).forEach((metadata) -> {
+            list.add(new Pair("%" + metadata.getKey() + "%", metadata.getValue()));
         });
         list.add(new Pair<>("%value%", entry.getValue()));
         return list;
     }
 
-    public static List<Pair<String, ?>> removePair(List<Pair<String, ?>> pairs, String key) {
+    public static Collection<Pair<String, ?>> removePair(Collection<Pair<String, ?>> pairs, String key) {
         Iterator<Pair<String, ?>> it = pairs.iterator();
         while (it.hasNext()) {
             if (it.next().getKey().equals(key)) {
@@ -61,7 +61,7 @@ public class Util {
     }
 
     public static double sumAll(Collection<StatEntry> entries) {
-        if(entries == null){
+        if (entries == null) {
             return 0;
         }
         double sum = 0;
