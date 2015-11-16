@@ -25,7 +25,7 @@ public class MySQLStatHolder extends StatsStatHolder {
     public void addEntry(Stat stat, StatEntry entry) {
         super.addEntry(stat, entry);
         if (!this.additions.containsKey(stat)) {
-            this.additions.put(stat, new ConcurrentLinkedQueue<StatEntry>());
+            this.additions.put(stat, new ConcurrentLinkedQueue<>());
         }
         for (StatEntry existing : additions.get(stat)) {
             if (existing.getMetadata().equals(entry.getMetadata())) {

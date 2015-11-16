@@ -24,7 +24,7 @@ public abstract class SimpleStat extends DefaultStat implements Summable {
         return Messages.getMessage(
                 getMessagesRootPath() + ".format",
                 Util.getDefaultMessage(this, entry),
-                Util.getSafePairs(this, entry));
+                Util.getSafePairs(entry));
     }
 
     @Override

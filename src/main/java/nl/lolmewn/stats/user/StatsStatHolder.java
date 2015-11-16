@@ -65,7 +65,7 @@ public class StatsStatHolder implements StatsHolder {
      */
     @Override
     public synchronized Collection<StatEntry> getStats(Stat stat) {
-        return hasStat(stat) ? entries.get(stat) : new ArrayList<StatEntry>();
+        return hasStat(stat) ? entries.get(stat) : new ArrayList<>();
     }
 
     @Override
