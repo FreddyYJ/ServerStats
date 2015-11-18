@@ -20,6 +20,7 @@ public interface Main {
     public UserManager getUserManager();
     public StatManager getStatManager();
     public String getName(UUID player);
+    public boolean hasPlugin(String name);
     public void scheduleTask(Runnable runnable, int ticks);
     public void scheduleTaskAsync(Runnable runnable, int ticks);
 

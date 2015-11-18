@@ -119,7 +119,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getCommand("stats").setExecutor(new BukkitCommand(this));
         this.startStats();
         this.registerAPI();
-        
+
         this.loadOnlinePlayers();
     }
 
@@ -214,7 +214,9 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitTimesKicked(this));
         this.statManager.addStat(new BukkitToolsBroken(this));
         this.statManager.addStat(new BukkitTrades(this));
-        this.statManager.addStat(new BukkitVotes(this));
+        if (hasPlugin("Votifier")) {
+            this.statManager.addStat(new BukkitVotes(this));
+        }
         this.statManager.addStat(new BukkitWordsSaid(this));
         this.statManager.addStat(new BukkitWorldChange(this));
         this.statManager.addStat(new BukkitXpGained(this));
@@ -271,9 +273,9 @@ public class BukkitMain extends JavaPlugin implements Main {
             this.getServer().getConsoleSender().sendMessage("[Debug] " + message);
         }
     }
-    
+
     @Override
-    public void info(String message){
+    public void info(String message) {
         this.getServer().getConsoleSender().sendMessage(message);
     }
 
@@ -333,7 +335,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     public void scheduleTask(Runnable runnable, int ticks) {
         this.getServer().getScheduler().runTaskLater(this, runnable, ticks);
     }
-    
+
     @Override
     public void scheduleTaskAsync(Runnable runnable, int ticks) {
         this.getServer().getScheduler().runTaskLaterAsynchronously(this, runnable, ticks);
@@ -394,8 +396,8 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.getStats().stream().filter((stat) -> (!conf.contains("stats." + stat.getName().replace(" ", "_") + ".format"))).forEach((stat) -> {
             conf.set("stats." + stat.getName().replace(" ", "_") + ".format", "%value%"
                     + (stat.getDataTypes().containsKey("world")
-                            ? " in world %world%"
-                            : "")
+                    ? " in world %world%"
+                    : "")
             );
         });
         try {
@@ -406,12 +408,17 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void loadOnlinePlayers() {
-        for(Player player : this.getServer().getOnlinePlayers()){
+        for (Player player : this.getServer().getOnlinePlayers()) {
             try {
                 this.getUserManager().loadUser(player.getUniqueId(), statManager);
             } catch (StorageException ex) {
                 Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    @Override
+    public boolean hasPlugin(String name) {
+        return this.getServer().getPluginManager().getPlugin(name) != null;
     }
 }
