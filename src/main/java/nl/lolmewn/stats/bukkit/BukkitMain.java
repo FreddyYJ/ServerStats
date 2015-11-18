@@ -223,6 +223,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void loadUserManager() throws StorageException {
+        info("Loading user manager...");
         if (userManager != null) {
             getLogger().info("User manager already started, not starting another");
             return;
@@ -244,11 +245,14 @@ public class BukkitMain extends JavaPlugin implements Main {
             case "mysql":
                 engine = this.getStorageEngineManager().getStorageEngine("mysql");
         }
+        info("Using the " + engine.getClass().getSimpleName() + " class as StorageEngine...");
         this.userManager = new StatsUserManager(
                 this,
                 engine
         );
+        info("Enabling the StorageEngine...");
         engine.enable();
+        info("UserManager set up and ready to load/save users.");
     }
 
     private void scheduleDataSaver() {
@@ -270,18 +274,19 @@ public class BukkitMain extends JavaPlugin implements Main {
     @Override
     public void debug(String message) {
         if (this.getConfig().getBoolean("debug", false)) {
-            this.getServer().getConsoleSender().sendMessage("[Debug] " + message);
+            this.getServer().getConsoleSender().sendMessage("[Stats Debug] " + message);
         }
     }
 
     @Override
     public void info(String message) {
-        this.getServer().getConsoleSender().sendMessage(message);
+        this.getServer().getConsoleSender().sendMessage("[Stats]" + message);
     }
 
     private void registerAPI() {
         this.api = new StatsAPI(this);
         this.getServer().getServicesManager().register(StatsAPI.class, api, this, ServicePriority.Normal);
+        info("API registered");
     }
 
     private void checkConversionNeeded() {
@@ -296,6 +301,7 @@ public class BukkitMain extends JavaPlugin implements Main {
     }
 
     private void startStats() {
+        info("Starting enabled stats...");
         this.getStatManager().getStats().stream().forEach((stat) -> {
             if (!getConfig().getStringList("disabled").contains(stat.getName())) {
                 enableStat(stat);
@@ -357,6 +363,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     @Override
     public void disableStat(Stat stat) {
+        info("Disabling stat " + stat.getName());
         if (stat instanceof Listener) {
             Method[] methods = stat.getClass().getMethods();
             for (Method method : methods) {
