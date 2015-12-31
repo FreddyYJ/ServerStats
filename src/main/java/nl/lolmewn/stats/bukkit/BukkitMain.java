@@ -22,6 +22,7 @@ import nl.lolmewn.stats.command.bukkit.BukkitCommand;
 import nl.lolmewn.stats.mysql.MySQLConfig;
 import nl.lolmewn.stats.mysql.MySQLStorage;
 import nl.lolmewn.stats.signs.SignManager;
+import nl.lolmewn.stats.stats.Money;
 import nl.lolmewn.stats.stats.PVPStreak;
 import nl.lolmewn.stats.stats.PVPTopStreak;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
@@ -203,6 +204,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitKill(this));
         this.statManager.addStat(new BukkitLastJoin(this));
         this.statManager.addStat(new BukkitLastLeave(this));
+        this.statManager.addStat(new Money());
         this.statManager.addStat(new BukkitMove(this));
         this.statManager.addStat(new BukkitOmnomnom(this));
         this.statManager.addStat(new BukkitPVP(this));
