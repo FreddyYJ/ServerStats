@@ -27,6 +27,10 @@ public class StatsStatCommand extends SubCommand{
         }
         String statName = args[0];
         Stat stat = Util.findStat(plugin.getStatManager(), statName);
+        if(stat == null){
+            sender.sendMessage(Messages.getMessage("stat-not-found"));
+            return;
+        }
         StatsHolder holder = plugin.getUserManager().getUser((sender).getUniqueId());
     }
 

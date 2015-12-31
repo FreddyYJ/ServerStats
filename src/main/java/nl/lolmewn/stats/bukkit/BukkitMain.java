@@ -280,7 +280,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     @Override
     public void info(String message) {
-        this.getServer().getConsoleSender().sendMessage("[Stats]" + message);
+        this.getServer().getConsoleSender().sendMessage("[Stats] " + message);
     }
 
     private void registerAPI() {

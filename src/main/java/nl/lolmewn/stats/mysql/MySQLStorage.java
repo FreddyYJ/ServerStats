@@ -45,6 +45,7 @@ public class MySQLStorage implements StorageEngine {
     private BasicDataSource source;
     private String prefix;
     private Map<String, MySQLTable> tables;
+    private boolean enabled = false;
 
     public MySQLStorage(Main main, MySQLConfig config) throws StorageException {
         this.plugin = main;
@@ -409,15 +410,22 @@ public class MySQLStorage implements StorageEngine {
                 Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
             }
         }, 1);
+        this.enabled = true;
     }
 
     @Override
     public void disable() throws StorageException {
+        this.enabled = false;
         try {
             this.source.close();
         } catch (SQLException ex) {
             throw new StorageException("Exception while disabling the StorageEngine", ex);
         }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
 }

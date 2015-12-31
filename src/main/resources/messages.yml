@@ -7,6 +7,7 @@ no-stats-yet-fancy: "No data yet for stat %stat% with this %fancyMetadata%"
 needs-more-arguments: "This command requires more arguments. Correct usage: %usage%"
 player-not-found: "Player by the name of %input% not found"
 command-not-found: "Unknown command. Type /stats help to view commands"
+stat-not-found: "Unknown Stat. For a list of stats, type /stats list"
 
 sign:
     unknown-stat: "The stat type of the sign is unknown, or the stat was not found"
