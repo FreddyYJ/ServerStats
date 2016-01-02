@@ -45,7 +45,7 @@ public class StatsStatHolder implements StatsHolder {
             this.entries.put(stat, Collections.synchronizedList(new LinkedList<StatEntry>()));
         }
         if(BukkitUtil.isBukkit()){
-            StatsHolderUpdateEvent event = new StatsHolderUpdateEvent(this, entry);
+            StatsHolderUpdateEvent event = new StatsHolderUpdateEvent(this, stat, entry);
             Bukkit.getServer().getPluginManager().callEvent(event);
             if(event.isCancelled()){
                 return;

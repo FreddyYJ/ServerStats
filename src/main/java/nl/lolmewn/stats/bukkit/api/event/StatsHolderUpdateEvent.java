@@ -1,5 +1,6 @@
 package nl.lolmewn.stats.bukkit.api.event;
 
+import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import org.bukkit.event.Cancellable;
@@ -14,11 +15,13 @@ public class StatsHolderUpdateEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private final StatsHolder holder;
+    private final Stat stat;
     private final StatEntry entry;
     private boolean cancelled = false;
 
-    public StatsHolderUpdateEvent(StatsHolder holder, StatEntry entry) {
+    public StatsHolderUpdateEvent(StatsHolder holder, Stat stat, StatEntry entry) {
         this.holder = holder;
+        this.stat = stat;
         this.entry = entry;
     }
 
@@ -47,6 +50,10 @@ public class StatsHolderUpdateEvent extends Event implements Cancellable {
 
     public StatEntry getEntry() {
         return entry;
+    }
+
+    public Stat getStat() {
+        return stat;
     }
 
 }

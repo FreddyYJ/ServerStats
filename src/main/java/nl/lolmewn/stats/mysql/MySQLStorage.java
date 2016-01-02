@@ -376,6 +376,10 @@ public class MySQLStorage implements StorageEngine {
         return source.getConnection();
     }
 
+    public String getPrefix() {
+        return prefix;
+    }
+
     @Override
     public void delete(StatsHolder user) throws StorageException {
         try {
