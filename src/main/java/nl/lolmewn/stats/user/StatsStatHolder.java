@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
+import nl.lolmewn.stats.bukkit.BukkitUtil;
+import nl.lolmewn.stats.bukkit.api.event.StatsHolderUpdateEvent;
+import org.bukkit.Bukkit;
 
 /**
  *
@@ -40,6 +43,13 @@ public class StatsStatHolder implements StatsHolder {
         }
         if (!this.hasStat(stat)) {
             this.entries.put(stat, Collections.synchronizedList(new LinkedList<StatEntry>()));
+        }
+        if(BukkitUtil.isBukkit()){
+            StatsHolderUpdateEvent event = new StatsHolderUpdateEvent(this, entry);
+            Bukkit.getServer().getPluginManager().callEvent(event);
+            if(event.isCancelled()){
+                return;
+            }
         }
         for (StatEntry existing : getStats(stat)) {
             if (existing.getMetadata().equals(entry.getMetadata())) {

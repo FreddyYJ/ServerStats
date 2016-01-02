@@ -1,7 +1,9 @@
 package nl.lolmewn.stats.stats.bukkit;
 
+import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.bukkit.BukkitMain;
+import nl.lolmewn.stats.bukkit.api.event.StatsHolderUpdateEvent;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stat.MetadataPair;
 import nl.lolmewn.stats.stats.EggsThrown;
@@ -33,9 +35,14 @@ public class BukkitEggsThrown extends EggsThrown implements Listener {
         }
         Player player = event.getPlayer();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
-        holder.addEntry(this, new DefaultStatEntry(1,
+        StatEntry entry = new DefaultStatEntry(1,
                 new MetadataPair("world", player.getWorld().getName())
-        ));
+        );
+        StatsHolderUpdateEvent ev = new StatsHolderUpdateEvent(holder, entry);
+        plugin.getServer().getPluginManager().callEvent(ev);
+        if (ev.isCancelled()) {
+            holder.addEntry(this, entry);
+        }
     }
 
 }

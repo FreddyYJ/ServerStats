@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.api.StatManager;
-import nl.lolmewn.stats.api.event.StatsHolderLoadedEvent;
+import nl.lolmewn.stats.bukkit.api.event.StatsHolderLoadedEvent;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.StorageEngine;

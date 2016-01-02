@@ -1,4 +1,4 @@
-package nl.lolmewn.stats.api.event;
+package nl.lolmewn.stats.bukkit.api.event;
 
 import nl.lolmewn.stats.api.user.StatsHolder;
 import org.bukkit.event.Event;

@@ -1,0 +1,29 @@
+[
+  [
+    {
+      "world": "world",
+      "x": 1,
+      "y": 2,
+      "z": 3
+    },
+    {
+      "type": "nl.lolmewn.stats.bukkit.signs.BukkitStatsSign",
+      "data": {
+        "users": [
+          "1582274a-5892-4dd8-81ee-1147a74eec91"
+        ],
+        "location": {
+          "world": "world",
+          "x": 1,
+          "y": 2,
+          "z": 3
+        },
+        "stats": [
+          "TestStat"
+        ],
+        "playerType": "SINGLE",
+        "statType": "SINGLE"
+      }
+    }
+  ]
+]
