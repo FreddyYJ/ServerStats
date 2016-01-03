@@ -52,8 +52,13 @@ public class MySQLStorage implements StorageEngine {
         this.config = config;
     }
 
-    public void addTable(MySQLTable table) {
+    public void addTable(MySQLTable table) throws SQLException {
         this.tables.put(table.getName(), table);
+        if (enabled) {
+            try (Connection con = getConnection()) {
+                con.createStatement().execute(table.generateCreateQuery());
+            }
+        }
     }
 
     @Override
@@ -292,33 +297,42 @@ public class MySQLStorage implements StorageEngine {
             con.createStatement().execute(playersTable.generateCreateQuery());
             con.createStatement().execute(locks.generateCreateQuery());
             for (Stat stat : plugin.getStatManager().getStats()) {
-                String tableName = prefix + formatStatName(stat.getName());
-                MySQLTable table = new MySQLTable(tableName);
-                this.tables.put(tableName, table);
-                table.addColumn("id", DataType.LONG).addAttributes(
-                        MySQLAttribute.PRIMARY_KEY,
-                        MySQLAttribute.AUTO_INCREMENT,
-                        MySQLAttribute.NOT_NULL,
-                        MySQLAttribute.UNIQUE
-                );
-                table.addColumn("uuid", DataType.STRING).addAttributes(
-                        MySQLAttribute.NOT_NULL
-                ).references(playersTable, playersTable.getColumn("uuid"));
-                table.addColumn("value", DataType.DOUBLE).addAttribute(MySQLAttribute.NOT_NULL);
-                stat.getDataTypes().entrySet().stream().forEach((entry) -> {
-                    table.addColumn(entry.getKey(), entry.getValue());
-                });
-                String createQuery = table.generateCreateQuery();
-                con.createStatement().execute(createQuery);
+                generateTable(con, stat, playersTable);
             }
         } catch (SQLException ex) {
             throw new StorageException("Failed to generate tables for stats", ex);
         }
     }
 
+    private void generateTable(Connection con, Stat stat, MySQLTable playersTable) throws SQLException {
+        String tableName = prefix + formatStatName(stat.getName());
+        MySQLTable table = new MySQLTable(tableName);
+        this.tables.put(tableName, table);
+        table.addColumn("id", DataType.LONG).addAttributes(
+                MySQLAttribute.PRIMARY_KEY,
+                MySQLAttribute.AUTO_INCREMENT,
+                MySQLAttribute.NOT_NULL,
+                MySQLAttribute.UNIQUE
+        );
+        table.addColumn("uuid", DataType.STRING).addAttributes(
+                MySQLAttribute.NOT_NULL
+        ).references(playersTable, playersTable.getColumn("uuid"));
+        table.addColumn("value", DataType.DOUBLE).addAttribute(MySQLAttribute.NOT_NULL);
+        stat.getDataTypes().entrySet().stream().forEach((entry) -> {
+            table.addColumn(entry.getKey(), entry.getValue());
+        });
+        String createQuery = table.generateCreateQuery();
+        con.createStatement().execute(createQuery);
+    }
+
     public void checkTables() throws StorageException {
         try (Connection con = this.source.getConnection()) {
             for (MySQLTable table : this.tables.values()) {
+                boolean exists = con.createStatement().executeQuery("SHOW TABLES LIKE '" + table.getName() + "'").next();
+                if(!exists){
+                    con.createStatement().execute(table.generateCreateQuery());
+                    continue; // Freshly created, in-memory is same as database layout
+                }
                 ResultSet set = con.createStatement().executeQuery("SELECT * FROM " + table.getName() + " LIMIT 1");
                 ResultSetMetaData rsmd = set.getMetaData();
                 for (MySQLColumn column : table.getColumns()) {
