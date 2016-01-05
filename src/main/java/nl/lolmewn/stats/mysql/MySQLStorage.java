@@ -247,9 +247,9 @@ public class MySQLStorage implements StorageEngine {
                         StringBuilder insert = new StringBuilder("INSERT INTO ");
                         insert.append(table);
                         insert.append(" (uuid, value");
-                        for (String metadataName : entry.getMetadata().keySet()) {
+                        stat.getDataTypes().keySet().stream().forEach((metadataName) -> {
                             insert.append(", ").append(metadataName.replace(" ", ""));
-                        }
+                        });
                         insert.append(") VALUES (?, ?");
                         stat.getDataTypes().keySet().stream().forEach((ignored) -> {
                             insert.append(",? ");
