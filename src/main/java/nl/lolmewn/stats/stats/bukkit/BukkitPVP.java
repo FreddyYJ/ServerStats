@@ -28,7 +28,7 @@ public class BukkitPVP extends PVP implements Listener {
 
     @Override
     public String format(StatEntry se) {
-        return super.format(se).replace("%victim%", plugin.getServer().getOfflinePlayer((UUID) se.getMetadata().get("victim")).getName());
+        return super.format(se).replace("%victim%", plugin.getServer().getOfflinePlayer(UUID.fromString((String)se.getMetadata().get("victim"))).getName());
     }
 
     @EventHandler(ignoreCancelled = true)
