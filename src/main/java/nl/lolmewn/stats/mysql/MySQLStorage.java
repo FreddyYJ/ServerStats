@@ -241,6 +241,9 @@ public class MySQLStorage implements StorageEngine {
                     updatePS.setString(2, holder.getUuid().toString());
                     int idx = 3;
                     for (String metadataName : stat.getDataTypes().keySet()) {
+                        if (!currentEntry.getMetadata().containsKey(metadataName)) {
+                            continue; // Skip for IS NULL
+                        }
                         if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
                             updatePS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
                         } else {
