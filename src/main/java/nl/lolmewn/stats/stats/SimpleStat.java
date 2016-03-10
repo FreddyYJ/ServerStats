@@ -11,7 +11,7 @@ import nl.lolmewn.stats.util.Util;
  *
  * @author Lolmewn
  */
-public abstract class SimpleStat extends DefaultStat implements Summable {
+public class SimpleStat extends DefaultStat implements Summable {
 
     private final String name;
 

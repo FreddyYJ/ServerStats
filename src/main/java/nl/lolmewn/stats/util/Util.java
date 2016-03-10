@@ -1,6 +1,7 @@
 package nl.lolmewn.stats.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +9,7 @@ import nl.lolmewn.stats.Pair;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
+import nl.lolmewn.stats.stat.MetadataPair;
 
 /**
  *
@@ -64,9 +66,54 @@ public class Util {
         if (entries == null) {
             return 0;
         }
-        double sum = 0;
-        sum = entries.stream().map((entry) -> entry.getValue()).reduce(sum, (accumulator, _item) -> accumulator + _item);
-        return sum;
+        return entries.stream().mapToDouble((entry) -> entry.getValue()).sum();
+    }
+
+    public static double sumWhere(Collection<StatEntry> entries, MetadataPair... matchers) {
+        if (entries == null || matchers.length == 0) {
+            return sumAll(entries);
+        }
+        double value = 0;
+        for (StatEntry entry : entries) {
+            if(Arrays.asList(matchers).stream().allMatch(pair -> {return matches(entry, pair);})){
+                value += entry.getValue();
+            }
+        }
+        return value;
+    }
+
+    public static boolean matches(StatEntry entry, MetadataPair pair) {
+        if (entry == null || pair == null) {
+            return pair != null; // returns true if pair is not null
+        }
+        if (!entry.getMetadata().containsKey(pair.getKey())) {
+            return false;
+        }
+        return entry.getMetadata().get(pair.getKey()).equals(pair.getValue());
+    }
+    
+    public static boolean matchesAll(StatEntry entry, MetadataPair... pairs){
+        return Arrays.asList(pairs).stream().allMatch(pair -> Util.matches(entry, pair));
+    }
+    
+    public static boolean matchesAny(StatEntry entry, MetadataPair... pairs){
+        return Arrays.asList(pairs).stream().anyMatch(pair -> Util.matches(entry, pair));
+    }
+    
+    public static boolean matchesNone(StatEntry entry, MetadataPair... pairs){
+        return Arrays.asList(pairs).stream().noneMatch(pair -> Util.matches(entry, pair));
+    }
+    
+    public static boolean matchesAll(StatEntry entry, List<MetadataPair> pairs){
+        return pairs.stream().allMatch(pair -> Util.matches(entry, pair));
+    }
+    
+    public static boolean matchesAny(StatEntry entry, List<MetadataPair> pairs){
+        return pairs.stream().anyMatch(pair -> Util.matches(entry, pair));
+    }
+    
+    public static boolean matchesNone(StatEntry entry, List<MetadataPair> pairs){
+        return pairs.stream().noneMatch(pair -> Util.matches(entry, pair));
     }
 
 }

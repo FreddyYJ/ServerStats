@@ -1,5 +1,6 @@
 package nl.lolmewn.stats;
 
+import java.io.IOException;
 import java.util.UUID;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
@@ -23,5 +24,6 @@ public interface Main {
     public boolean hasPlugin(String name);
     public void scheduleTask(Runnable runnable, int ticks);
     public void scheduleTaskAsync(Runnable runnable, int ticks);
+    public void saveCustomStat(Stat stat) throws IOException;
 
 }

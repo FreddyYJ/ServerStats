@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,7 @@ import nl.lolmewn.stats.signs.SignManager;
 import nl.lolmewn.stats.stats.Money;
 import nl.lolmewn.stats.stats.PVPStreak;
 import nl.lolmewn.stats.stats.PVPTopStreak;
+import nl.lolmewn.stats.stats.SimpleStat;
 import nl.lolmewn.stats.stats.bukkit.BukkitArrows;
 import nl.lolmewn.stats.stats.bukkit.BukkitBedEnter;
 import nl.lolmewn.stats.stats.bukkit.BukkitBlockBreak;
@@ -120,8 +122,6 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getCommand("stats").setExecutor(new BukkitCommand(this));
         this.startStats();
         this.registerAPI();
-
-        this.loadOnlinePlayers();
     }
 
     @Override
@@ -183,6 +183,14 @@ public class BukkitMain extends JavaPlugin implements Main {
         if (!mess.exists()) {
             this.saveResource("messages.yml", true);
         }
+        File custom = new File(this.getDataFolder(), "custom.yml");
+        if (!custom.exists()) {
+            try {
+                custom.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     private void loadStats() {
@@ -222,6 +230,12 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.statManager.addStat(new BukkitWordsSaid(this));
         this.statManager.addStat(new BukkitWorldChange(this));
         this.statManager.addStat(new BukkitXpGained(this));
+
+        YamlConfiguration customStats = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "custom.yml"));
+        List<String> names = customStats.getStringList("stats");
+        names.stream().forEach((name) -> {
+            this.statManager.addStat(new SimpleStat(name));
+        });
     }
 
     private void loadUserManager() throws StorageException {
@@ -259,7 +273,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     private void scheduleDataSaver() {
         this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            Timings.startTiming("user-saving", System.nanoTime());
+            Timings.startTiming("user-saving", System.currentTimeMillis());
             synchronized (userManager) {
                 userManager.getUsers().stream().forEach((holder) -> {
                     try {
@@ -269,7 +283,7 @@ public class BukkitMain extends JavaPlugin implements Main {
                     }
                 });
             }
-            debug("Saving users took " + Timings.finishTimings("user-saving", System.nanoTime()) + "ns");
+            debug("Saving users took " + Timings.finishTimings("user-saving", System.currentTimeMillis()) + "ms");
         }, 200L, 200L);
     }
 
@@ -352,7 +366,8 @@ public class BukkitMain extends JavaPlugin implements Main {
     private void scheduleUserManagerLoading() {
         this.getServer().getScheduler().runTask(this, () -> {
             try {
-                loadUserManager();
+                this.loadUserManager();
+                this.loadOnlinePlayers();
             } catch (StorageException ex) {
                 Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
                 getLogger().severe("The error above means the user manager failed to start");
@@ -429,5 +444,15 @@ public class BukkitMain extends JavaPlugin implements Main {
     @Override
     public boolean hasPlugin(String name) {
         return this.getServer().getPluginManager().getPlugin(name) != null;
+    }
+
+    @Override
+    public void saveCustomStat(Stat stat) throws IOException {
+        this.checkFiles();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "custom.yml"));
+        List<String> current = config.getStringList("stats");
+        current.add(stat.getName());
+        config.set("stats", current);
+        config.save(new File(this.getDataFolder(), "custom.yml"));
     }
 }

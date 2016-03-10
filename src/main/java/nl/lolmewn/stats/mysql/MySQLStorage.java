@@ -217,6 +217,7 @@ public class MySQLStorage implements StorageEngine {
                 }
                 StatEntry entry;
                 while ((entry = save.poll()) != null) {
+                    final StatEntry currentEntry = entry;
                     plugin.debug("Saving entry using params " + entry.getMetadata() + ", value=" + entry.getValue() + "...");
                     StringBuilder update = new StringBuilder("UPDATE ");
                     update.append(table);
@@ -229,13 +230,20 @@ public class MySQLStorage implements StorageEngine {
                         update.append("AND ").append(metadataName.replace(" ", ""));
                         return metadataName;
                     }).forEach((_item) -> {
-                        update.append("=? ");
+                        if (currentEntry.getMetadata().containsKey(_item)) {
+                            update.append("=? ");
+                        }else{
+                            update.append(" IS NULL ");
+                        }
                     });
                     PreparedStatement updatePS = con.prepareStatement(update.toString());
                     updatePS.setDouble(1, entry.getValue());
                     updatePS.setString(2, holder.getUuid().toString());
                     int idx = 3;
                     for (String metadataName : stat.getDataTypes().keySet()) {
+                        if (!currentEntry.getMetadata().containsKey(metadataName)) {
+                            continue; // Skip for IS NULL
+                        }
                         if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
                             updatePS.setObject(idx++, new Timestamp((long) entry.getMetadata().get(metadataName)));
                         } else {
@@ -305,31 +313,34 @@ public class MySQLStorage implements StorageEngine {
     }
 
     private void generateTable(Connection con, Stat stat, MySQLTable playersTable) throws SQLException {
-        String tableName = prefix + formatStatName(stat.getName());
-        MySQLTable table = new MySQLTable(tableName);
-        this.tables.put(tableName, table);
+        MySQLTable table = generateTable(stat);
+        this.tables.put(table.getName(), table);
+        table.getColumn("uuid").references(playersTable, playersTable.getColumn("uuid"));
+        String createQuery = table.generateCreateQuery();
+        con.createStatement().execute(createQuery);
+    }
+
+    public MySQLTable generateTable(Stat stat) {
+        MySQLTable table = new MySQLTable(prefix + formatStatName(stat.getName()));
         table.addColumn("id", DataType.LONG).addAttributes(
                 MySQLAttribute.PRIMARY_KEY,
                 MySQLAttribute.AUTO_INCREMENT,
                 MySQLAttribute.NOT_NULL,
                 MySQLAttribute.UNIQUE
         );
-        table.addColumn("uuid", DataType.STRING).addAttributes(
-                MySQLAttribute.NOT_NULL
-        ).references(playersTable, playersTable.getColumn("uuid"));
+        table.addColumn("uuid", DataType.STRING).addAttributes(MySQLAttribute.NOT_NULL);
         table.addColumn("value", DataType.DOUBLE).addAttribute(MySQLAttribute.NOT_NULL);
         stat.getDataTypes().entrySet().stream().forEach((entry) -> {
             table.addColumn(entry.getKey(), entry.getValue());
         });
-        String createQuery = table.generateCreateQuery();
-        con.createStatement().execute(createQuery);
+        return table;
     }
 
     public void checkTables() throws StorageException {
         try (Connection con = this.source.getConnection()) {
             for (MySQLTable table : this.tables.values()) {
                 boolean exists = con.createStatement().executeQuery("SHOW TABLES LIKE '" + table.getName() + "'").next();
-                if(!exists){
+                if (!exists) {
                     con.createStatement().execute(table.generateCreateQuery());
                     continue; // Freshly created, in-memory is same as database layout
                 }
