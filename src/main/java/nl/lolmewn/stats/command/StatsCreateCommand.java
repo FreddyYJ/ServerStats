@@ -1,5 +1,6 @@
 package nl.lolmewn.stats.command;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,9 +36,13 @@ public class StatsCreateCommand extends SubCommand {
             sender.sendMessage("Please use a different name");
             return;
         }
-        Stat stat = new SimpleStat(name) {
-        };
+        Stat stat = new SimpleStat(name);
         plugin.getStatManager().addStat(stat);
+        try {
+            plugin.saveCustomStat(stat);
+        } catch (IOException ex) {
+            Logger.getLogger(StatsCreateCommand.class.getName()).log(Level.SEVERE, null, ex);
+        }
         MySQLStorage storage = (MySQLStorage) plugin.getStorageEngineManager().getStorageEngine("mysql");
 
         if (storage != null && storage.isEnabled()) {
@@ -51,7 +56,7 @@ public class StatsCreateCommand extends SubCommand {
                     sender.sendMessage("Something went horribly wrong while creating a table in the database, please check your logs.");
                 }
             }, 0);
-        }else{
+        } else {
             sender.sendMessage("Stat added! You can now use your '" + name + "' stat.");
         }
     }
