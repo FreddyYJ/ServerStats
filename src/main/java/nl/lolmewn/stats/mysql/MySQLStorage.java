@@ -196,12 +196,19 @@ public class MySQLStorage implements StorageEngine {
                         sb.append("AND ").append(metadataName.replace(" ", ""));
                         return metadataName;
                     }).forEach((_item) -> {
-                        sb.append("=? ");
+                        if (deleted.getMetadata().containsKey(_item)) {
+                            sb.append("=? ");
+                        } else {
+                            sb.append(" IS NULL ");
+                        }
                     });
                     PreparedStatement deletePS = con.prepareStatement(sb.toString());
                     deletePS.setString(1, holder.getUuid().toString());
                     int idx = 2;
                     for (String metadataName : stat.getDataTypes().keySet()) {
+                        if (!deleted.getMetadata().containsKey(metadataName)) {
+                            continue; // Skip for IS NULL
+                        }
                         if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
                             deletePS.setObject(idx++, new Timestamp((long) deleted.getMetadata().get(metadataName)));
                         } else {
@@ -232,7 +239,7 @@ public class MySQLStorage implements StorageEngine {
                     }).forEach((_item) -> {
                         if (currentEntry.getMetadata().containsKey(_item)) {
                             update.append("=? ");
-                        }else{
+                        } else {
                             update.append(" IS NULL ");
                         }
                     });
