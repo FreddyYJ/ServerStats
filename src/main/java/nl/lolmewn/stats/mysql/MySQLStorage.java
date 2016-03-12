@@ -39,19 +39,19 @@ import org.apache.commons.dbcp2.BasicDataSource;
  * @author Lolmewn
  */
 public class MySQLStorage implements StorageEngine {
-
+    
     private final Main plugin;
     private final MySQLConfig config;
     private BasicDataSource source;
     private String prefix;
     private Map<String, MySQLTable> tables;
     private boolean enabled = false;
-
+    
     public MySQLStorage(Main main, MySQLConfig config) throws StorageException {
         this.plugin = main;
         this.config = config;
     }
-
+    
     public void addTable(MySQLTable table) throws SQLException {
         this.tables.put(table.getName(), table);
         if (enabled) {
@@ -60,7 +60,7 @@ public class MySQLStorage implements StorageEngine {
             }
         }
     }
-
+    
     @Override
     public MySQLStatHolder load(UUID userUuid, StatManager statManager) throws StorageException {
         plugin.debug("Loading data for " + userUuid + "...");
@@ -143,28 +143,32 @@ public class MySQLStorage implements StorageEngine {
         holder.setTemp(false);
         return holder;
     }
-
+    
     public boolean isLocked(Connection con, UUID uuid) throws SQLException {
         try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "locks WHERE uuid=?")) {
             st.setString(1, uuid.toString());
             return st.executeQuery().next();
         }
     }
-
-    public void lock(Connection con, UUID uuid) throws SQLException {
+    
+    public void lock(Connection con, UUID uuid) {
         try (PreparedStatement st = con.prepareStatement("INSERT INTO " + prefix + "locks (uuid) VALUES (?)")) {
             st.setString(1, uuid.toString());
             st.execute();
+        } catch (SQLException ex) {
+            this.plugin.info("Could not lock user with UUID " + uuid.toString());
+            this.plugin.info("This may not affect you in any way; just letting you know it happened.");
+            this.plugin.info("The cause was: " + ex.getLocalizedMessage() + " (errno " + ex.getErrorCode() + ")");
         }
     }
-
+    
     public void unlock(Connection con, UUID uuid) throws SQLException {
         try (PreparedStatement st = con.prepareStatement("DELETE FROM " + prefix + "locks WHERE uuid=?")) {
             st.setString(1, uuid.toString());
             st.execute();
         }
     }
-
+    
     @Override
     public void save(StatsHolder user) throws StorageException {
         if (!(user instanceof MySQLStatHolder)) {
@@ -183,7 +187,7 @@ public class MySQLStorage implements StorageEngine {
             playersPS.setString(1, holder.getUuid().toString());
             playersPS.setString(2, holder.getName());
             playersPS.execute();
-
+            
             for (Iterator<Stat> statIterator = holder.getStats().iterator(); statIterator.hasNext();) {
                 Stat stat = statIterator.next();
                 plugin.debug("Saving stat data for " + stat.getName() + "...");
@@ -297,7 +301,7 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Something went wrong while saving the user!", ex);
         }
     }
-
+    
     public void generateTables() throws StorageException {
         MySQLTable playersTable = new MySQLTable(prefix + "players");
         playersTable.addColumn("uuid", DataType.STRING).addAttributes(MySQLAttribute.PRIMARY_KEY, MySQLAttribute.NOT_NULL, MySQLAttribute.UNIQUE);
@@ -318,7 +322,7 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Failed to generate tables for stats", ex);
         }
     }
-
+    
     private void generateTable(Connection con, Stat stat, MySQLTable playersTable) throws SQLException {
         MySQLTable table = generateTable(stat);
         this.tables.put(table.getName(), table);
@@ -326,7 +330,7 @@ public class MySQLStorage implements StorageEngine {
         String createQuery = table.generateCreateQuery();
         con.createStatement().execute(createQuery);
     }
-
+    
     public MySQLTable generateTable(Stat stat) {
         MySQLTable table = new MySQLTable(prefix + formatStatName(stat.getName()));
         table.addColumn("id", DataType.LONG).addAttributes(
@@ -342,7 +346,7 @@ public class MySQLStorage implements StorageEngine {
         });
         return table;
     }
-
+    
     public void checkTables() throws StorageException {
         try (Connection con = this.source.getConnection()) {
             for (MySQLTable table : this.tables.values()) {
@@ -376,7 +380,7 @@ public class MySQLStorage implements StorageEngine {
                     }
                     st.executeUpdate(sb.toString());
                 }
-
+                
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                     for (MySQLColumn column : table.getColumns()) {
                         if (!hasColumnName(rsmd, column.getName())) {
@@ -390,7 +394,7 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Failed to check tables for stats", ex);
         }
     }
-
+    
     private boolean hasColumnName(ResultSetMetaData rsmd, String name) throws SQLException {
         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
             if (rsmd.getColumnName(i).equalsIgnoreCase(name)) {
@@ -399,19 +403,19 @@ public class MySQLStorage implements StorageEngine {
         }
         return false;
     }
-
+    
     public String formatStatName(String name) {
         return name.toLowerCase().replace(" ", "_");
     }
-
+    
     public Connection getConnection() throws SQLException {
         return source.getConnection();
     }
-
+    
     public String getPrefix() {
         return prefix;
     }
-
+    
     @Override
     public void delete(StatsHolder user) throws StorageException {
         try {
@@ -428,7 +432,7 @@ public class MySQLStorage implements StorageEngine {
         }
         // idea for improvement: iterate over the user's stats instead of over every table
     }
-
+    
     @Override
     public void enable() throws StorageException {
         this.source = new BasicDataSource();
@@ -448,7 +452,7 @@ public class MySQLStorage implements StorageEngine {
         }, 1);
         this.enabled = true;
     }
-
+    
     @Override
     public void disable() throws StorageException {
         this.enabled = false;
@@ -458,10 +462,10 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Exception while disabling the StorageEngine", ex);
         }
     }
-
+    
     @Override
     public boolean isEnabled() {
         return this.enabled;
     }
-
+    
 }
