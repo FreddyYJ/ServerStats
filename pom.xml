@@ -27,7 +27,7 @@
         </repository>
         <repository>
             <id>fanciful-mvn-repo</id>
-            <url>http://repo.franga2000.com/artifactory/public</url>
+            <url>http://repo.stealthyone.com/content/groups/public</url>
         </repository>
         <repository>
             <id>plugin-repo</id>
