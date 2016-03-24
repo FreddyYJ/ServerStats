@@ -29,7 +29,7 @@ public class BukkitFishCaught extends FishCaught implements Listener {
         if (!this.isEnabled()) {
             return;
         }
-        if (!event.getState().equals(State.CAUGHT_ENTITY)) {
+        if (!event.getState().equals(State.CAUGHT_FISH)) {
             return;
         }
         if (event.getPlayer().hasMetadata("NPC")) {
