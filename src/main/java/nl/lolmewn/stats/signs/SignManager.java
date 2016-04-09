@@ -35,7 +35,7 @@ public class SignManager {
         builder.registerTypeHierarchyAdapter(Stat.class, new StatGsonAdapter(statManager));
         builder.enableComplexMapKeySerialization();
         builder.setPrettyPrinting();
-        builder.registerTypeAdapter(StatsSign.class, new InterfaceAdapter<StatsSign>());
+        builder.registerTypeAdapter(StatsSign.class, new InterfaceAdapter<>());
         this.gson = builder.create();
         this.signFile = signFile;
     }
@@ -48,7 +48,9 @@ public class SignManager {
         BufferedReader br = new BufferedReader(new FileReader(signFile));
 
         Map<SignLocation, StatsSign> map = gson.fromJson(br, type);
-        signs.putAll(map);
+        if (map != null) {
+            signs.putAll(map);
+        }
     }
 
     public void save() throws FileNotFoundException, IOException {
