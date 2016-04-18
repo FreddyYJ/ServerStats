@@ -444,6 +444,7 @@ public class MySQLStorage implements StorageEngine {
         this.tables = new HashMap<>();
         this.plugin.scheduleTask(() -> {
             try {
+                checkConversionError();
                 generateTables();
                 checkTables();
             } catch (StorageException ex) {
@@ -466,6 +467,10 @@ public class MySQLStorage implements StorageEngine {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    private void checkConversionError() {
+        // TODO: Implement using http://stackoverflow.com/a/3836911/1122834
     }
     
 }
