@@ -294,7 +294,7 @@ public class Stats2Converter {
                 holder.addEntry(death, new DefaultStatEntry(
                         set.getInt("amount"),
                         new MetadataPair("world", set.getString("world")),
-                        new MetadataPair("cause", set.getString("cause"))
+                        new MetadataPair("cause", set.getString("cause").toUpperCase())
                 ));
             }
         }
@@ -320,7 +320,7 @@ public class Stats2Converter {
                 holder.addEntry(kill, new DefaultStatEntry(
                         set.getInt("amount"),
                         new MetadataPair("world", set.getString("world")),
-                        new MetadataPair("entityType", set.getString("type")),
+                        new MetadataPair("entityType", set.getString("type").toUpperCase()),
                         new MetadataPair("weapon", "Unknown")
                 ));
             }
