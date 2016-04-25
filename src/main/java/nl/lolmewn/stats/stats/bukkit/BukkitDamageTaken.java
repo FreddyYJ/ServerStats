@@ -36,6 +36,10 @@ public class BukkitDamageTaken extends DamageTaken implements Listener {
             return;
         }
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
+        if (holder == null) {
+            // ignore, likely an NPC
+            return;
+        }
         holder.addEntry(this, new DefaultStatEntry(event.getDamage(),
                 new MetadataPair("world", player.getWorld().getName()),
                 new MetadataPair("cause", event.getCause().toString())

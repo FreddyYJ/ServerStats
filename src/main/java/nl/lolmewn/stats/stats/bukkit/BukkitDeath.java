@@ -46,6 +46,10 @@ public class BukkitDeath extends Death implements Listener {
         }
         Player player = event.getEntity();
         StatsHolder holder = plugin.getUserManager().getUser(player.getUniqueId());
+        if (holder == null) {
+            // ignore, likely an NPC
+            return;
+        }
         holder.addEntry(this, new DefaultStatEntry(1,
                 new MetadataPair("world", player.getWorld().getName()),
                 new MetadataPair("cause", cause)

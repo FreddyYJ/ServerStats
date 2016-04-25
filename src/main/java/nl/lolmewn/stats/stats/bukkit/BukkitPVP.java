@@ -28,7 +28,7 @@ public class BukkitPVP extends PVP implements Listener {
 
     @Override
     public String format(StatEntry se) {
-        return super.format(se).replace("%victim%", plugin.getServer().getOfflinePlayer(UUID.fromString((String)se.getMetadata().get("victim"))).getName());
+        return super.format(se).replace("%victim%", plugin.getServer().getOfflinePlayer(UUID.fromString((String) se.getMetadata().get("victim"))).getName());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -42,6 +42,10 @@ public class BukkitPVP extends PVP implements Listener {
         if (event.getEntity().getKiller() != null) {
             Player killer = event.getEntity().getKiller();
             StatsHolder holder = this.plugin.getUserManager().getUser(killer.getUniqueId());
+            if (holder == null) {
+                // ignore, likely an NPC
+                return;
+            }
             if (killer.hasMetadata("NPC")) {
                 return;
             }
@@ -75,6 +79,10 @@ public class BukkitPVP extends PVP implements Listener {
         }
 
         StatsHolder dead = this.plugin.getUserManager().getUser(victim.getUniqueId());
+        if (holder == null) {
+            // ignore, likely an NPC
+            return;
+        }
         dead.removeStat(streak);
     }
 
