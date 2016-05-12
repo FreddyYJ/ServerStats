@@ -444,8 +444,8 @@ public class MySQLStorage implements StorageEngine {
         this.tables = new HashMap<>();
         this.plugin.scheduleTask(() -> {
             try {
-                fixConversionError();
                 generateTables();
+                fixConversionError();
                 checkTables();
             } catch (StorageException ex) {
                 Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
