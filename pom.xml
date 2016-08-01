@@ -22,16 +22,12 @@
             <url>http://lolmewn.nl:8081/nexus/content/groups/public/</url>
         </repository>
         <repository>
-            <id>mcstats-repo</id>
-            <url>http://repo.mcstats.org/content/repositories/public/</url>
-        </repository>
-        <repository>
             <id>fanciful-mvn-repo</id>
             <url>http://repo.stealthyone.com/content/groups/public</url>
         </repository>
         <repository>
             <id>plugin-repo</id>
-            <url>http://bukkit.jacekk.co.uk/plugin_repo/</url>
+            <url>https://bukkit.jacekk.co.uk/plugin_repo/</url>
         </repository>
     </repositories>
     <dependencies>
@@ -43,7 +39,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>             
-            <version>1.9-R0.1-SNAPSHOT</version>
+            <version>1.10.2-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
@@ -55,11 +51,6 @@
         </dependency>
         
         <!-- Gets shaded in -->
-        <dependency>
-            <groupId>org.mcstats.bukkit</groupId>
-            <artifactId>metrics</artifactId>
-            <version>R7</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
@@ -78,7 +69,7 @@
         <dependency>
             <groupId>mkremins</groupId>
             <artifactId>fanciful</artifactId>
-            <version>0.3.3-SNAPSHOT</version>
+            <version>0.4.0-SNAPSHOT</version>
         </dependency>
         
         <!-- Test dependency -->
