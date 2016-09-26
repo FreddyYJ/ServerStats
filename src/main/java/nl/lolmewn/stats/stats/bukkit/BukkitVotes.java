@@ -1,12 +1,7 @@
 package nl.lolmewn.stats.stats.bukkit;
 
-import com.vexsoftware.votifier.model.VotifierEvent;
 import nl.lolmewn.stats.bukkit.BukkitMain;
-import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.stats.Votes;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 /**
@@ -19,9 +14,11 @@ public class BukkitVotes extends Votes implements Listener {
 
     public BukkitVotes(BukkitMain plugin) {
         this.plugin = plugin;
+        plugin.getLogger().info("The Votes stat has been disabled due to issues with Votifier.");
+        plugin.getLogger().info("You may disregard this message if you don't use Votifier.");
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void vote(VotifierEvent event) {
         if (!this.isEnabled()) {
             return;
@@ -31,5 +28,5 @@ public class BukkitVotes extends Votes implements Listener {
             return;
         }
         plugin.getUserManager().getUser(player.getUniqueId()).addEntry(this, new DefaultStatEntry(1));
-    }
+    }*/
 }

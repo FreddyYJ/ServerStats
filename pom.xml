@@ -19,15 +19,11 @@
         </repository>
         <repository>
             <id>lolmewn-repo</id>
-            <url>http://lolmewn.nl:8081/nexus/content/groups/public/</url>
+            <url>http://lolmewn.nl:8081/repository/maven-snapshots/</url>
         </repository>
         <repository>
             <id>fanciful-mvn-repo</id>
             <url>http://repo.stealthyone.com/content/groups/public</url>
-        </repository>
-        <repository>
-            <id>plugin-repo</id>
-            <url>https://bukkit.jacekk.co.uk/plugin_repo/</url>
         </repository>
     </repositories>
     <dependencies>
@@ -41,12 +37,6 @@
             <artifactId>bukkit</artifactId>             
             <version>1.10.2-R0.1-SNAPSHOT</version>
             <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bukkit.dev</groupId>
-            <artifactId>votifier</artifactId>
-            <version>1.9</version>
             <scope>provided</scope>
         </dependency>
         
@@ -106,7 +96,10 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
+                <configuration>
                     <minimizeJar>false</minimizeJar>
+                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                </configuration>
                 </configuration>
                 <executions>
                     <execution>
@@ -179,12 +172,12 @@
         <repository>
             <id>deployment</id>
             <name>Internal Releases</name>
-            <url>http://lolmewn.nl:8081/nexus/content/repositories/releases/</url>
+            <url>http://lolmewn.nl:8081/repository/maven-releases</url>
         </repository>
         <snapshotRepository>
             <id>deployment</id>
             <name>Internal Snapshots</name>
-            <url>http://lolmewn.nl:8081/nexus/content/repositories/snapshots/</url>
+            <url>http://lolmewn.nl:8081/repository/maven-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

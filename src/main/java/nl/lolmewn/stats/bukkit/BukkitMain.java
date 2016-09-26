@@ -84,6 +84,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     @Override
     public void onLoad() {
+        boolean firstStart = !this.getDataFolder().exists();
         this.checkFiles();
         this.statManager = new DefaultStatManager();
         this.loadStats();
