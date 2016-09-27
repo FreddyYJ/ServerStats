@@ -96,10 +96,10 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
-                <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <shadedArtifactAttached>true</shadedArtifactAttached>
-                </configuration>
+                    <configuration>
+                        <minimizeJar>false</minimizeJar>
+                        <shadedArtifactAttached>true</shadedArtifactAttached>
+                    </configuration>
                 </configuration>
                 <executions>
                     <execution>
@@ -164,6 +164,19 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
