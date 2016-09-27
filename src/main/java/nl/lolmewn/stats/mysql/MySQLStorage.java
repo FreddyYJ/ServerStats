@@ -483,9 +483,9 @@ public class MySQLStorage implements StorageEngine {
 
     private void fixConversionForKill(Connection con) throws SQLException {
         Statement st = con.createStatement();
-        ResultSet needsFix = st.executeQuery("SELECT * FROM " + getPrefix() + "kill WHERE (entityType COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
+        ResultSet needsFix = st.executeQuery("SELECT * FROM " + getPrefix() + "kill WHERE (convert(entityType using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
         int updated = 0;
-        PreparedStatement update = con.prepareStatement("UPDATE " + getPrefix() + "kill SET value=value+? WHERE uuid=? AND weapon=? AND world=? AND (entityType COLLATE latin1_general_cs)=?");
+        PreparedStatement update = con.prepareStatement("UPDATE " + getPrefix() + "kill SET value=value+? WHERE uuid=? AND weapon=? AND world=? AND (convert(entityType using latin1) COLLATE latin1_general_cs)=?");
         PreparedStatement insert = con.prepareStatement("INSERT INTO " + getPrefix() + "kill (uuid, value, weapon, world, entityType) VALUES (?, ?, ?, ?, ?)");
         boolean messageSent = false;
         while (needsFix.next()) {
@@ -511,7 +511,7 @@ public class MySQLStorage implements StorageEngine {
             updated++;
         }
         // Delete all old non-adhering rows from the database
-        st.execute("DELETE FROM " + getPrefix() + "kill WHERE (entityType COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
+        st.execute("DELETE FROM " + getPrefix() + "kill WHERE (convert(entityType using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
 
         if (updated != 0) {
             plugin.info("Fixed " + updated + " rows of data in the Kill table");
@@ -520,9 +520,9 @@ public class MySQLStorage implements StorageEngine {
 
     private void fixConversionForDeath(Connection con) throws SQLException {
         Statement st = con.createStatement();
-        ResultSet needsFix = st.executeQuery("SELECT * FROM " + getPrefix() + "death WHERE (cause COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
+        ResultSet needsFix = st.executeQuery("SELECT * FROM " + getPrefix() + "death WHERE (convert(cause using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
         int updated = 0;
-        PreparedStatement update = con.prepareStatement("UPDATE " + getPrefix() + "death SET value=value+? WHERE uuid=? AND world=? AND (cause COLLATE latin1_general_cs)=?");
+        PreparedStatement update = con.prepareStatement("UPDATE " + getPrefix() + "death SET value=value+? WHERE uuid=? AND world=? AND (convert(cause using latin1) COLLATE latin1_general_cs)=?");
         PreparedStatement insert = con.prepareStatement("INSERT INTO " + getPrefix() + "death (uuid, value, world, cause) VALUES (?, ?, ?, ?)");
         boolean messageSent = false;
         while (needsFix.next()) {
@@ -545,7 +545,7 @@ public class MySQLStorage implements StorageEngine {
             updated++;
         }
         // Delete all old non-adhering rows from the database
-        st.execute("DELETE FROM " + getPrefix() + "death WHERE (cause COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
+        st.execute("DELETE FROM " + getPrefix() + "death WHERE (convert(cause using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
 
         if (updated != 0) {
             plugin.info("Fixed " + updated + " rows of data in the Death table");
