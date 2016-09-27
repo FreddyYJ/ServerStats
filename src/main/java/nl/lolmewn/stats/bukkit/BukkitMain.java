@@ -132,6 +132,7 @@ public class BukkitMain extends JavaPlugin implements Main {
             this.userManager.getUsers().stream().forEach((holder) -> {
                 try {
                     this.userManager.saveUser(holder.getUuid());
+                    this.userManager.removeUser(holder.getUuid());
                 } catch (Exception ex) {
                     Logger.getLogger(BukkitMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
