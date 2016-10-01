@@ -79,7 +79,7 @@ public class BukkitPVP extends PVP implements Listener {
         }
 
         StatsHolder dead = this.plugin.getUserManager().getUser(victim.getUniqueId());
-        if (holder == null) {
+        if (dead == null) {
             // ignore, likely an NPC
             return;
         }
