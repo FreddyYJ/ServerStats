@@ -13,5 +13,6 @@ public interface Config {
     public int getInteger(String key);
     public int getInteger(String key, int def);
     public List<String> getStringList(String key);
+    public boolean hasPath(String path);
 
 }

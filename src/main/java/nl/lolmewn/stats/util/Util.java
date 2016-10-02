@@ -32,7 +32,7 @@ public class Util {
     }
 
     public static String getDefaultMessage(Stat stat, StatEntry entry) {
-        return "%value%"
+        return stat.getName() + ": %value%"
                 + (entry.getMetadata().containsKey("world")
                 ? " in world %world%"
                 : "");

@@ -2,8 +2,8 @@
 console-only: "Only the console can do this!"
 player-only: "You have to be a player to do this!"
 no-perms: "You do not have permissions to do this!"
-no-stats-yet: "No data for stat %stat% yet!"
-no-stats-yet-fancy: "No data yet for stat %stat% with this %fancyMetadata%" 
+no-stats-yet: "&4No data&f for stat &6%stat%&f yet!"
+no-stats-yet-fancy: "&4No data&f yet for stat &6%stat%&f with this &7%fancyMetadata%" 
 needs-more-arguments: "This command requires more arguments. Correct usage: %usage%"
 player-not-found: "Player by the name of %input% not found"
 command-not-found: "Unknown command. Type /stats help to view commands"
@@ -14,73 +14,90 @@ sign:
     unknown-player: "The player type of the sign is unknown, or no player could be found by that name"
     combi-unsuported: "This combination of types is unsupported. For a list of supported types, see //TODO link here"
 
+# These get used whenever a condition with a certain metadata is used. 
+# This makes the info on screen have extra info (e.g. killed with diamond sword)
+metadata:
+    world:
+        # Negation can be calculated here, set of all worlds is known
+        value: " in world %world%"
+        values: " in worlds %world%" 
+    weapon:
+        value: " with %weapon%"
+        negation: " without %weapon%"
+    name: 
+        value: " %name%"
+    
+
 stats:
     playtime:
         description: Time played
-        format: '%days% days, %hours% hours, %minutes% minutes and %seconds% seconds'
+        format: '&6%days%&f days, &6%hours%&f hours, &6%minutes%&f minutes and &6%seconds%&f seconds'
     fish_caught:
-        format: '%value% in world %world%'
+        format: 'Caught &6%value%&f fish'
     items_picked_up:
-        format: '%value% in world %world%'
+        format: 'Picked up &6%value%&f items'
     blocks_broken:
-        format: '%value% in world %world%'
+        format: 'Broken &6%value%&f blocks'
     items_dropped:
-        format: '%value% in world %world%'
+        format: 'Dropped &6%value%&f items'
     times_kicked:
-        format: '%value%'
+        format: 'Kicked &6%value%&f times'
     pvp:
-        format: '%value% in world %world%'
+        format: 'Killed &6%value%&f players'
     arrows:
-        format: '%value% in world %world%'
+        format: 'Fired &6%value%&f arrows'
     buckets_emptied:
-        format: '%value% in world %world%'
+        format: 'Emptied &6%value%&f buckets'
     damage_taken:
-        format: '%value% in world %world%'
+        format: 'Took &6%value%&f damage'
     tools_broken:
-        format: '%value% in world %world%'
+        format: 'Broken &6%value%&f tools'
     move:
-        format: '%value% in world %world%'
+        format: 'Moved &6%value%&f meters'
     shears:
-        format: '%value% in world %world%'
+        format: 'Sheared &6%value%&f sheep'
     votes:
-        format: '%value%'
+        format: 'Voted &6%value%&f times'
     kill:
-        format: '%value% in world %world%'
+        format: 'Killed &6%value%&f entities'
     last_seen:
-        format: '%value% in world %world%'
+        format: 'Last seen%world%: &6%value%&f'
     last_join:
-        format: '%value% in world %world%'
+        format: 'Last joined%world%: &6%value%&f'
     trades:
-        format: '%value% in world %world%'
+        format: 'Traded &6%value%&f times'
     blocks_placed:
-        format: '%value% in world %world%'
+        format: 'Placed &6%value%&f%name% blocks'
     items_crafted:
-        format: '%value% in world %world%'
+        format: 'Crafted &6%value%&f items'
     teleports:
-        format: '%value% in world %world%'
+        format: 'Teleported &6%value%&f times'
     words_said:
-        format: '%value% in world %world%'
+        format: 'Spoken &6%value%&f words'
     xp_gained:
-        format: '%value% in world %world%'
+        format: 'Gained &6%value%&f XP'
     eggs_thrown:
-        format: '%value% in world %world%'
+        format: 'Thrown &6%value%&f eggs'
     times_changed_world:
-        format: '%value%'
+        format: 'Changed world &6%value%&f times'
     buckets_filled:
-        format: '%value% in world %world%'
+        format: 'Filled &6%value%&f buckets'
     omnomnom:
-        format: '%value% in world %world%'
+        format: 'Eaten &6%value%&f items'
     death:
-        format: '%value% in world %world%'
+        format: 'Died &6%value%&f times'
     beds_entered:
-        format: '%value% in world %world%'
+        format: 'Entered &6%value%&f beds'
     commands_done:
-         format: '%value% in world %world%'
+         format: 'Executed &6%value%&f commands'
     joins:
-        format: '%value% times joined'
+        format: 'Joined &6%value%&f times'
 
 
 commands:
+    root:
+        header: "====&6Stats&f (by &2Lolmewn&f)===="
+        footer: ""
     stat:
     - "The %name% statistic"
     - "%description%"

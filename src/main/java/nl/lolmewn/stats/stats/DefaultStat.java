@@ -13,7 +13,7 @@ public abstract class DefaultStat implements Stat, Summable {
 
     @Override
     public String getDescription() {
-        return Messages.getMessage(getMessagesRootPath() + ".description");
+        return Messages.getMessage(getMessagesRootPath() + ".description", "The " + this.getName().toLowerCase() + " statistic");
     }
 
     @Override

@@ -75,6 +75,11 @@
             <version>2.0.5-beta</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>nl.lolmewn</groupId>
+            <artifactId>ItemManager</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     
     <build>

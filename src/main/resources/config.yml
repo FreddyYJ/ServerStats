@@ -4,9 +4,15 @@ storage: mysql
 
 statsCommand:
     show:
-    - "playtime,world=world"
-    - "playtime,world=!world"
-    - "blocks broken,world=world|world_nether"
+    - "Last seen"
+    - "Playtime"
+    - "Blocks broken"
+    - "Joins"
+    - "Kill"
+    - "PVP"
+    - "PVP streak"
+    # - "Blocks broken,world=world|world_nether"
+    # - "PVP,weapon=!Bow
     
 config-version: 1
 

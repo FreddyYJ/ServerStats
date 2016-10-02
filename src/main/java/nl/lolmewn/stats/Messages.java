@@ -1,6 +1,7 @@
 package nl.lolmewn.stats;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,19 @@ public class Messages {
     public Messages(Config config, Painter painter) throws IOException {
         Messages.config = config;
         Messages.painter = painter;
+        new MessageParser(config);
+    }
+
+    public static Config getConfig() {
+        return config;
+    }
+
+    public static Painter getPainter() {
+        return painter;
+    }
+
+    public static boolean hasMessage(String path) {
+        return config.hasPath(path) && !config.getString(path).trim().isEmpty();
     }
 
     public static String getMessage(String path) {
@@ -34,18 +48,27 @@ public class Messages {
     }
 
     public static String getMessage(String path, String def, Pair<String, ?>... replace) {
-        String msg = config.getString(path, def);
-        for (Pair<String, ?> pair : replace) {
-            msg = msg.replace(pair.getKey(), pair.getValue().toString());
+        return getMessage(path, def, Arrays.asList(replace));
+    }
+
+    public static String replace(String message, Pair<String, ?> value) {
+        Object val = value.getValue();
+        if (val instanceof Double && ((Double) val) == (long) ((Double) val).doubleValue()) {
+            return message.replace(value.getKey(), ((Double) val).longValue() + "");
         }
-        return colorise(msg);
+        return message.replace(value.getKey(), value.getValue().toString());
+    }
+
+    public static String replace(String message, List<Pair<String, ?>> values) {
+        for (Pair<String, ?> pair : values) {
+            message = replace(message, pair);
+        }
+        return message;
     }
 
     public static String getMessage(String path, String def, List<Pair<String, ?>> replace) {
         String msg = config.getString(path, def);
-        for (Pair<String, ?> pair : replace) {
-            msg = msg.replace(pair.getKey(), pair.getValue().toString());
-        }
+        msg = replace(msg, replace);
         return colorise(msg);
 
     }
@@ -67,9 +90,7 @@ public class Messages {
         }
         List<String> re = new LinkedList<>();
         msgs.stream().map((message) -> {
-            for (Pair<String, ?> pair : replace) {
-                message = message.replace(pair.getKey(), pair.getValue().toString());
-            }
+            message = replace(message, Arrays.asList(replace));
             return message;
         }).forEach((message) -> {
             re.add(colorise(message));

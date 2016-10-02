@@ -2,6 +2,8 @@ package nl.lolmewn.stats.stats;
 
 import java.util.HashMap;
 import java.util.Map;
+import nl.lolmewn.stats.ConditionalStatEntry;
+import nl.lolmewn.stats.MessageParser;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.storage.DataType;
@@ -21,6 +23,16 @@ public class SimpleStat extends DefaultStat implements Summable {
 
     @Override
     public String format(StatEntry entry) {
+        if (entry instanceof ConditionalStatEntry) {
+            return Messages.replace(
+                    MessageParser.parse(
+                            Messages.getMessage(
+                                    getMessagesRootPath() + ".format",
+                                    Util.getDefaultMessage(this, entry)
+                            ), (ConditionalStatEntry) entry),
+                    Util.getSafePairs(this, entry)
+            );
+        }
         return Messages.getMessage(
                 getMessagesRootPath() + ".format",
                 Util.getDefaultMessage(this, entry),

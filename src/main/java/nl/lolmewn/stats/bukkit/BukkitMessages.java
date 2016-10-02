@@ -54,8 +54,14 @@ public class BukkitMessages implements Config {
         return config.getInt(key, def);
     }
 
+    @Override
     public List<String> getStringList(String key) {
         return config.getStringList(key);
+    }
+
+    @Override
+    public boolean hasPath(String path) {
+        return config.contains(path);
     }
 
 }
