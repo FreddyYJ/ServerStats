@@ -108,7 +108,10 @@ public class StatsRootCommand extends SubCommand {
 
             }
         } else {
-            sender.sendMessage(sd.getStat().format(this.generateCommonEntry(validEntries, sd.getConditions())));
+            StatEntry entry = this.generateCommonEntry(validEntries, sd.getConditions());
+            String message = sd.getStat().format(entry);
+            message = message.replaceAll("%(.*?)%", "");
+            sender.sendMessage(message);
         }
     }
 
