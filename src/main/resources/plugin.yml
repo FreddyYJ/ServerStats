@@ -31,7 +31,6 @@ permissions:
         children: 
             stats.reset.self: true
             stats.reset.others: true
-            stats.reset.all: op
         default: op
     stats.reset.self:
         default: op
