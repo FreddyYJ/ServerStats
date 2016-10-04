@@ -84,6 +84,10 @@ public class Condition {
         return matches;
     }
 
+    public MatchingMode getMode() {
+        return mode;
+    }
+
     public static Condition parse(String cond) {
         if (cond == null) {
             System.err.println("Condition was null, cannot parse");

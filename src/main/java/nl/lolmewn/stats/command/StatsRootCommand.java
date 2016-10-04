@@ -9,14 +9,12 @@ import nl.lolmewn.stats.Condition;
 import nl.lolmewn.stats.ConditionalStatEntry;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
-import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.stat.StatEntry;
 import nl.lolmewn.stats.api.user.StatsHolder;
 import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.bukkit.config.StatDescriptor;
 import nl.lolmewn.stats.stat.DefaultStatEntry;
 import nl.lolmewn.stats.util.Timings;
-import nl.lolmewn.stats.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -66,28 +64,9 @@ public class StatsRootCommand extends SubCommand {
     }
 
     private void show(Dispatcher sender, StatsHolder holder, String statDesc) {
-        StatDescriptor sd;
-        if (statDesc.contains(",")) {
-            String[] split = statDesc.split(",");
-            String name = split[0];
-            Stat stat = Util.findStat(plugin.getStatManager(), name);
-            if (stat == null) {
-                plugin.getLogger().warning("Incorrect stat specified, not found: '" + name + "'");
-                return;
-            }
-            sd = new StatDescriptor(stat);
-            for (int i = 1; i < split.length; i++) {
-                String condDescription = split[i];
-                Condition cond = Condition.parse(condDescription);
-                sd.addCondition(cond);
-            }
-        } else {
-            Stat stat = Util.findStat(plugin.getStatManager(), statDesc);
-            if (stat == null) {
-                plugin.getLogger().warning("Incorrect stat specified, not found: '" + statDesc + "'");
-                return;
-            }
-            sd = new StatDescriptor(stat);
+        StatDescriptor sd = StatDescriptor.parse(statDesc, plugin.getStatManager());
+        if(sd == null){
+            return; // Can't show a broken config entry
         }
         List<StatEntry> validEntries = new ArrayList<>();
         if (!holder.hasStat(sd.getStat())) {
