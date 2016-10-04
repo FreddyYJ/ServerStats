@@ -18,7 +18,7 @@ public class StatsCommand extends Command {
     public StatsCommand(BukkitMain plugin) {
         this.subCommands = new HashMap<>();
         
-        this.subCommands.put("amdin", new StatsAdminCommand(plugin));
+        this.subCommands.put("admin", new StatsAdminCommand(plugin));
         
         this.subCommands.put("add", new StatsAddCommand(plugin));
         this.subCommands.put("create", new StatsCreateCommand(plugin));
