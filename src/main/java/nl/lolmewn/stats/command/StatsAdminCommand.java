@@ -4,6 +4,7 @@ import nl.lolmewn.itemmanager.inv.ManagedInventory;
 import nl.lolmewn.itemmanager.items.ManagedItem;
 import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.bukkit.config.CommandConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,7 +32,7 @@ public class StatsAdminCommand extends SubCommand {
 
     @Override
     public void execute(Dispatcher sender, String[] args) {
-
+        inventory.open(Bukkit.getPlayer(sender.getUniqueId()));
     }
 
     @Override

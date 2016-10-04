@@ -5,7 +5,33 @@ description: Advanced statistics tracker and viewer. Check out your gathered sta
 author: Lolmewn
 softdepend: [Votifier]
 commands:
-  lolmewnstats:
-    aliases: stats
-    usage: /<command>
-    description: Main commands for Stats 
+    lolmewnstats:
+        aliases: stats
+        usage: /<command>
+        description: Main commands for Stats 
+permissions:
+    stats.custom:
+        description: "Allows user to create and edit custom stats"
+        children:
+            stats.add: true
+            stats.create: true
+        default: op
+    stats.add:
+        default: op
+    stats.create:
+        default: op
+    stats.admin:
+        default: op
+    stats.view.others:
+        default: true
+    stats.view:
+        default: true
+    stats.reset:
+        description: "Allows user to reset stats"
+        children: 
+            stats.reset.self: true
+            stats.reset.others: true
+            stats.reset.all: op
+        default: op
+    stats.set:
+        default: op

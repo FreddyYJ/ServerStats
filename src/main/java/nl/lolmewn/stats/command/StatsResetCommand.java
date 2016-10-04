@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import nl.lolmewn.stats.bukkit.BukkitMain;
 import nl.lolmewn.stats.Messages;
 import nl.lolmewn.stats.Pair;
+import nl.lolmewn.stats.bukkit.BukkitMain;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -99,7 +99,7 @@ public class StatsResetCommand extends SubCommand {
 
     @Override
     public String getPermissionNode() {
-        return "stats.reset"; // let command handle it
+        return null; // let command handle it
     }
 
 }

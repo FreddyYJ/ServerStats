@@ -86,7 +86,7 @@ public class StatsSetCommand extends SubCommand {
 
     @Override
     public String getPermissionNode() {
-        return "stats.add";
+        return "stats.set";
     }
 
 }
