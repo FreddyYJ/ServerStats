@@ -33,5 +33,13 @@ permissions:
             stats.reset.others: true
             stats.reset.all: op
         default: op
+    stats.reset.self:
+        default: op
+    stats.reset.others:
+        default: op
+    stats.reset.all:
+        default: op
     stats.set:
+        default: op
+    stats.sign.create:
         default: op
