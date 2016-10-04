@@ -51,6 +51,7 @@ public class CommandConfig {
         item.setOnClickAction(player -> {
             this.statInventories.computeIfAbsent(descriptor.getStat(), ignored -> createStatInventory(descriptor)).open(player);
         });
+        this.mainInventory.addItem(item);
     }
 
     private void fixItemMeta(ItemStack stack, StatDescriptor descriptor) {
