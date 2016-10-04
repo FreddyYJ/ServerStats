@@ -131,4 +131,34 @@ public class Condition {
     public String toString() {
         return metadataName + "=" + matches + ", mode=" + mode;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 29 * hash + Objects.hashCode(this.metadataName);
+        hash = 29 * hash + Objects.hashCode(this.matches);
+        hash = 29 * hash + Objects.hashCode(this.mode);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Condition other = (Condition) obj;
+        if (!Objects.equals(this.metadataName, other.metadataName)) {
+            return false;
+        }
+        if (!Objects.equals(this.matches, other.matches)) {
+            return false;
+        }
+        return this.mode == other.mode;
+    }
 }
