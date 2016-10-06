@@ -82,9 +82,12 @@ public class CommandConfig {
                 inv.addItem(
                         new ManagedItem(Material.REDSTONE_LAMP_OFF)
                         .setItemName(metadata.getKey())
+                        .setItemDescription("Click to enable")
+                        .setOnClickAction(player -> player.sendMessage("Not yet implemented"))
                 );
             }
         });
+        addBackButton(inv, mainInventory);
         return inv;
     }
 
