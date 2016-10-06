@@ -27,7 +27,7 @@ public class StatsAdminCommand extends SubCommand {
                     config.start(player);
                 })
                 .setItemName(ChatColor.GOLD + "Configure /stats")
-                .setItemDescription(ChatColor.GREEN + "This allows you to configure what players will see when they perform /stats"));
+                .setItemDescription(ChatColor.GREEN + "Configure /stats contents"));
     }
 
     @Override
