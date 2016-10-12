@@ -473,7 +473,7 @@ public class MySQLStorage implements StorageEngine {
         try {
             this.threadPool.shutdown();
             this.threadPool.awaitTermination(30, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException ignored) {
             plugin.info("Time-out occured while waiting for threads to shutdown - killing them.");
             this.threadPool.shutdownNow();
         }
@@ -491,11 +491,9 @@ public class MySQLStorage implements StorageEngine {
 
     private void fixConversionError() throws StorageException {
         // TODO: Implement using http://stackoverflow.com/a/3836911/1122834
-        try {
-            Connection con = this.getConnection();
+        try (Connection con = this.getConnection()) {
             fixConversionForDeath(con);
             fixConversionForKill(con);
-            con.close(); // Close all resources and return the connection to the pool
         } catch (SQLException ex) {
             throw new StorageException("Could not check if conversion was done properly", ex);
         }
