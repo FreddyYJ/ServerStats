@@ -9,6 +9,10 @@
 
     <name>Stats</name>
     <url>http://dev.bukkit.org/server-mods/lolmewnstats/</url>
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://localhost:8080/job/Stats/</url>
+    </ciManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
