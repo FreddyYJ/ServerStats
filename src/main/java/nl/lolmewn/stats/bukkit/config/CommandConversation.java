@@ -95,8 +95,9 @@ public class CommandConversation {
         public Prompt acceptInput(ConversationContext context, String input) {
             if (input.equalsIgnoreCase("disable")) {
                 // Sure thing.
+                StatDescriptor old = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
                 removeCondition(condName, true);
-                config.reloadStat(desc);
+                config.reloadStat(old, desc);
                 return END_OF_CONVERSATION;
             } else if (input.equalsIgnoreCase("quit")) {
                 return END_OF_CONVERSATION;
@@ -108,8 +109,9 @@ public class CommandConversation {
                 return this;
             } else {
                 // wowe, a new condition. Better save it!
+                StatDescriptor old = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
                 addOrEditCondition(condName, parsed);
-                config.reloadStat(desc);
+                config.reloadStat(old, desc);
                 return END_OF_CONVERSATION;
             }
         }
