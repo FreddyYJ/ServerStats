@@ -1,8 +1,8 @@
 package nl.lolmewn.stats.bukkit.config;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import mkremins.fanciful.FancyMessage;
 import nl.lolmewn.itemmanager.inv.ManagedInventory;
 import nl.lolmewn.stats.Condition;
@@ -95,9 +95,8 @@ public class CommandConversation {
         public Prompt acceptInput(ConversationContext context, String input) {
             if (input.equalsIgnoreCase("disable")) {
                 // Sure thing.
-                StatDescriptor old = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
-                removeCondition(condName, true);
-                config.reloadStat(old, desc);
+                StatDescriptor newDesc = removeCondition(condName, true);
+                config.reloadStat(desc, newDesc);
                 return END_OF_CONVERSATION;
             } else if (input.equalsIgnoreCase("quit")) {
                 return END_OF_CONVERSATION;
@@ -109,37 +108,43 @@ public class CommandConversation {
                 return this;
             } else {
                 // wowe, a new condition. Better save it!
-                StatDescriptor old = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
-                addOrEditCondition(condName, parsed);
-                config.reloadStat(old, desc);
+                StatDescriptor newDesc = addOrEditCondition(condName, parsed);
+                config.reloadStat(desc, newDesc);
                 return END_OF_CONVERSATION;
             }
         }
 
-        private void addOrEditCondition(String oldName, Condition newer) {
-            StatDescriptor old = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
-            removeCondition(oldName, false);
-            desc.addCondition(newer);
-            saveStatDescriptor(desc, old);
+        private StatDescriptor addOrEditCondition(String oldName, Condition newer) {
+            StatDescriptor newDesc = removeCondition(oldName, false);
+            newDesc.addCondition(newer);
+            saveStatDescriptor(newDesc, desc);
+            return newDesc;
         }
 
-        private void removeCondition(String condName, boolean save) {
+        private StatDescriptor removeCondition(String condName, boolean save) {
+            StatDescriptor newDesc = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
             Optional<Condition> cond = desc.getConditions().stream().filter(c -> c.getName().equals(condName)).findAny();
             if (!cond.isPresent()) {
-                return; // Don't have to check save either since there is no change.
+                return newDesc; // Don't have to check save either since there is no change.
             }
-            StatDescriptor old = new StatDescriptor(desc.getStat(), desc.getConditions().toArray(new Condition[desc.getConditions().size()]));
-            desc.getConditions().remove(cond.get());
+            newDesc.getConditions().remove(cond.get());
             if (save) {
-                saveStatDescriptor(desc, old);
+                saveStatDescriptor(newDesc, desc);
             }
+            return newDesc;
         }
 
-        private void saveStatDescriptor(StatDescriptor desc, StatDescriptor old) {
-            String line = generateLine(desc);
+        private void saveStatDescriptor(StatDescriptor old, StatDescriptor newDesc) {
+            String line = generateLine(old);
             List<String> showList = plugin.getConfig().getStringList("statsCommand.show");
-            List<String> list = showList.stream().filter(str -> !StatDescriptor.parse(str, plugin.getStatManager()).equals(old)).collect(Collectors.toList());
-            list.add(line);
+            List<String> list = new ArrayList<>(showList.size());
+            showList.stream().forEach(str -> {
+                if (StatDescriptor.parse(str, plugin.getStatManager()).equals(newDesc)) {
+                    list.add(line);
+                } else {
+                    list.add(str);
+                }
+            });
             plugin.getConfig().set("statsCommand.show", list);
             plugin.saveConfig();
         }

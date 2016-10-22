@@ -125,12 +125,15 @@ public class CommandConfig {
                     .setItemName(stat.getName())
                     .setItemDescription(stat.getDescription())
                     .setOnClickAction(p -> {
-                        this.mainInventory.clear();
                         List<String> curr = plugin.getConfig().getStringList("statsCommand.show");
                         curr.add(stat.getName());
                         plugin.getConfig().set("statsCommand.show", curr);
                         plugin.saveConfig();
-                        addItemForStat(stat.getName()).perform(p);
+                        ManagedItem item = addItemForStat(stat.getName());
+                        int slot = mainInventory.getFirstFreeSlot();
+                        mainInventory.setItem(slot - 1, mainInventory.getItemAt(slot - 2).get());
+                        mainInventory.setItem(slot - 2, item);
+                        item.perform(p);
                     }));
         });
         inv.open(player);
