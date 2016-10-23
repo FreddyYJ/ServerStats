@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ThreadLocalRandom;
 import nl.lolmewn.stats.api.StatManager;
 import nl.lolmewn.stats.api.stat.Stat;
 import nl.lolmewn.stats.api.user.StatsHolder;
@@ -38,23 +39,19 @@ public class BukkitStatsSign implements StatsSign {
     private transient final Random rand;
     private transient final Queue<UUID> pDisplayQueue = new ConcurrentLinkedQueue<>();
     private transient final Queue<Stat> sDisplayQueue = new ConcurrentLinkedQueue<>();
-    
-    public BukkitStatsSign(){
+
+    public BukkitStatsSign() {
         location = null;
         playerType = null;
         statType = null;
-        rand = null;
+        rand = ThreadLocalRandom.current();
     }
 
     public BukkitStatsSign(SignLocation location, SignPlayerType playerType, SignStatType statType) {
         this.location = location;
         this.playerType = playerType;
         this.statType = statType;
-        if (playerType == SignPlayerType.RANDOM || statType == SignStatType.RANDOM) {
-            rand = new Random();
-        } else {
-            rand = null;
-        }
+        rand = ThreadLocalRandom.current();
     }
 
     @Override
@@ -184,7 +181,7 @@ public class BukkitStatsSign implements StatsSign {
             case RANDOM:
                 statManager.getStats().stream().filter((stat) -> (stat.isEnabled())).forEach((stat) -> {
                     sDisplayQueue.add(stat);
-        });
+                });
                 break;
             default:
                 sDisplayQueue.addAll(stats);
@@ -200,9 +197,9 @@ public class BukkitStatsSign implements StatsSign {
                 }
                 return false;
             default:
-        if (users.stream().anyMatch((uuid) -> (Bukkit.getServer().getPlayer(uuid) != null))) {
-            return true;
-        }
+                if (users.stream().anyMatch((uuid) -> (Bukkit.getServer().getPlayer(uuid) != null))) {
+                    return true;
+                }
                 return false;
         }
     }
