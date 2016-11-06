@@ -9,12 +9,14 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.lolmewn.stats.Main;
@@ -46,6 +48,7 @@ public class MySQLStorage implements StorageEngine {
     private String prefix;
     private Map<String, MySQLTable> tables;
     private boolean enabled = false;
+    private ExecutorService threadPool;
 
     public MySQLStorage(Main main, MySQLConfig config) throws StorageException {
         this.plugin = main;
@@ -169,16 +172,7 @@ public class MySQLStorage implements StorageEngine {
         }
     }
 
-    @Override
-    public void save(StatsHolder user) throws StorageException {
-        if (!(user instanceof MySQLStatHolder)) {
-            // temp user for StatsUserManager
-            return;
-        }
-        MySQLStatHolder holder = (MySQLStatHolder) user;
-        if (holder.isTemp()) {
-            return;
-        }
+    public void saveUser(MySQLStatHolder holder) throws StorageException {
         String table = null;
         try (Connection con = source.getConnection()) {
             // First, make sure there's a column in the Stats_players table to maintain integrity of the table
@@ -188,8 +182,7 @@ public class MySQLStorage implements StorageEngine {
             playersPS.setString(2, holder.getName());
             playersPS.execute();
 
-            for (Iterator<Stat> statIterator = holder.getStats().iterator(); statIterator.hasNext();) {
-                Stat stat = statIterator.next();
+            for (Stat stat : holder.getStats()) {
                 plugin.debug("Saving stat data for " + stat.getName() + "...");
                 table = prefix + formatStatName(stat.getName());
                 // first, delete the values that were locally deleted. If new values were added, they will be INSERTed anyway
@@ -289,10 +282,10 @@ public class MySQLStorage implements StorageEngine {
                     }
                 }
             }
-            unlock(con, user.getUuid()); // if they're never locked, not my problem!
+            unlock(con, holder.getUuid()); // if they're never locked, not my problem!
         } catch (SQLException ex) {
             if (ex.getMessage().contains("Unknown column")) {
-                System.out.println("Please note: Stats encountered an error while trying to save user " + user.getUuid().toString());
+                System.out.println("Please note: Stats encountered an error while trying to save user " + holder.getUuid().toString());
                 System.out.println("It seems a column could not be found in the database; this is likely caused by the faulty conversion of the database from Stats 2 to Stats 3.");
                 System.out.println("For now, you can either go back to Stats 2 (how to on the DBO page), wait until this error gets fixed by the developer or manually delete the table.");
                 System.out.println("Full error below!");
@@ -300,6 +293,25 @@ public class MySQLStorage implements StorageEngine {
             System.out.println("The table causing the error: " + table);
             throw new StorageException("Something went wrong while saving the user!", ex);
         }
+    }
+
+    @Override
+    public void save(StatsHolder user) throws StorageException {
+        if (!(user instanceof MySQLStatHolder)) {
+            // temp user for StatsUserManager
+            return;
+        }
+        MySQLStatHolder holder = (MySQLStatHolder) user;
+        if (holder.isTemp()) {
+            return;
+        }
+        threadPool.submit(() -> {
+            try {
+                saveUser(holder);
+            } catch (StorageException ex) {
+                Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     public void generateTables() throws StorageException {
@@ -435,6 +447,7 @@ public class MySQLStorage implements StorageEngine {
 
     @Override
     public void enable() throws StorageException {
+        this.threadPool = Executors.newCachedThreadPool();
         this.source = new BasicDataSource();
         this.source.setDriverClassName("com.mysql.jdbc.Driver");
         this.source.setUrl("jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabase() + "?zeroDateTimeBehavior=convertToNull");
@@ -458,6 +471,13 @@ public class MySQLStorage implements StorageEngine {
     public void disable() throws StorageException {
         this.enabled = false;
         try {
+            this.threadPool.shutdown();
+            this.threadPool.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            plugin.info("Time-out occured while waiting for threads to shutdown - killing them.");
+            this.threadPool.shutdownNow();
+        }
+        try {
             this.source.close();
         } catch (SQLException ex) {
             throw new StorageException("Exception while disabling the StorageEngine", ex);
@@ -471,11 +491,9 @@ public class MySQLStorage implements StorageEngine {
 
     private void fixConversionError() throws StorageException {
         // TODO: Implement using http://stackoverflow.com/a/3836911/1122834
-        try {
-            Connection con = this.getConnection();
+        try (Connection con = this.getConnection()) {
             fixConversionForDeath(con);
             fixConversionForKill(con);
-            con.close(); // Close all resources and return the connection to the pool
         } catch (SQLException ex) {
             throw new StorageException("Could not check if conversion was done properly", ex);
         }
