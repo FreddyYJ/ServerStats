@@ -24,4 +24,8 @@ public class StorageEngineManager {
         return storageEngines.containsKey(name.toLowerCase());
     }
 
+    public Map<String, StorageEngine> getStorageEngines() {
+        return storageEngines;
+    }
+
 }

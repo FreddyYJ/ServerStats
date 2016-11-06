@@ -275,7 +275,6 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     private void scheduleDataSaver() {
         this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            Timings.startTiming("user-saving", System.currentTimeMillis());
             synchronized (userManager) {
                 userManager.getUsers().stream().forEach((holder) -> {
                     try {
@@ -285,7 +284,6 @@ public class BukkitMain extends JavaPlugin implements Main {
                     }
                 });
             }
-            debug("Saving users took " + Timings.finishTimings("user-saving", System.currentTimeMillis()) + "ms");
         }, 200L, 200L);
     }
 
