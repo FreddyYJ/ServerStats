@@ -79,7 +79,6 @@ public class BukkitMain extends JavaPlugin implements Main {
     private StatsAPI api;
     private StatManager statManager;
     private StatsUserManager userManager;
-    private final StorageEngineManager storageManager = new StorageEngineManager();
     private SignManager signManager;
 
     @Override
@@ -161,7 +160,7 @@ public class BukkitMain extends JavaPlugin implements Main {
 
     @Override
     public StorageEngineManager getStorageEngineManager() {
-        return storageManager;
+        return StorageEngineManager.getInstance();
     }
 
     public SignManager getSignManager() {

@@ -23,11 +23,14 @@ public class StatsAdminCommand extends SubCommand {
         this.inventory = new ManagedInventory(plugin, "&cAdmin inventory");
         this.config = new CommandConfig(plugin);
         inventory.setItem(0,
-                new ManagedItem(new ItemStack(Material.NETHER_STAR)).setOnClickAction((Player player) -> {
-                    config.start(player);
-                })
+                new ManagedItem(new ItemStack(Material.NETHER_STAR)).setOnClickAction(config::start)
                 .setItemName(ChatColor.GOLD + "Configure /stats")
                 .setItemDescription(ChatColor.GREEN + "Configure /stats contents"));
+        inventory.setItem(1, 
+                new ManagedItem(Material.CHEST).setOnClickAction(this::convert)
+                .setItemName(ChatColor.RED + "Change storage type")
+                .setItemDescription(ChatColor.GOLD + "You can change the storage type that Stats uses here")
+        );
     }
 
     @Override
@@ -48,6 +51,11 @@ public class StatsAdminCommand extends SubCommand {
     @Override
     public String getPermissionNode() {
         return "stats.admin";
+    }
+    
+    public void convert(Player player){
+        player.closeInventory();
+        player.sendMessage("Not yet implemented");
     }
 
 }

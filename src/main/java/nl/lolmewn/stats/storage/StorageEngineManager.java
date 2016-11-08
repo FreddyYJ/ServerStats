@@ -10,7 +10,18 @@ import nl.lolmewn.stats.api.storage.StorageEngine;
  */
 public class StorageEngineManager {
 
+    private static final StorageEngineManager INSTANCE;
     private final Map<String, StorageEngine> storageEngines = new HashMap<>();
+    
+    static{
+        INSTANCE = new StorageEngineManager();
+    }
+    
+    private StorageEngineManager(){}
+    
+    public static StorageEngineManager getInstance(){
+        return INSTANCE;
+    }
 
     public void addStorageEngine(String name, StorageEngine engine) {
         this.storageEngines.put(name.toLowerCase(), engine);
