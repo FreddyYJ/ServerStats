@@ -76,8 +76,6 @@ public class StatsPlayerCommand extends SubCommand {
                     });
                 }
             };
-            // probably need to load
-            //TODO implement thread -> load -> show
             return;
         } else {
             List<String> statsToShow = plugin.getConfig().getStringList("statsCommand.show");
