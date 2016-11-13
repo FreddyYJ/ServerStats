@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
  * @author Lolmewn
  */
 public class MySQLStorage implements StorageEngine {
-    
+
     private final Main plugin;
     private final MySQLConfig config;
     private BasicDataSource source;
@@ -50,12 +51,12 @@ public class MySQLStorage implements StorageEngine {
     private Map<String, MySQLTable> tables;
     private boolean enabled = false;
     private ThreadPoolExecutor threadPool;
-    
+
     public MySQLStorage(Main main, MySQLConfig config) throws StorageException {
         this.plugin = main;
         this.config = config;
     }
-    
+
     public void addTable(MySQLTable table) throws SQLException {
         this.tables.put(table.getName(), table);
         if (enabled) {
@@ -64,15 +65,15 @@ public class MySQLStorage implements StorageEngine {
             }
         }
     }
-    
+
     public BasicDataSource getDataSource() {
         return source;
     }
-    
+
     public ThreadPoolExecutor getThreadPool() {
         return threadPool;
     }
-    
+
     @Override
     public MySQLStatHolder load(UUID userUuid, StatManager statManager) throws StorageException {
         plugin.debug("Loading data for " + userUuid + "...");
@@ -153,14 +154,14 @@ public class MySQLStorage implements StorageEngine {
         holder.setTemp(false);
         return holder;
     }
-    
+
     public boolean isLocked(Connection con, UUID uuid) throws SQLException {
         try (PreparedStatement st = con.prepareStatement("SELECT * FROM " + prefix + "locks WHERE uuid=?")) {
             st.setString(1, uuid.toString());
             return st.executeQuery().next();
         }
     }
-    
+
     public void lock(Connection con, UUID uuid) {
         try (PreparedStatement st = con.prepareStatement("INSERT INTO " + prefix + "locks (uuid) VALUES (?)")) {
             st.setString(1, uuid.toString());
@@ -171,14 +172,14 @@ public class MySQLStorage implements StorageEngine {
             this.plugin.info("The cause was: " + ex.getLocalizedMessage() + " (errno " + ex.getErrorCode() + ")");
         }
     }
-    
+
     public void unlock(Connection con, UUID uuid) throws SQLException {
         try (PreparedStatement st = con.prepareStatement("DELETE FROM " + prefix + "locks WHERE uuid=?")) {
             st.setString(1, uuid.toString());
             st.execute();
         }
     }
-    
+
     public void saveUser(MySQLStatHolder holder) throws StorageException {
         String table = null;
         Timings.startTiming("saving-" + holder.getUuid(), System.nanoTime());
@@ -190,17 +191,17 @@ public class MySQLStorage implements StorageEngine {
             playersPS.setString(1, holder.getUuid().toString());
             playersPS.setString(2, holder.getName());
             playersPS.execute();
-            for (Stat stat : holder.getStats()) {
+            for (Entry<Stat, Collection<StatEntry>> deleted : holder.getRemovedEntries().entrySet()) {
+                Stat stat = deleted.getKey();
                 table = prefix + formatStatName(stat.getName());
-                // first, delete the values that were locally deleted. If new values were added, they will be INSERTed anyway
-                for (StatEntry deleted : holder.getRemovedEntries()) {
+                for (StatEntry deletedEntry : deleted.getValue()) {
                     StringBuilder sb = new StringBuilder("DELETE FROM ");
                     sb.append(table).append(" WHERE uuid=? ");
                     stat.getDataTypes().keySet().stream().map((metadataName) -> {
                         sb.append("AND ").append(metadataName.replace(" ", ""));
                         return metadataName;
                     }).forEach((_item) -> {
-                        if (deleted.getMetadata().containsKey(_item)) {
+                        if (deletedEntry.getMetadata().containsKey(_item)) {
                             sb.append("=? ");
                         } else {
                             sb.append(" IS NULL ");
@@ -210,18 +211,21 @@ public class MySQLStorage implements StorageEngine {
                     deletePS.setString(1, holder.getUuid().toString());
                     int idx = 2;
                     for (String metadataName : stat.getDataTypes().keySet()) {
-                        if (!deleted.getMetadata().containsKey(metadataName)) {
+                        if (!deletedEntry.getMetadata().containsKey(metadataName)) {
                             continue; // Skip for IS NULL
                         }
                         if (stat.getDataTypes().get(metadataName) == DataType.TIMESTAMP) {
-                            deletePS.setObject(idx++, new Timestamp((long) deleted.getMetadata().get(metadataName)));
+                            deletePS.setObject(idx++, new Timestamp((long) deletedEntry.getMetadata().get(metadataName)));
                         } else {
-                            deletePS.setObject(idx++, deleted.getMetadata().get(metadataName));
+                            deletePS.setObject(idx++, deletedEntry.getMetadata().get(metadataName));
                         }
                     }
                     deletePS.execute();
                 }
-                holder.getRemovedEntries().clear();
+            }
+            holder.getRemovedEntries().clear();
+            for (Stat stat : holder.getStats()) {
+                table = prefix + formatStatName(stat.getName());
                 Queue<StatEntry> save = holder.getAdditions().get(stat);
                 if (save == null || save.isEmpty()) {
                     continue;
@@ -303,7 +307,7 @@ public class MySQLStorage implements StorageEngine {
         }
         plugin.debug("Saving user " + holder.getUuid() + " took " + (Timings.finishTimings("saving-" + holder.getUuid(), System.nanoTime()) / 1000000) + "ms");
     }
-    
+
     @Override
     public void save(StatsHolder user) throws StorageException {
         if (!(user instanceof MySQLStatHolder)) {
@@ -322,7 +326,7 @@ public class MySQLStorage implements StorageEngine {
             }
         });
     }
-    
+
     public void generateTables() throws StorageException {
         MySQLTable playersTable = new MySQLTable(prefix + "players");
         playersTable.addColumn("uuid", DataType.STRING).addAttributes(MySQLAttribute.PRIMARY_KEY, MySQLAttribute.NOT_NULL, MySQLAttribute.UNIQUE);
@@ -343,7 +347,7 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Failed to generate tables for stats", ex);
         }
     }
-    
+
     private void generateTable(Connection con, Stat stat, MySQLTable playersTable) throws SQLException {
         MySQLTable table = generateTable(stat);
         this.tables.put(table.getName(), table);
@@ -351,7 +355,7 @@ public class MySQLStorage implements StorageEngine {
         String createQuery = table.generateCreateQuery();
         con.createStatement().execute(createQuery);
     }
-    
+
     public MySQLTable generateTable(Stat stat) {
         MySQLTable table = new MySQLTable(prefix + formatStatName(stat.getName()));
         table.addColumn("id", DataType.LONG).addAttributes(
@@ -367,7 +371,7 @@ public class MySQLStorage implements StorageEngine {
         });
         return table;
     }
-    
+
     public void checkTables() throws StorageException {
         try (Connection con = this.source.getConnection()) {
             for (MySQLTable table : this.tables.values()) {
@@ -401,7 +405,7 @@ public class MySQLStorage implements StorageEngine {
                     }
                     st.executeUpdate(sb.toString());
                 }
-                
+
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                     for (MySQLColumn column : table.getColumns()) {
                         if (!hasColumnName(rsmd, column.getName())) {
@@ -415,7 +419,7 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Failed to check tables for stats", ex);
         }
     }
-    
+
     private boolean hasColumnName(ResultSetMetaData rsmd, String name) throws SQLException {
         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
             if (rsmd.getColumnName(i).equalsIgnoreCase(name)) {
@@ -424,19 +428,19 @@ public class MySQLStorage implements StorageEngine {
         }
         return false;
     }
-    
+
     public String formatStatName(String name) {
         return name.toLowerCase().replace(" ", "_");
     }
-    
+
     public Connection getConnection() throws SQLException {
         return source.getConnection();
     }
-    
+
     public String getPrefix() {
         return prefix;
     }
-    
+
     @Override
     public void delete(StatsHolder user) throws StorageException {
         try {
@@ -453,7 +457,7 @@ public class MySQLStorage implements StorageEngine {
         }
         // idea for improvement: iterate over the user's stats instead of over every table
     }
-    
+
     @Override
     public void enable() throws StorageException {
         this.threadPool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
@@ -475,7 +479,7 @@ public class MySQLStorage implements StorageEngine {
         }, 1);
         this.enabled = true;
     }
-    
+
     @Override
     public void disable() throws StorageException {
         this.enabled = false;
@@ -492,12 +496,12 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Exception while disabling the StorageEngine", ex);
         }
     }
-    
+
     @Override
     public boolean isEnabled() {
         return this.enabled;
     }
-    
+
     private void fixConversionError() throws StorageException {
         // TODO: Implement using http://stackoverflow.com/a/3836911/1122834
         try (Connection con = this.getConnection()) {
@@ -507,7 +511,7 @@ public class MySQLStorage implements StorageEngine {
             throw new StorageException("Could not check if conversion was done properly", ex);
         }
     }
-    
+
     private void fixConversionForKill(Connection con) throws SQLException {
         Statement st = con.createStatement();
         ResultSet needsFix = st.executeQuery("SELECT * FROM " + getPrefix() + "kill WHERE (convert(entityType using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
@@ -539,12 +543,12 @@ public class MySQLStorage implements StorageEngine {
         }
         // Delete all old non-adhering rows from the database
         st.execute("DELETE FROM " + getPrefix() + "kill WHERE (convert(entityType using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
-        
+
         if (updated != 0) {
             plugin.info("Fixed " + updated + " rows of data in the Kill table");
         }
     }
-    
+
     private void fixConversionForDeath(Connection con) throws SQLException {
         Statement st = con.createStatement();
         ResultSet needsFix = st.executeQuery("SELECT * FROM " + getPrefix() + "death WHERE (convert(cause using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
@@ -573,10 +577,10 @@ public class MySQLStorage implements StorageEngine {
         }
         // Delete all old non-adhering rows from the database
         st.execute("DELETE FROM " + getPrefix() + "death WHERE (convert(cause using latin1) COLLATE latin1_general_cs) NOT REGEXP '^[A-Z,_]+$'");
-        
+
         if (updated != 0) {
             plugin.info("Fixed " + updated + " rows of data in the Death table");
         }
     }
-    
+
 }

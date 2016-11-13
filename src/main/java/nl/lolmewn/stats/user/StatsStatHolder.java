@@ -24,7 +24,7 @@ public class StatsStatHolder implements StatsHolder {
     private final UUID uuid;
     private final String name;
     private final Map<Stat, List<StatEntry>> entries;
-    private final List<StatEntry> removedEntries = new ArrayList<>();
+    private final Map<Stat, Collection<StatEntry>> removedEntries = new ConcurrentHashMap<>();
 
     public StatsStatHolder(UUID uuid, String name) {
         this.uuid = uuid;
@@ -83,7 +83,7 @@ public class StatsStatHolder implements StatsHolder {
         return uuid;
     }
 
-    public synchronized List<StatEntry> getRemovedEntries() {
+    public synchronized Map<Stat, Collection<StatEntry>> getRemovedEntries() {
         return removedEntries;
     }
 
@@ -101,7 +101,7 @@ public class StatsStatHolder implements StatsHolder {
             return;
         }
         synchronized (removedEntries) {
-            this.removedEntries.addAll(this.getStats(stat));
+            this.removedEntries.computeIfAbsent(stat, s -> new ArrayList<>()).addAll(getStats(stat));
         }
         getStats().remove(stat);
     }
@@ -116,7 +116,7 @@ public class StatsStatHolder implements StatsHolder {
                 removeStat(stat);
             }
             synchronized (removedEntries) {
-                this.removedEntries.add(entry);
+                this.removedEntries.computeIfAbsent(stat, s -> new ArrayList<>()).add(entry);
             }
         }
     }
