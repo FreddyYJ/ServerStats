@@ -119,7 +119,7 @@ public class BukkitMain extends JavaPlugin implements Main {
         this.getServer().getPluginManager().registerEvents(new PlayerIOEvents(this), this);
         this.getServer().getPluginManager().registerEvents(new SignEvents(this), this);
         new SignTask(this);
-        this.getCommand("stats").setExecutor(new BukkitCommand(this));
+        this.getCommand("lolmewnstats").setExecutor(new BukkitCommand(this));
         this.startStats();
         this.registerAPI();
     }
