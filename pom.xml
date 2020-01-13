@@ -4,32 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.lolmewn.stats</groupId>
     <artifactId>Stats</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <name>Stats</name>
-    <url>http://dev.bukkit.org/server-mods/lolmewnstats/</url>
-    <ciManagement>
-        <system>hudson</system>
-        <url>http://localhost:8080/job/Stats/</url>
-    </ciManagement>
+    <url>https://github.com/FreddyYJ/ServerStats</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <repositories>
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>lolmewn-repo</id>
-            <url>http://lolmewn.nl:8081/repository/maven-snapshots/</url>
-        </repository>
-        <repository>
-            <id>fanciful-mvn-repo</id>
-            <url>http://repo.stealthyone.com/content/groups/public</url>
-        </repository>
-    </repositories>
     <dependencies>
         <dependency>
             <groupId>nl.lolmewn.stats</groupId>
@@ -190,16 +172,4 @@
         </plugins>
     </build>
     
-    <distributionManagement>
-        <repository>
-            <id>deployment</id>
-            <name>Internal Releases</name>
-            <url>http://lolmewn.nl:8081/repository/maven-releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>deployment</id>
-            <name>Internal Snapshots</name>
-            <url>http://lolmewn.nl:8081/repository/maven-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
